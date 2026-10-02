@@ -8,7 +8,7 @@
 <title>劇情整理小工具</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@200;300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#E7EAE3; --surface:#F4F5F1; --ink:#1E2433; --mute:#5C6373; --line:#C8CDC3;
@@ -246,6 +246,8 @@ body.v2{
   --ghost:#ADAEA9; --grid:rgba(17,18,20,.055); --stripe:rgba(17,18,20,.2);
   --jade:var(--accent); --jade-ink:var(--accent-ink); --jade-soft:var(--accent-soft);
   --seal:var(--ink); --seal-soft:transparent;
+  --sans:"PingFang TC","Noto Sans CJK TC","Noto Sans TC","Source Han Sans TC","Heiti TC","Microsoft JhengHei",sans-serif;
+  --serif:var(--sans);
   --disp:"Space Grotesk",var(--sans);
   overflow-x:clip;
 }
@@ -259,6 +261,7 @@ body.v2{
   --bg:#0E0F11; --surface:#17181B; --ink:#ECECE8; --mute:#8B8D91; --line:#2B2D31; --line2:#55585E;
   --accent:#4A68FF; --accent-soft:#151B3D; --ghost:#3A3C42; --grid:rgba(236,236,232,.045); --stripe:rgba(236,236,232,.24);
 }
+html{scrollbar-gutter:stable}
 body.v2 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* 頁首：日期被底線裁切的大數字 */
@@ -1671,19 +1674,19 @@ function vSetup(){
 }
 function render(){
   const setup=DB.ready===false;document.body.classList.toggle('setup',setup);document.body.classList.remove('navhide');document.body.dataset.tab=ui.tab;
-  if(setup){$('#storyName').textContent='劇情整理小工具';$('#storySub').textContent='尚未建立故事';$('#main').innerHTML=vSetup();return}
+  if(setup){$('#storyName').textContent='劇情整理小工具';$('#storySub').textContent='尚未建立故事';$('#main').innerHTML=vSetup();syncTyping();return}
   $('#storyName').textContent=S.name||'未命名故事';
   $('#storySub').textContent=`${S.undated?'尚未設定日期':`${S.cur.y}年　故事第 ${storyDay()} 天`}　${segLabel(curSeg())==='序章'?'尚未開始正式段落':`已整理 ${curSeg()} 段`}`;
   if(S.undated){$('#sealMn').textContent='日期';$('#sealNum').textContent='未定';$('#sealD').hidden=true;$('#seal').classList.add('undated')}
   else{$('#sealMn').textContent=monthName(S.cur.m);$('#sealNum').textContent=S.cur.d;$('#sealD').hidden=false;$('#seal').classList.remove('undated')}
   document.querySelectorAll('.tab').forEach(t=>{const on=t.dataset.tab===ui.tab;t.classList.toggle('on',on);t.setAttribute('aria-current',on?'page':'false')});
-  $('#main').innerHTML=({work:vWork,timeline:vTimeline,threads:vThreads,chars:vChars,settings:vSettings})[ui.tab]();
+  $('#main').innerHTML=({work:vWork,timeline:vTimeline,threads:vThreads,chars:vChars,settings:vSettings})[ui.tab]();syncTyping();
 }
 
 /* ---------- sheet & forms ---------- */
 let formCb=null,confirmCb=null;
 function showSheet(html){$('#sheetBody').innerHTML=html;$('#sheet').hidden=false;const f=$('#sheetBody').querySelector('input:not([data-nofocus]),textarea');if(f)setTimeout(()=>f.focus(),60)}
-function closeSheet(){$('#sheet').hidden=true;$('#sheetBody').innerHTML='';formCb=confirmCb=formExtraCb=null}
+function closeSheet(){$('#sheet').hidden=true;$('#sheetBody').innerHTML='';formCb=confirmCb=formExtraCb=null;syncTyping()}
 let formExtraCb=null;
 function openForm(title,fields,vals,cb,note,extra){
   formCb=cb;formExtraCb=extra?extra.cb:null;
@@ -2046,8 +2049,9 @@ document.addEventListener('change',e=>{
   else if(t.dataset.fsstatus){const f=S.foreshadows.find(x=>x.id===t.dataset.fsstatus);f.status=t.value;f.lastSeg=Math.max(f.lastSeg,curSeg());save();render();toast(`已改為「${FSN[t.value]}」`)}
   else if(t.dataset.chartype){const c=S.characters.find(x=>x.id===t.dataset.chartype);if(c&&CTYPE[t.value]){c.type=t.value;if(!c.profile)c.profile={};save();render();toast(`已改為${CTYPE[t.value]}`)}}
 });
-document.addEventListener('focusin',e=>{if(e.target.matches('input:not([type=checkbox]),textarea,select'))document.body.classList.add('typing')});
-document.addEventListener('focusout',()=>document.body.classList.remove('typing'));
+function syncTyping(){const a=document.activeElement;document.body.classList.toggle('typing',!!(a&&a!==document.body&&a.isConnected&&a.matches('input:not([type=checkbox]):not([type=file]),textarea,select')))}
+document.addEventListener('focusin',syncTyping);
+document.addEventListener('focusout',()=>setTimeout(syncTyping,0));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)closeSheet()});
 function boot(){
   try{migrateAll();render()}
@@ -2063,13 +2067,17 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
 </script>
 <script>
 (()=>{let last=window.scrollY,ticking=false;
-  const upd=()=>{ticking=false;const y=window.scrollY,b=document.body;
-    const atEnd=y+innerHeight>=document.documentElement.scrollHeight-4;
+  const upd=()=>{ticking=false;const y=Math.max(0,window.scrollY),b=document.body;
+    if(b.classList.contains('typing'))syncTyping();
+    const atEnd=y+innerHeight>=document.documentElement.scrollHeight-24;
     if(y<=60||atEnd)b.classList.remove('navhide');
     else if(y>last+6)b.classList.add('navhide');
     else if(y<last-6)b.classList.remove('navhide');
     if(Math.abs(y-last)>6||y<=60)last=y};
   addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(upd)}},{passive:true});
+  const reveal=()=>{last=Math.max(0,window.scrollY);if(document.documentElement.scrollHeight<=innerHeight+80)document.body.classList.remove('navhide')};
+  addEventListener('resize',reveal);
+  new MutationObserver(reveal).observe(document.getElementById('main'),{childList:true});
 })();
 </script>
 </body>
