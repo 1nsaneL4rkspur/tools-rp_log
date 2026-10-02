@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>對戲帳本</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E7EAE3; --surface:#F4F5F1; --ink:#1E2433; --mute:#5C6373; --line:#C8CDC3;
+  --jade:#3B7368; --jade-ink:#FFFFFF; --jade-soft:#D3E2DC;
+  --seal:#AE402B; --seal-soft:#F0D9D1;
+  --sans:"Noto Sans TC","PingFang TC","Heiti TC","Microsoft JhengHei",sans-serif;
+  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181D; --surface:#1D232A; --ink:#E4E7E1; --mute:#9AA1AC; --line:#333B44;
+    --jade:#72B3A5; --jade-ink:#0F1A17; --jade-soft:#22352F;
+    --seal:#E27D65; --seal-soft:#3A2420; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181D; --surface:#1D232A; --ink:#E4E7E1; --mute:#9AA1AC; --line:#333B44;
+  --jade:#72B3A5; --jade-ink:#0F1A17; --jade-soft:#22352F;
+  --seal:#E27D65; --seal-soft:#3A2420; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-size:16px}
+:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.story{flex:1;min-width:0}
+.story h1{margin:0;font-family:var(--serif);font-weight:900;font-size:1.3rem;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.story p{margin:0;color:var(--mute);font-size:.82rem}
+.seal{flex:none;width:52px;height:52px;border:2px solid var(--seal);border-radius:4px;color:var(--seal);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--serif);line-height:1;transform:rotate(-3deg);background:var(--seal-soft)}
+.seal small{font-size:.66rem;font-weight:600}
+.seal b{font-size:1.25rem;font-weight:900;margin:2px 0}
+
+main{max-width:680px;margin:0 auto;padding:6px 18px calc(110px + env(safe-area-inset-bottom,0px))}
+
+/* sections */
+.sec{padding:20px 0 22px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec h2{margin:0 0 6px;font-family:var(--serif);font-weight:600;font-size:1.12rem;display:flex;align-items:center;gap:10px}
+.stepn{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--jade);color:var(--jade);font-family:var(--sans);font-size:.85rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.sec.muted h2{color:var(--mute)}
+.sec.muted .stepn{border-color:var(--line);color:var(--mute)}
+.hint{margin:0 0 12px;color:var(--mute);font-size:.88rem}
+h3.sub{margin:18px 0 8px;font-size:.95rem;font-weight:700;color:var(--mute)}
+
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-size:.95rem;cursor:pointer;min-height:42px}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--jade);border-color:var(--jade);color:var(--jade-ink);font-weight:700}
+.btn.big{width:100%;min-height:52px;font-size:1.02rem}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--seal);border-color:var(--seal)}
+.btn.sm{min-height:34px;padding:5px 11px;font-size:.85rem;border-radius:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.row > .grow{flex:1}
+.stack > * + *{margin-top:10px}
+
+textarea,input[type=text],input[type=number],select{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:110px;line-height:1.55}
+pre.prev{white-space:pre-wrap;background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:12px;font-family:var(--sans);font-size:.85rem;max-height:260px;overflow:auto;margin:10px 0 0}
+
+.notice{background:var(--seal-soft);border-left:3px solid var(--seal);padding:12px 14px;border-radius:0 10px 10px 0;margin:16px 0 0;font-size:.9rem}
+.notice .row{margin-top:8px}
+.ok{background:var(--jade-soft);border-left-color:var(--jade)}
+
+/* segmented */
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin:16px 0 4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:8px 4px;min-height:40px;font-size:.92rem;cursor:pointer;color:var(--mute)}
+.seg button.on{background:var(--jade);color:var(--jade-ink);font-weight:700}
+.seg button .n{font-size:.78rem;opacity:.8;margin-left:3px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.8rem;background:var(--surface)}
+button.chip{cursor:pointer;min-height:34px;padding:4px 12px;font-size:.88rem}
+button.chip.on{border-color:var(--jade);background:var(--jade-soft);color:var(--ink);font-weight:700}
+
+/* parsed preview */
+.pitem{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px;background:var(--surface)}
+.pitem .g{display:grid;grid-template-columns:72px 1fr 1fr;gap:6px}
+.pitem .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.pitem input,.pitem select,.pitem textarea{padding:7px 9px;border-radius:8px;background:var(--bg)}
+.pitem textarea{min-height:60px;margin-top:6px}
+.pitem .k{font-size:.75rem;color:var(--mute);display:block;margin-bottom:2px}
+.pitem .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:.82rem;color:var(--mute)}
+.err{color:var(--seal);font-size:.85rem;margin:6px 0 0}
+
+/* timeline */
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:16px 0 0}
+.filters select{padding:8px 8px;font-size:16px}
+.day{margin-top:22px}
+.dayhead{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.dseal{font-family:var(--serif);color:var(--seal);border:1.5px solid var(--seal);border-radius:3px;padding:1px 8px;font-size:.85rem;font-weight:600;background:var(--seal-soft)}
+.dseal b{font-size:1.05rem;font-weight:900;margin:0 2px}
+.dayhead .rule{flex:1;height:1px;background:var(--line)}
+.dayhead .cnt{font-size:.78rem;color:var(--mute)}
+.ev{border-left:2px solid var(--line);margin-left:12px;padding:10px 0 10px 16px;position:relative}
+.ev::before{content:"";position:absolute;left:-6px;top:17px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--mute)}
+.ev.h::before{background:var(--seal);border-color:var(--seal)}
+.ev.m::before{border-color:var(--jade)}
+.ev-btn{all:unset;display:block;width:100%;cursor:pointer}
+.ev-btn:focus-visible{outline:2px solid var(--jade);outline-offset:3px;border-radius:6px}
+.ev .sum{font-size:1rem;line-height:1.55}
+.ev .meta{font-size:.8rem;color:var(--mute);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 10px}
+.ev .chips{margin-top:6px}
+.ev .more{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.imp-tag{color:var(--seal);font-weight:700}
+
+/* list items */
+.item{padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .name{font-weight:700}
+.item .desc{margin-top:2px}
+.item .meta{font-size:.8rem;color:var(--mute);margin-top:4px}
+.stale{display:inline-block;font-size:.75rem;color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:0 6px;margin-left:6px;font-weight:500;vertical-align:2px}
+.item .row{margin-top:8px}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{width:22px;height:22px;margin-top:2px;accent-color:var(--jade);flex:none}
+.done .desc{text-decoration:line-through;color:var(--mute)}
+
+.card-draw{border:1.5px solid var(--jade);border-radius:12px;padding:18px;margin-top:12px;background:var(--jade-soft)}
+.card-draw .cat{font-size:.8rem;color:var(--mute)}
+.card-draw .txt{font-family:var(--serif);font-weight:600;font-size:1.15rem;margin-top:4px}
+ol.qs{margin:10px 0 0;padding-left:1.4em}
+ol.qs li{margin:6px 0}
+
+/* characters */
+.char{border-bottom:1px solid var(--line)}
+.char-btn{all:unset;display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;cursor:pointer}
+.char-btn:focus-visible{outline:2px solid var(--jade);outline-offset:2px;border-radius:6px}
+.avatar{flex:none;width:40px;height:40px;border-radius:50%;background:var(--jade-soft);color:var(--jade);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:1.1rem}
+.char-btn .info{flex:1;min-width:0}
+.char-btn .info b{display:block}
+.char-btn .info span{font-size:.82rem;color:var(--mute)}
+.chev{color:var(--mute);transition:transform .15s}
+.char.open .chev{transform:rotate(90deg)}
+.cdetail{padding:0 0 16px 52px}
+.stt{display:grid;grid-template-columns:62px 1fr;gap:4px 10px;font-size:.9rem}
+.stt dt{color:var(--mute)}
+.stt dd{margin:0}
+.stt dd small{color:var(--mute)}
+.hist{margin:10px 0 0;padding:0;list-style:none;font-size:.85rem}
+.hist li{padding:5px 0;border-top:1px dashed var(--line);display:flex;gap:8px;align-items:flex-start}
+.hist li .t{flex:1}
+.hist li .d{color:var(--mute);flex:none;font-size:.78rem;padding-top:2px}
+.secret{padding:14px 0;border-bottom:1px solid var(--line)}
+.secret .name{font-weight:700}
+.secret .knows{font-size:.85rem;margin-top:6px}
+.secret .knows span{color:var(--mute);margin-right:6px}
+.chip.yes{border-color:var(--jade);color:var(--jade)}
+.chip.no{color:var(--mute);border-style:dashed}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar-in{max-width:680px;margin:0 auto;display:flex}
+.tab{flex:1;border:0;background:transparent;padding:10px 2px 12px;min-height:56px;font-size:.82rem;color:var(--mute);cursor:pointer;position:relative}
+.tab.on{color:var(--jade);font-weight:700}
+.tab.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--jade)}
+.fab{position:fixed;right:18px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:31;width:56px;height:56px;border-radius:50%;border:0;background:var(--seal);color:#fff;font-family:var(--serif);font-weight:900;font-size:1.05rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+@media (min-width:720px){.fab{right:calc(50% - 340px + 18px)}}
+@media (max-width:760px){body.typing .tabbar,body.typing .fab{display:none}}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.scrim{position:absolute;inset:0;background:rgba(10,14,20,.45)}
+.panel{position:relative;width:100%;max-width:680px;max-height:88%;overflow:auto;background:var(--bg);border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+@media (prefers-reduced-motion:no-preference){.panel{animation:up .2s ease-out}@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}}
+.panel h3{margin:0 0 14px;font-family:var(--serif);font-size:1.15rem}
+.fld{display:block;margin-bottom:12px}
+.fld > span{display:block;font-size:.82rem;color:var(--mute);margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s;max-width:86vw;text-align:center}
+.toast.show{opacity:1}
+.empty{color:var(--mute);text-align:center;padding:36px 10px;font-size:.92rem}
+.small{font-size:.82rem;color:var(--mute)}
+
+/* v2 additions */
+.mdiv{display:flex;align-items:center;gap:10px;margin:30px 0 0;font-family:var(--serif);font-weight:900;font-size:1.05rem;color:var(--ink)}
+.mdiv::after{content:"";flex:1;height:2px;background:var(--ink);opacity:.18}
+.gap{margin:14px 0 0 12px;padding:6px 0 6px 16px;border-left:2px dotted var(--mute);font-size:.8rem;color:var(--mute)}
+.dseal.vague{border-style:dashed;background:transparent;color:var(--mute);border-color:var(--mute)}
+.warn-tag{color:var(--seal);font-weight:700}
+.modebar{margin-top:16px}
+.prof{display:grid;grid-template-columns:62px 1fr;gap:4px 10px;font-size:.9rem;margin:0 0 12px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.prof dt{color:var(--mute)}
+.prof dd{margin:0}
+.grp{margin:22px 0 2px;font-size:.85rem;font-weight:700;color:var(--mute)}
+.typetag{font-size:.72rem;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:6px;color:var(--mute);font-weight:500;vertical-align:2px}
+.typetag.self{border-color:var(--jade);color:var(--jade)}
+.avatar.other{background:transparent;border:1.5px dashed var(--mute);color:var(--mute)}
+.seal small.mn{font-size:.62rem}
+body.setup .tabbar,body.setup .fab,body.setup .seal{display:none}
+.ev.q::before{border-radius:2px;background:var(--jade-soft);border-color:var(--jade);transform:rotate(45deg)}
+.qt{font-family:var(--serif);font-weight:600;font-size:1rem;line-height:1.65}
+.qtype{color:var(--jade);font-weight:700}
+.fv{all:unset;cursor:pointer;border-bottom:1px dashed var(--mute);line-height:1.5}
+.fv:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+.chip.add{border-style:dashed;color:var(--jade);background:transparent}
+.stt dd .chips{gap:5px}
+.stt{row-gap:8px}
+details.fold{margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+details.fold summary{cursor:pointer;font-size:.88rem;color:var(--mute);padding:6px 0;list-style-position:inside}
+.improw{padding:12px 0;border-bottom:1px solid var(--line)}
+.sec-btn{all:unset;display:flex;align-items:center;gap:8px;width:100%;cursor:pointer}
+.sec-btn .name{flex:1}
+.sec-btn:focus-visible{outline:2px solid var(--jade);outline-offset:3px;border-radius:6px}
+.chip.subj{border-color:var(--seal);color:var(--seal);background:var(--seal-soft)}
+button.chip.subj{font-size:.85rem}
+.chip.ck{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:4px 12px;cursor:pointer;font-size:.9rem}
+.chip.ck input{width:18px;height:18px;margin:0;accent-color:var(--jade)}
+.chip.ck:has(input:checked){border-color:var(--jade);background:var(--jade-soft)}
+.fld > .chips{margin-top:2px}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="story"><h1 id="storyName">對戲帳本</h1><p id="storySub"></p></div>
+  <div class="seal" aria-label="目前日期"><small class="mn" id="sealMn">1月</small><b id="sealNum">1</b><small>日</small></div>
+</div></header>
+
+<main id="main"></main>
+
+<button class="fab" data-act="quickNote" aria-label="快速記錄">記</button>
+<nav class="tabbar" aria-label="分頁"><div class="tabbar-in">
+  <button class="tab" data-act="tab" data-tab="work">工作台</button>
+  <button class="tab" data-act="tab" data-tab="timeline">時間軸</button>
+  <button class="tab" data-act="tab" data-tab="threads">伏筆與靈感</button>
+  <button class="tab" data-act="tab" data-tab="chars">角色</button>
+  <button class="tab" data-act="tab" data-tab="settings">設定</button>
+</div></nav>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="scrim" data-act="closeSheet"></div>
+  <div class="panel" role="dialog" aria-modal="true"><div id="sheetBody"></div></div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+
+<script>
+const KEY='rp-ledger-v2';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const uid=()=>Math.random().toString(36).slice(2,10);
+const IMP={h:'高',m:'中',l:'低'};
+const FSN={planted:'新埋下',developing:'發展中',resolved:'已回收'};
+const CATS=['位置','身體','持有物','關係','心境','知情'];
+const SINGLE=['位置','身體','心境'],LISTC=['持有物','知情'];
+const QT=['承諾','坦白','謊言','威脅','其他'];
+const QPEND={'承諾':'已兌現','謊言':'已揭穿','威脅':'已解除'};
+const PROF=[['goal','目標'],['weak','弱點'],['secret','秘密'],['rel','既有關係']];
+const splitNames=s=>String(s||'').split(/[、,，\/／\s]+/).map(x=>x.trim()).filter(Boolean);
+const clean=s=>String(s||'').replace(/^[\s,，、：:]+|[\s,，、：:]+$/g,'');
+
+const OLD_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+所有整理內容請放在同一則回覆中。
+只記錄劇情中發生的事，不需要整理或補充角色設定。
+
+本段起始時間：{起始日期}
+目前未回收的伏筆：
+{伏筆清單}
+角色名單（請沿用以下名稱）：
+{角色名單}
+
+請嚴格依下列格式輸出，不要加入其他說明：
+
+【事件】
+時間：+N天 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，最多12個，只記錄影響後續劇情的事件）
+
+【伏筆】
+名稱：簡短名稱，舊伏筆請沿用上方名稱
+狀態：新埋下／推進／回收
+內容：
+相關角色：
+
+【未解衝突】
+內容：
+相關角色：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情類別填寫
+變化：30字內
+
+（只記錄本段有變化的項目，每項變化一個區塊）
+
+整理完畢後，等待我的指示再繼續角色扮演。`;
+const OLD3_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+所有整理內容請放在同一則回覆中。
+只記錄劇情中發生的事，不需要整理或補充角色設定。
+
+本段起始時間：{起始日期}
+目前未回收的伏筆：
+{伏筆清單}
+角色名單（請沿用以下名稱）：
+{角色名單}
+
+請嚴格依下列格式輸出，不要加入其他說明：
+
+【事件】
+時間：+N天 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，最多12個，只記錄影響後續劇情的事件）
+
+【伏筆】
+名稱：簡短名稱，舊伏筆請沿用上方名稱
+狀態：新埋下／推進／回收
+內容：
+相關角色：
+
+【未解衝突】
+內容：
+相關角色：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+變化：30字內，持有物請填物品名稱
+
+（只記錄本段有變化的項目，每項變化一個區塊）
+
+【關鍵台詞】
+時間：+N天 時段
+說話者：
+對象：
+台詞：原句照錄，40字內，過長可節錄
+類型：承諾／坦白／謊言／威脅／其他
+原因：為何影響後續，20字內
+
+（最多5句，只記錄之後可能被提起、引用或兌現的台詞）
+
+整理完畢後，等待我的指示再繼續角色扮演。`;
+const DEFAULT_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+所有整理內容請放在同一則回覆中。
+只記錄劇情中發生的事，不需要整理或補充角色設定。
+
+本段起始時間：{起始日期}
+目前未回收的伏筆：
+{伏筆清單}
+角色名單（請沿用以下名稱）：
+{角色名單}
+目前已記錄的秘密（知情類別請沿用以下措辭）：
+{秘密清單}
+
+請嚴格依下列格式輸出，不要加入其他說明：
+
+【事件】
+時間：+N天 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，最多12個，只記錄影響後續劇情的事件）
+
+【伏筆】
+名稱：簡短名稱，舊伏筆請沿用上方名稱
+狀態：新埋下／推進／回收
+內容：
+相關角色：
+
+【未解衝突】
+內容：
+相關角色：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+（只記錄本段有變化的項目，每項變化一個區塊）
+
+【關鍵台詞】
+時間：+N天 時段
+說話者：
+對象：
+台詞：原句照錄，40字內，過長可節錄
+類型：承諾／坦白／謊言／威脅／其他
+原因：為何影響後續，20字內
+
+（最多5句，只記錄之後可能被提起、引用或兌現的台詞）
+
+整理完畢後，等待我的指示再繼續角色扮演。`;
+
+const OLD_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
+
+規則：
+1. 只轉換格式，不要推測或補充紀錄中沒有的內容
+2. 時間請沿用我寫的故事時間，格式為「YYYY年M月D日 時段」，只知道年或月時照實填寫
+3. 資訊不足的欄位請留空
+4. 所有內容放在同一則回覆中，不要加入其他說明
+
+【事件】
+時間：YYYY年M月D日 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，依時間先後排列）
+
+若紀錄中有提到尚未解決的懸念或伏筆，請另外列出：
+
+【伏筆】
+名稱：
+狀態：新埋下／推進
+內容：
+相關角色：
+
+若紀錄中有提到角色目前的處境，請另外列出：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情類別填寫
+變化：30字內
+
+以下是我的紀錄：
+（在此貼上）`;
+const OLD3_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
+
+規則：
+1. 只轉換格式，不要推測或補充紀錄中沒有的內容
+2. 時間請沿用我寫的故事時間，格式為「YYYY年M月D日 時段」，只知道年或月時照實填寫
+3. 資訊不足的欄位請留空
+4. 所有內容放在同一則回覆中，不要加入其他說明
+
+【事件】
+時間：YYYY年M月D日 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，依時間先後排列）
+
+若紀錄中有提到尚未解決的懸念或伏筆，請另外列出：
+
+【伏筆】
+名稱：
+狀態：新埋下／推進
+內容：
+相關角色：
+
+若紀錄中有提到角色目前的處境，請另外列出：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+變化：30字內，持有物請填物品名稱
+
+若紀錄中有重要台詞，請另外列出：
+
+【關鍵台詞】
+時間：YYYY年M月D日 時段
+說話者：
+對象：
+台詞：原句照錄，40字內
+類型：承諾／坦白／謊言／威脅／其他
+原因：20字內
+
+以下是我的紀錄：
+（在此貼上）`;
+const DEFAULT_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
+
+規則：
+1. 只轉換格式，不要推測或補充紀錄中沒有的內容
+2. 時間請沿用我寫的故事時間，格式為「YYYY年M月D日 時段」，只知道年或月時照實填寫
+3. 資訊不足的欄位請留空
+4. 所有內容放在同一則回覆中，不要加入其他說明
+
+【事件】
+時間：YYYY年M月D日 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，依時間先後排列）
+
+若紀錄中有提到尚未解決的懸念或伏筆，請另外列出：
+
+【伏筆】
+名稱：
+狀態：新埋下／推進
+內容：
+相關角色：
+
+若紀錄中有提到角色目前的處境，請另外列出：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+若紀錄中有重要台詞，請另外列出：
+
+【關鍵台詞】
+時間：YYYY年M月D日 時段
+說話者：
+對象：
+台詞：原句照錄，40字內
+類型：承諾／坦白／謊言／威脅／其他
+原因：20字內
+
+以下是我的紀錄：
+（在此貼上）`;
+
+const DEFAULT_QUESTIONS=['你的角色想要的東西，現在離他多遠？','你的角色的弱點，最近有沒有被碰觸到？','哪段關係目前最不穩定？','有什麼秘密快藏不住了？','哪個伏筆已經太久沒有推進？','目前誰知道得最多，誰被蒙在鼓裡？','對立勢力這段時間在做什麼？','哪個角色最近太順利了？','有沒有一個地點還沒被利用？','如果時間快轉三天，會發生什麼？','主角現在最不想面對的是什麼？','上一段的情緒基調，下一段可以如何反轉？'];
+const DEFAULT_CARDS={
+ '意外事件':['一封信被送到錯的人手上','約定的會面對象沒有出現','熟悉的物品出現在不該出現的地方','一場意外迫使所有人留在原地','有人認出了主角的真實身分','原本可靠的路線突然無法通行'],
+ '關係變化':['兩個角色意外發現彼此的共同點','一個小謊言被拆穿','某人開始刻意迴避另一人','有人為了對方做出犧牲','第三者的出現打破原有平衡','一次爭吵說出了真心話'],
+ '外部壓力':['追兵縮短了距離','期限被迫提前','資源即將耗盡','權力者下達新的命令','傳聞在城裡擴散','盟友被抓住把柄'],
+ '環境變化':['天氣驟變','節慶或儀式打亂日常','地點被封鎖','夜幕降臨帶來新規則','疾病開始蔓延','季節更替'],
+ '角色內在':['被壓抑的回憶浮現','一個長期信念開始動搖','某人第一次承認自己害怕','舊傷發作','想起一個未完成的承諾','對自身能力產生懷疑']
+};
+const defaultSettings=()=>({template:DEFAULT_TEMPLATE,proTemplate:DEFAULT_PRO,questions:DEFAULT_QUESTIONS.slice(),cards:JSON.parse(JSON.stringify(DEFAULT_CARDS)),tplVer:4});
+const defaultCal=()=>({type:'greg',months:Array.from({length:12},()=>({name:'',days:30}))});
+
+const D=(y,m,d)=>({y,m,d,prec:'d'}),Dm=(y,m)=>({y,m,prec:'m'}),Dy=y=>({y,prec:'y'});
+/* ---------- 資料清理：匯入備份與讀取本機資料時，只保留預期格式的內容 ---------- */
+const BAD_KEYS=['__proto__','constructor','prototype'];
+const okKey=k=>typeof k==='string'&&!BAD_KEYS.includes(k);
+const isObj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const cObj=v=>isObj(v)?v:{};
+const cArr=v=>Array.isArray(v)?v:[];
+const cStr=v=>typeof v==='string'?v:(typeof v==='number'&&Number.isFinite(v)?String(v):'');
+const cInt=(v,d=0)=>{const n=Math.trunc(Number(v));return typeof v!=='boolean'&&v!==null&&v!==''&&Number.isFinite(n)?n:d};
+const okId=v=>typeof v==='string'&&/^[a-z0-9]{1,16}$/.test(v);
+const cId=v=>okId(v)?v:uid();
+const pickE=(v,list,d)=>list.includes(v)?v:d;
+const hasOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+function cDate(v,fb){
+  if(!isObj(v))return fb?{...fb}:D(1,1,1);
+  const prec=pickE(v.prec,['d','m','y'],'d');const o={y:cInt(v.y,1),prec};
+  if(prec!=='y')o.m=cInt(v.m,1);if(prec==='d')o.d=cInt(v.d,1);return o;
+}
+const cNames=v=>cArr(v).map(cStr).filter(Boolean);
+function cChar(c){
+  const o={id:cId(c.id),name:cStr(c.name).trim()||'未命名角色',type:pickE(c.type,['self','other'],'other'),profile:{}};
+  const p=cObj(c.profile);PROF.forEach(([k])=>{if(p[k]!=null&&p[k]!=='')o.profile[k]=cStr(p[k])});
+  if(isObj(c.cur)&&Array.isArray(c.hist)){
+    const single={},rel={},items=cObj(c.cur.items);
+    Object.entries(cObj(c.cur.single)).forEach(([k,v])=>{if(SINGLE.includes(k)&&isObj(v))single[k]={v:cStr(v.v),date:cDate(v.date)}});
+    Object.entries(cObj(c.cur.rel)).forEach(([k,v])=>{if(okKey(k)&&isObj(v))rel[k]={v:cStr(v.v),date:cDate(v.date)}});
+    o.cur={single,rel,items:{
+      '持有物':cArr(items['持有物']).filter(isObj).map(x=>({id:cId(x.id),v:cStr(x.v),date:cDate(x.date)})),
+      '知情':cArr(items['知情']).filter(isObj).map(x=>{const r={id:cId(x.id),note:cStr(x.note),date:cDate(x.date)};if(okId(x.sid))r.sid=x.sid;else if(cStr(x.v))r.v=cStr(x.v);return r}).filter(x=>x.sid||x.v)
+    }};
+    o.hist=c.hist.filter(isObj).map(h=>{
+      const r={id:cId(h.id),cat:pickE(h.cat,CATS,'心境'),date:cDate(h.date),seg:cInt(h.seg)};
+      ['from','to','target','note'].forEach(k=>{if(h[k]!=null)r[k]=cStr(h[k])});
+      if(h.act!=null)r.act=pickE(h.act,['取得','失去','得知','移除','變更'],'');
+      if(okId(h.sid))r.sid=h.sid;return r;
+    });
+  }else{
+    o.states=cArr(c.states).filter(isObj).map(x=>({cat:pickE(x.cat,CATS,'心境'),target:cStr(x.target),change:cStr(x.change),date:cDate(x.date),seg:cInt(x.seg)}));
+  }
+  return o;
+}
+function cStory(raw,id){
+  const s=cObj(raw),cal=cObj(s.cal);
+  let months=cArr(cal.months).slice(0,100).filter(isObj).map(m=>({name:cStr(m.name).slice(0,40),days:Math.min(1000,Math.max(1,cInt(m.days,30)))}));
+  if(!months.length)months=defaultCal().months;
+  const start=cDate(s.start);
+  const o={
+    id,name:cStr(s.name),cal:{type:pickE(cal.type,['greg','custom'],'greg'),months},
+    start,cur:cDate(s.cur,start),
+    segments:cArr(s.segments).filter(isObj).map(g=>({id:cId(g.id),n:Math.max(0,cInt(g.n)),startDate:cDate(g.startDate,start),endDate:cDate(g.endDate,start)})),
+    events:cArr(s.events).filter(isObj).map(e=>({id:cId(e.id),seg:cInt(e.seg),date:cDate(e.date,start),period:cStr(e.period),place:cStr(e.place),chars:cNames(e.chars),summary:cStr(e.summary),imp:pickE(e.imp,['h','m','l'],'m'),src:pickE(e.src,['llm','pro','manual'],'manual'),order:cInt(e.order)})),
+    foreshadows:cArr(s.foreshadows).filter(isObj).map(f=>({id:cId(f.id),name:cStr(f.name),content:cStr(f.content),status:pickE(f.status,Object.keys(FSN),'planted'),chars:cNames(f.chars),plantedSeg:cInt(f.plantedSeg),lastSeg:cInt(f.lastSeg)})),
+    conflicts:cArr(s.conflicts).filter(isObj).map(c=>({id:cId(c.id),content:cStr(c.content),chars:cNames(c.chars),resolved:c.resolved===true,seg:cInt(c.seg)})),
+    characters:cArr(s.characters).filter(isObj).map(cChar),
+    notes:cArr(s.notes).filter(isObj).map(n=>({id:cId(n.id),text:cStr(n.text),at:cInt(n.at),kind:pickE(n.kind,['pending','idea'],'pending')})),
+    quotes:cArr(s.quotes).filter(isObj).map(q=>({id:cId(q.id),seg:cInt(q.seg),date:cDate(q.date,start),period:cStr(q.period),speaker:cStr(q.speaker),to:cStr(q.to),text:cStr(q.text),type:pickE(q.type,QT,'其他'),why:cStr(q.why),done:q.done===true,order:cInt(q.order)})),
+    secrets:cArr(s.secrets).filter(isObj).map(x=>({id:cId(x.id),text:cStr(x.text),subjects:cNames(x.subjects)}))
+  };
+  if(typeof s.updatedAt==='string')o.updatedAt=s.updatedAt;
+  return o;
+}
+function cSettings(v){
+  const d=defaultSettings();if(!isObj(v))return d;
+  const cards={};
+  Object.entries(isObj(v.cards)?v.cards:d.cards).forEach(([k,list])=>{if(okKey(k)){const l=cNames(list);if(l.length)cards[k]=l}});
+  const o={template:typeof v.template==='string'?v.template:d.template,proTemplate:typeof v.proTemplate==='string'?v.proTemplate:d.proTemplate,
+    questions:Array.isArray(v.questions)?cNames(v.questions):d.questions,cards,tplVer:cInt(v.tplVer,0)};
+  if(v.tplNotice===true)o.tplNotice=true;return o;
+}
+function cleanDB(raw){
+  const d=cObj(raw),stories={};
+  Object.entries(cObj(d.stories)).forEach(([id,st])=>{if(okId(id)&&isObj(st))stories[id]=cStory(st,id)});
+  const ids=Object.keys(stories);if(!ids.length)return null;
+  const lb=typeof d.lastBackup==='string'&&!isNaN(new Date(d.lastBackup))?d.lastBackup:null;
+  return {v:2,ready:d.ready!==false,active:hasOwn(stories,d.active)?d.active:ids[0],stories,settings:cSettings(d.settings),lastBackup:lb,updatedAt:cStr(d.updatedAt)||new Date().toISOString()};
+}
+
+function blankStory(name,cal,start){return {id:uid(),name:name||'新的故事',cal:cal||defaultCal(),start:start||D(1,1,1),cur:start||D(1,1,1),segments:[],events:[],foreshadows:[],conflicts:[],characters:[],notes:[],quotes:[],secrets:[]}}
+function firstDB(){const s=blankStory('',defaultCal(),D(2000,1,1));return {v:2,ready:false,active:s.id,stories:{[s.id]:s},settings:defaultSettings(),lastBackup:null,updatedAt:new Date().toISOString()}}
+function loadDB(){let r=null;try{r=localStorage.getItem(KEY);if(r){const d=cleanDB(JSON.parse(r));if(d)return d}}catch(e){}
+  if(r){try{localStorage.setItem(KEY+'-unreadable',r)}catch(e){}}
+  return firstDB()}
+let DB=loadDB();let S=DB.stories[DB.active];
+function save(){DB.updatedAt=new Date().toISOString();if(S&&DB.ready!==false)S.updatedAt=DB.updatedAt;try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+
+const ui={tab:'work',mode:'seg',pasteText:'',parsed:null,showPrompt:false,sumRange:'2',sumLevel:'m',sumQuotes:true,qtTab:'pend',sumText:'',
+  tlChar:'',tlImp:'',tlSeg:'',open:{},thrView:'fs',fsTab:'developing',drawCat:'',drawn:null,qs:null,ideaText:'',
+  charView:'list',charOpen:null,exportText:'',importText:'',justCommitted:null};
+function resetUi(){Object.assign(ui,{parsed:null,pasteText:'',sumText:'',ideaText:'',tlChar:'',tlSeg:'',open:{},charOpen:null,justCommitted:null,drawn:null})}
+
+/* ---------- calendar ---------- */
+const GD=[31,28,31,30,31,30,31,31,30,31,30,31];
+const isLeap=y=>(y%4===0&&y%100!==0)||y%400===0;
+const custom=()=>S.cal.type==='custom'&&S.cal.months.length>0;
+function mCount(){return custom()?S.cal.months.length:12}
+function mDays(y,m){if(custom()){const mo=S.cal.months[m-1];return mo?mo.days:0}return m===2&&isLeap(y)?29:(GD[m-1]||0)}
+function yLen(){return S.cal.months.reduce((a,b)=>a+(b.days||0),0)||365}
+function daysBeforeYear(y){if(custom())return (y-1)*yLen();const p=y-1;return 365*p+Math.floor(p/4)-Math.floor(p/100)+Math.floor(p/400)}
+function idx(dt){const m=dt.prec==='y'?1:dt.m,d=dt.prec==='d'?dt.d:1;let n=daysBeforeYear(dt.y);for(let i=1;i<m;i++)n+=mDays(dt.y,i);return n+d}
+function fromIdx(n){
+  let y=Math.floor((n-1)/(custom()?yLen():365.2425))+1;
+  while(daysBeforeYear(y)>=n)y--;while(daysBeforeYear(y+1)<n)y++;
+  let r=n-daysBeforeYear(y),m=1;while(m<mCount()&&r>mDays(y,m)){r-=mDays(y,m);m++}
+  return D(y,m,r);
+}
+const addDays=(dt,n)=>fromIdx(idx(dt)+n);
+const toExact=dt=>dt.prec==='d'?{...dt}:fromIdx(idx(dt));
+function sortKey(dt){return idx(dt)-(dt.prec==='d'?0:dt.prec==='m'?0.5:0.6)}
+function valid(dt){if(!dt)return false;if(dt.prec==='y')return true;if(dt.m<1||dt.m>mCount())return false;if(dt.prec==='m')return true;return dt.d>=1&&dt.d<=mDays(dt.y,dt.m)}
+function monthName(m){return (custom()&&S.cal.months[m-1]&&S.cal.months[m-1].name)||`${m}月`}
+function fmt(dt){if(!dt)return'';if(dt.prec==='y')return `${dt.y}年`;if(dt.prec==='m')return `${dt.y}年${monthName(dt.m)}`;return `${dt.y}年${monthName(dt.m)}${dt.d}日`}
+function storyDay(){return idx(S.cur)-idx(S.start)+1}
+function parseDate(str,prevY){
+  str=String(str||'').trim();let m;
+  const names=custom()?S.cal.months.map(x=>x.name).filter(Boolean):[];
+  if(names.length){
+    const re=new RegExp('(?:(\\d+)\\s*年)?\\s*('+names.map(escRe).join('|')+')\\s*(?:(\\d+)\\s*日)?');
+    m=str.match(re);
+    if(m&&(m[1]||prevY)){const mi=S.cal.months.findIndex(x=>x.name===m[2])+1,y=m[1]?+m[1]:prevY;return {date:m[3]?D(y,mi,+m[3]):Dm(y,mi),rest:str.replace(m[0],'')}}
+  }
+  if((m=str.match(/(\d+)\s*年\s*(\d+)\s*月\s*(\d+)\s*日/)))return {date:D(+m[1],+m[2],+m[3]),rest:str.replace(m[0],'')};
+  if((m=str.match(/(\d{1,5})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{1,2})/)))return {date:D(+m[1],+m[2],+m[3]),rest:str.replace(m[0],'')};
+  if((m=str.match(/(\d+)\s*年\s*(\d+)\s*月/)))return {date:Dm(+m[1],+m[2]),rest:str.replace(m[0],'')};
+  if(prevY&&(m=str.match(/(\d+)\s*月\s*(\d+)\s*日/)))return {date:D(prevY,+m[1],+m[2]),rest:str.replace(m[0],'')};
+  if((m=str.match(/(\d+)\s*年/)))return {date:Dy(+m[1]),rest:str.replace(m[0],'')};
+  return null;
+}
+
+/* ---------- helpers ---------- */
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2400)}
+async function copy(text,msg){
+  let ok=false;
+  try{await navigator.clipboard.writeText(text);ok=true}catch(e){
+    try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}
+  }
+  toast(ok?(msg||'已複製'):'無法自動複製，請手動選取文字');return ok;
+}
+const segLabel=n=>n===0?'序章':`第 ${n} 段`;
+function curSeg(){return S.segments.filter(s=>s.n>0).length}
+function newChar(name,type){return {id:uid(),name,type:type||'other',profile:{},cur:{single:{},rel:{},items:{'持有物':[],'知情':[]}},hist:[]}}
+function ensureChar(name,type){name=String(name||'').trim();if(!name)return null;let c=S.characters.find(c=>c.name===name);if(!c){c=newChar(name,type);S.characters.push(c)}return c}
+const LOSE_RE=/^(失去|遺失|交出|被奪|被奪走|丟失|用掉|消耗|移除|歸還)\s*[：:]?\s*/;
+const GAIN_RE=/^(取得|獲得|得到|拿到|收到)\s*[：:]?\s*/;
+function isLose(act,change){return /失去|遺失|交出|被奪|丟失|用掉|消耗|移除|歸還/.test(act||'')||(!act&&LOSE_RE.test(change||''))}
+const stripLose=s=>String(s||'').replace(LOSE_RE,'').trim();
+const stripGain=s=>String(s||'').replace(GAIN_RE,'').trim();
+function findItem(list,name){return list.find(x=>x.v===name)||list.find(x=>name&&(x.v.includes(name)||name.includes(x.v)))}
+function secretById(id){return S.secrets.find(x=>x.id===id)}
+function ensureSecret(text){text=String(text||'').trim();let x=S.secrets.find(y=>y.text===text);if(!x){x={id:uid(),text,subjects:[]};S.secrets.push(x)}return x}
+function knowersOf(sec){return S.characters.filter(c=>c.cur.items['知情'].some(x=>x.sid===sec.id)&&!sec.subjects.includes(c.name))}
+function normSecrets(){S.secrets.forEach(sec=>sec.subjects.forEach(n=>{const c=S.characters.find(x=>x.name===n);if(c)c.cur.items['知情']=c.cur.items['知情'].filter(x=>x.sid!==sec.id)}))}
+function applyState(c,st,date,seg){
+  const cat=st.cat,h={id:uid(),cat,date:{...date},seg};
+  if(SINGLE.includes(cat)){h.from=c.cur.single[cat]?c.cur.single[cat].v:'';h.to=st.change;c.cur.single[cat]={v:st.change,date:{...date}}}
+  else if(cat==='關係'){const t=st.target||'（未指定）';h.target=t;h.from=c.cur.rel[t]?c.cur.rel[t].v:'';h.to=st.change;c.cur.rel[t]={v:st.change,date:{...date}}}
+  else if(cat==='持有物'){
+    const list=c.cur.items['持有物'];
+    if(isLose(st.act,st.change)){const nm=stripLose(st.change);const it=findItem(list,nm);if(it)c.cur.items['持有物']=list.filter(x=>x!==it);h.act='失去';h.to=it?it.v:nm}
+    else{const nm=stripGain(st.change);list.push({id:uid(),v:nm,date:{...date}});h.act='取得';h.to=nm}
+  }else if(cat==='知情'){
+    let sec=st.sid&&st.sid!=='new'?secretById(st.sid):null;
+    if(!sec)sec=ensureSecret(st.target||st.change);
+    splitNames(st.subjects).forEach(n=>{ensureChar(n);if(!sec.subjects.includes(n))sec.subjects.push(n)});
+    const note=st.target?st.change:'';
+    if(sec.subjects.includes(c.name)){normSecrets();return}
+    if(!c.cur.items['知情'].some(x=>x.sid===sec.id))c.cur.items['知情'].push({id:uid(),sid:sec.id,note,date:{...date}});
+    normSecrets();
+    h.act='得知';h.sid=sec.id;h.to=sec.text;h.note=note;
+  }
+  c.hist.push(h);
+}
+function histText(h){
+  if(h.act==='變更')return `${h.cat}：${h.from} → ${h.to}`;
+  if(h.cat==='持有物')return `持有物：${h.act==='失去'?'－':'＋'}${h.to}`;
+  if(h.cat==='知情'){const sec=h.sid&&secretById(h.sid);return `知情：${h.act==='移除'?'移除':'得知'}「${sec?sec.text:h.to}」${h.note?`（${h.note}）`:''}`}
+  return `${h.cat==='關係'?`對${h.target}`:h.cat}：${h.from||'（無）'} → ${h.to}`;
+}
+function migrateChar(c){
+  if(c.cur&&c.hist)return c;
+  const n=newChar(c.name,c.type);n.id=c.id;n.profile=c.profile||{};
+  (c.states||[]).slice().sort((a,b)=>sortKey(a.date)-sortKey(b.date)).forEach(s=>applyState(n,{cat:s.cat,target:s.target,act:'',change:s.change},s.date,s.seg));
+  return n;
+}
+function migrateAll(){
+  const keep=S;
+  Object.values(DB.stories).forEach(st=>{S=st;st.quotes=st.quotes||[];st.secrets=st.secrets||[];st.characters=st.characters.map(migrateChar);
+    st.characters.forEach(c=>{c.cur.items['知情'].forEach(x=>{if(!x.sid){x.sid=ensureSecret(x.v).id;delete x.v}});c.hist.forEach(h=>{if(h.cat==='知情'&&!h.sid){const f=st.secrets.find(y=>y.text===h.to);if(f)h.sid=f.id}})})});
+  S=keep;
+  const st=DB.settings;
+  if((st.tplVer||0)<4){
+    if(st.template===OLD_TEMPLATE||st.template===OLD3_TEMPLATE)st.template=DEFAULT_TEMPLATE;else if(st.template!==DEFAULT_TEMPLATE)st.tplNotice=true;
+    if(st.proTemplate===OLD_PRO||st.proTemplate===OLD3_PRO)st.proTemplate=DEFAULT_PRO;
+    st.tplVer=4;save();
+  }
+}
+function openFs(){return S.foreshadows.filter(f=>f.status!=='resolved')}
+function sortedEvents(list){return list.slice().sort((a,b)=>sortKey(a.date)-sortKey(b.date)||a.order-b.order)}
+function maxOrder(){return [...S.events,...S.quotes].reduce((m,e)=>Math.max(m,e.order||0),0)}
+function fillPrompt(){
+  if(ui.mode==='pro')return DB.settings.proTemplate;
+  const fs=openFs().map(f=>`・${f.name}：${f.content}`).join('\n')||'（無）';
+  const names=S.characters.map(c=>c.name).join('、')||'（尚無）';
+  return DB.settings.template.split('{起始日期}').join(fmt(S.cur)).split('{伏筆清單}').join(fs).split('{角色名單}').join(names).split('{秘密清單}').join(S.secrets.map(x=>`・${x.text}`).join('\n')||'（無）');
+}
+function invalidCount(){return S.events.filter(e=>!valid(e.date)).length+S.quotes.filter(q=>!valid(q.date)).length+S.characters.reduce((a,c)=>a+c.hist.filter(h=>!valid(h.date)).length,0)}
+/* ---------- parser ---------- */
+function fieldsOf(body){const o={};body.split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*[-*・]?\s*([^：:\s（(]{1,6})\s*[：:]\s*(.*)$/);if(m)o[m[1]]=m[2].trim()});return o}
+function impOf(s){s=String(s||'');return s.includes('高')?'h':s.includes('低')?'l':'m'}
+function statusOf(s){s=String(s||'');return s.includes('回收')?'resolved':(s.includes('推進')||s.includes('發展'))?'developing':'planted'}
+function parseOutput(txt,mode){
+  const out={mode,events:[],foreshadows:[],conflicts:[],states:[],quotes:[],errors:[]};
+  const re=/【\s*([^】]+?)\s*】/g;let m;const heads=[];
+  while((m=re.exec(txt)))heads.push({type:m[1],idx:m.index,start:re.lastIndex});
+  if(!heads.length){out.errors.push('找不到任何【區塊】標記，請確認貼上的是 LLM 的整理結果。');return out}
+  let prevY=S.cur.y;
+  const readTime=(raw,label)=>{
+    let date=null,period=raw;const plus=raw.match(/[+＋]\s*(\d+)\s*天/);
+    if(plus&&mode==='seg'){date=addDays(S.cur,+plus[1]);period=raw.replace(plus[0],'')}
+    else{const p=parseDate(raw,prevY);if(p){date=p.date;period=p.rest}}
+    if(!date){date={...S.cur};out.errors.push(`${label}的時間無法辨識，暫定為${fmt(date)}，請校正。`)}
+    else if(!valid(date))out.errors.push(`${label}的日期「${fmt(date)}」在目前曆法中不存在，請校正。`);
+    prevY=date.y;return {date,period:clean(period)};
+  };
+  heads.forEach((h,i)=>{
+    const body=txt.slice(h.start,i+1<heads.length?heads[i+1].idx:txt.length);const f=fieldsOf(body);const t=h.type;
+    if(t.includes('事件')){
+      if(!f['摘要']){out.errors.push(`第 ${out.events.length+1} 個事件缺少「摘要」，已略過。`);return}
+      const tm=readTime(f['時間']||'',`事件「${f['摘要'].slice(0,12)}…」`);
+      out.events.push({dateText:fmt(tm.date),period:tm.period,place:f['地點']||'',chars:(f['角色']||'').trim(),summary:f['摘要'],imp:impOf(f['重要度'])});
+    }else if(t.includes('伏筆')){
+      const name=f['名稱']||(f['內容']||'').slice(0,10);
+      if(!name){out.errors.push('有一個伏筆缺少名稱與內容，已略過。');return}
+      out.foreshadows.push({name,status:statusOf(f['狀態']),content:f['內容']||'',chars:f['相關角色']||''});
+    }else if(t.includes('衝突')){
+      if(f['內容'])out.conflicts.push({content:f['內容'],chars:f['相關角色']||''});
+    }else if(t.includes('台詞')){
+      const text=String(f['台詞']||'').replace(/^[「『"“]+|[」』"”]+$/g,'').trim();
+      if(!text){out.errors.push('有一句台詞缺少內容，已略過。');return}
+      const tm=readTime(f['時間']||'',`台詞「${text.slice(0,10)}…」`);
+      out.quotes.push({dateText:fmt(tm.date),period:tm.period,speaker:f['說話者']||'',to:f['對象']||'',text,type:QT.find(x=>(f['類型']||'').includes(x))||'其他',why:f['原因']||''});
+    }else if(t.includes('角色')){
+      if(!f['角色']||!f['變化']){out.errors.push('有一筆角色狀態缺少角色或變化，已略過。');return}
+      const cat=CATS.find(c=>(f['類別']||'').includes(c))||'心境';
+      let target=f['對象']||'';if(/^僅|^無$|^－$|^-$/.test(target))target='';
+      let act=f['動作']||'';if(/^僅|^無$|^－$|^-$/.test(act))act='';
+      act=act.includes('失')||act.includes('交出')||act.includes('遺')?'失去':act.includes('得知')?'得知':act.includes('取')||act.includes('獲')?'取得':'';
+      let subjects=f['當事人']||'';if(/^僅|^無$|^－$|^-$/.test(subjects))subjects='';
+      let sid='';if(cat==='知情'){const ex=S.secrets.find(x=>x.text===(target||f['變化']).trim());sid=ex?ex.id:'new'}
+      out.states.push({char:f['角色'],cat,target,act,change:f['變化'],subjects,sid});
+    }
+  });
+  return out;
+}
+function commitParsed(){
+  const p=ui.parsed;const pro=p.mode==='pro';const n=pro?0:curSeg()+1;
+  let ord=maxOrder();const dates=[];let prevY=S.cur.y;
+  p.events.forEach(e=>{
+    const pd=parseDate(e.dateText,prevY);const date=pd?pd.date:{...S.cur};prevY=date.y;dates.push(date);
+    const chars=splitNames(e.chars);chars.forEach(c=>ensureChar(c));
+    S.events.push({id:uid(),seg:n,date,period:e.period,place:e.place,chars,summary:e.summary,imp:e.imp,src:pro?'pro':'llm',order:++ord});
+  });
+  p.quotes.forEach(q=>{const pd=parseDate(q.dateText,prevY);const date=pd?pd.date:{...S.cur};prevY=date.y;dates.push(date);[q.speaker,q.to].forEach(x=>splitNames(x).forEach(y=>ensureChar(y)));S.quotes.push({id:uid(),seg:n,date,period:q.period,speaker:q.speaker.trim(),to:q.to.trim(),text:q.text,type:q.type,why:q.why,done:false,order:++ord})});
+  const sorted=dates.slice().sort((a,b)=>sortKey(a)-sortKey(b));
+  const first=sorted[0],last=sorted[sorted.length-1];
+  let endDate;
+  if(pro){endDate=last?toExact(last):{...S.cur};if(last&&idx(endDate)>idx(S.cur))S.cur=endDate}
+  else{endDate=last&&idx(last)>idx(S.cur)?toExact(last):{...S.cur}}
+  const stateDate=pro?endDate:endDate;
+  p.foreshadows.forEach(f=>{
+    const ex=S.foreshadows.find(x=>x.name.trim()===f.name.trim());const chars=splitNames(f.chars);
+    if(ex){ex.status=f.status;if(f.content)ex.content=f.content;ex.lastSeg=Math.max(ex.lastSeg,n);chars.forEach(c=>{if(!ex.chars.includes(c))ex.chars.push(c)})}
+    else S.foreshadows.push({id:uid(),name:f.name,content:f.content,status:f.status,chars,plantedSeg:n,lastSeg:n});
+  });
+  p.conflicts.forEach(c=>{if(!S.conflicts.some(x=>x.content===c.content))S.conflicts.push({id:uid(),content:c.content,chars:splitNames(c.chars),resolved:false,seg:n})});
+  p.states.forEach(s=>{const c=ensureChar(s.char);if(c)applyState(c,{cat:s.cat,target:s.target,act:s.act,change:s.change,subjects:s.subjects,sid:s.sid},stateDate,n)});
+  if(pro){
+    let seg=S.segments.find(s=>s.n===0);
+    if(!seg){seg={id:uid(),n:0,startDate:first||{...S.cur},endDate:last||{...S.cur}};S.segments.unshift(seg)}
+    else{if(first&&sortKey(first)<sortKey(seg.startDate))seg.startDate=first;if(last&&sortKey(last)>sortKey(seg.endDate))seg.endDate=last}
+  }else{
+    S.segments.push({id:uid(),n,startDate:{...S.cur},endDate});S.cur=endDate;
+  }
+  ui.parsed=null;ui.pasteText='';ui.justCommitted={n,label:segLabel(n)};
+  save();render();window.scrollTo(0,0);
+}
+
+/* ---------- summaries ---------- */
+function charStatusLines(){
+  return S.characters.map(c=>{
+    const L=c.cur;const parts=[];
+    SINGLE.forEach(k=>{if(L.single[k])parts.push(`${k}：${L.single[k].v}`)});
+    if(L.items['持有物'].length)parts.push('持有：'+L.items['持有物'].map(x=>x.v).join('、'));
+    Object.entries(L.rel).forEach(([t,s])=>parts.push(`對${t}：${s.v}`));
+    if(L.items['知情'].length)parts.push('已知：'+L.items['知情'].map(x=>{const sec=secretById(x.sid);return sec?sec.text:''}).filter(Boolean).join('、'));
+    return parts.length?`${c.name}｜${parts.join('；')}`:'';
+  }).filter(Boolean);
+}
+const quoteLine=q=>`・${fmt(q.date)} ${q.speaker||'？'}${q.to?'對'+q.to:''}：「${q.text}」${q.type!=='其他'?`（${q.type}${q.done?'，'+QPEND[q.type]:''}）`:''}`;
+function buildSummary(){
+  const n=curSeg();const minSeg=ui.sumRange==='all'?0:n-parseInt(ui.sumRange)+1;const lv=ui.sumLevel;
+  const inRange=x=>ui.sumRange==='all'||x.seg>=Math.max(1,minSeg);
+  const ok=e=>(lv==='l'||(lv==='m'&&e.imp!=='l')||(lv==='h'&&e.imp==='h'));
+  const evs=sortedEvents(S.events.filter(e=>inRange(e)&&ok(e)));
+  let out=`【前情提要】目前為${fmt(S.cur)}。\n`;let lastK=null;
+  evs.forEach(e=>{const k=fmt(e.date);if(k!==lastK){out+=`\n${k}\n`;lastK=k}out+=`・${[e.period,e.place].filter(Boolean).join(' ')}${e.period||e.place?'：':''}${e.summary}\n`});
+  if(ui.sumQuotes){
+    const qs=sortedEvents(S.quotes.filter(q=>inRange(q)||(QPEND[q.type]&&!q.done)));
+    if(qs.length)out+=`\n【關鍵台詞】\n`+qs.map(quoteLine).join('\n')+'\n';
+  }
+  const fs=openFs();if(fs.length)out+=`\n【未回收伏筆】\n`+fs.map(f=>`・${f.name}：${f.content}`).join('\n')+'\n';
+  const cf=S.conflicts.filter(c=>!c.resolved);if(cf.length)out+=`\n【未解衝突】\n`+cf.map(c=>`・${c.content}`).join('\n')+'\n';
+  const cs=charStatusLines();if(cs.length)out+=`\n【角色現況】\n`+cs.join('\n')+'\n';
+  return out.trim();
+}
+function selfProfiles(){
+  return S.characters.filter(c=>c.type==='self').map(c=>{
+    const parts=PROF.filter(([k])=>c.profile&&c.profile[k]).map(([k,l])=>`${l}：${c.profile[k]}`);
+    return parts.length?`${c.name}｜${parts.join('；')}`:'';
+  }).filter(Boolean);
+}
+function buildIdeaPrompt(){
+  const n=curSeg();
+  const evs=sortedEvents(S.events.filter(e=>e.seg>=Math.max(1,n-1)&&e.imp!=='l')).map(e=>`・${fmt(e.date)} ${e.summary}`).join('\n')||'（無）';
+  const fs=openFs().map(f=>`・${f.name}（${FSN[f.status]}）：${f.content}`).join('\n')||'（無）';
+  const cf=S.conflicts.filter(c=>!c.resolved).map(c=>`・${c.content}`).join('\n')||'（無）';
+  const cs=charStatusLines().join('\n')||'（無）';
+  const sp=selfProfiles();
+  const pq=S.quotes.filter(q=>QPEND[q.type]&&!q.done).map(quoteLine).join('\n');
+  const sl=S.secrets.map(sec=>{const k=knowersOf(sec).map(c=>c.name);const un=S.characters.map(c=>c.name).filter(n=>!sec.subjects.includes(n)&&!k.includes(n));return `・${sec.text}｜當事人：${sec.subjects.join('、')||'－'}；知情：${k.join('、')||'－'}；不知情：${un.join('、')||'－'}`}).join('\n');
+  const ideas=S.notes.filter(x=>x.kind==='idea').map(x=>`・${x.text}`).join('\n');
+  return `請暫停角色扮演，以作者的角度協助我構思下一段劇情。
+
+目前時間：${fmt(S.cur)}
+近期事件：
+${evs}
+未回收伏筆：
+${fs}
+未解衝突：
+${cf}
+角色現況：
+${cs}${sp.length?`\nPC 設定：\n${sp.join('\n')}`:''}${pq?`\n尚未兌現或揭穿的話：\n${pq}`:''}${sl?`\n秘密與資訊落差：\n${sl}`:''}${ideas?`\n我自己的零散想法：\n${ideas}`:''}
+
+請提出三個走向截然不同的發展方向，每個方向說明：觸發事件、主要牽動的角色、可以推進或回收的伏筆。${sp.length?'請特別考慮 PC 的目標、弱點與秘密，讓方向能推動或考驗他。':''}避免常見套路，優先利用既有伏筆，以及角色之間「誰知道、誰不知道」的資訊落差。提出後等待我選擇，不要直接開始寫劇情。`;
+}
+
+/* ---------- views ---------- */
+function backupNotice(){
+  if(!S.events.length)return'';
+  const days=DB.lastBackup?Math.floor((Date.now()-new Date(DB.lastBackup))/86400000):null;
+  if(days!==null&&days<7)return'';
+  return `<div class="notice">${days===null?'這份資料還沒有備份過。':`距離上次備份已經 ${days} 天。`}手機瀏覽器可能清除網站資料，建議定期匯出。<div class="row"><button class="btn sm" data-act="exportData">匯出備份</button></div></div>`;
+}
+function stateHint(s){
+  const c=S.characters.find(x=>x.name===String(s.char).trim());if(!c)return '新角色，將自動建立';const L=c.cur;
+  if(SINGLE.includes(s.cat))return `目前：${L.single[s.cat]?L.single[s.cat].v:'（無）'}`;
+  if(s.cat==='關係')return `目前對${s.target||'？'}：${L.rel[s.target]?L.rel[s.target].v:'（無）'}`;
+  if(s.cat==='持有物'){const lose=isLose(s.act,s.change);const nm=lose?stripLose(s.change):stripGain(s.change);const now=L.items['持有物'].map(x=>x.v).join('、')||'（無）';return `${lose?'－':'＋'}${nm}　目前持有：${now}${lose&&!findItem(L.items['持有物'],nm)?'（找不到這項，將只記入歷程）':''}`}
+  const ex=s.sid&&s.sid!=='new'&&secretById(s.sid);
+  return ex?`歸入既有秘密「${ex.text}」`:`＋新秘密「${s.target||s.change}」`;
+}
+function previewHtml(){
+  const p=ui.parsed;const pro=p.mode==='pro';const label=pro?'序章':segLabel(curSeg()+1);
+  return `<section class="sec"><h2><span class="stepn">3</span>校對後寫入</h2>
+  <p class="hint">解析出 ${p.events.length} 個事件、${p.foreshadows.length} 條伏筆、${p.conflicts.length} 個衝突、${p.states.length} 筆角色狀態、${p.quotes.length} 句台詞。直接修改有誤的欄位。</p>
+  ${p.errors.map(e=>`<p class="err">${esc(e)}</p>`).join('')}
+  ${p.events.length?'<h3 class="sub">事件</h3>':''}
+  ${p.events.map((e,i)=>`<div class="pitem"><div class="head"><span>事件 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="events" data-i="${i}">移除</button></div>
+    <div class="g2" style="margin-top:0"><label><span class="k">日期</span><input type="text" data-p="events.${i}.dateText" value="${esc(e.dateText)}"></label>
+    <label><span class="k">時段</span><input type="text" data-p="events.${i}.period" value="${esc(e.period)}"></label></div>
+    <div class="g2"><label><span class="k">地點</span><input type="text" data-p="events.${i}.place" value="${esc(e.place)}"></label>
+    <label><span class="k">角色</span><input type="text" data-p="events.${i}.chars" value="${esc(e.chars)}"></label></div>
+    <div class="g2"><label><span class="k">重要度</span><select data-p="events.${i}.imp">${['h','m','l'].map(k=>`<option value="${k}" ${e.imp===k?'selected':''}>${IMP[k]}</option>`).join('')}</select></label><span></span></div>
+    <textarea data-p="events.${i}.summary">${esc(e.summary)}</textarea></div>`).join('')}
+  ${p.foreshadows.length?'<h3 class="sub">伏筆</h3>':''}
+  ${p.foreshadows.map((f,i)=>{const ex=S.foreshadows.find(x=>x.name.trim()===f.name.trim());return `<div class="pitem"><div class="head"><span>${ex?'更新既有伏筆':'新伏筆'}</span><button class="btn sm ghost" data-act="pDel" data-k="foreshadows" data-i="${i}">移除</button></div>
+    <div class="g2" style="margin-top:0"><label><span class="k">名稱</span><input type="text" data-p="foreshadows.${i}.name" value="${esc(f.name)}"></label>
+    <label><span class="k">狀態</span><select data-p="foreshadows.${i}.status">${Object.keys(FSN).map(k=>`<option value="${k}" ${f.status===k?'selected':''}>${FSN[k]}</option>`).join('')}</select></label></div>
+    <textarea data-p="foreshadows.${i}.content">${esc(f.content)}</textarea></div>`}).join('')}
+  ${p.conflicts.length?'<h3 class="sub">未解衝突</h3>':''}
+  ${p.conflicts.map((c,i)=>`<div class="pitem"><div class="head"><span>衝突 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="conflicts" data-i="${i}">移除</button></div>
+    <textarea data-p="conflicts.${i}.content" style="margin-top:0">${esc(c.content)}</textarea>
+    <label><span class="k" style="margin-top:6px">相關角色</span><input type="text" data-p="conflicts.${i}.chars" value="${esc(c.chars)}"></label></div>`).join('')}
+  ${p.states.length?'<h3 class="sub">角色狀態</h3>':''}
+  ${p.states.map((s,i)=>`<div class="pitem"><div class="head"><span>狀態 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="states" data-i="${i}">移除</button></div>
+    <div class="g"><label><span class="k">角色</span><input type="text" data-p="states.${i}.char" value="${esc(s.char)}"></label>
+    <label><span class="k">類別</span><select data-p="states.${i}.cat">${CATS.map(c=>`<option ${s.cat===c?'selected':''}>${c}</option>`).join('')}</select></label>
+    <label><span class="k">對象</span><input type="text" data-p="states.${i}.target" value="${esc(s.target)}"></label></div>
+    <div class="g2"><label><span class="k">動作</span><select data-p="states.${i}.act">${[['','（無）'],['取得','取得'],['失去','失去'],['得知','得知']].map(o=>`<option value="${o[0]}" ${s.act===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></label>
+    <label><span class="k">變化</span><input type="text" data-p="states.${i}.change" value="${esc(s.change)}"></label></div>
+    ${s.cat==='知情'?`<div class="g2"><label><span class="k">當事人</span><input type="text" data-p="states.${i}.subjects" value="${esc(s.subjects||'')}"></label>
+    <label><span class="k">歸屬</span><select data-p="states.${i}.sid"><option value="new" ${s.sid==='new'?'selected':''}>新增為新秘密</option>${S.secrets.map(x=>`<option value="${x.id}" ${s.sid===x.id?'selected':''}>併入：${esc(x.text.slice(0,18))}</option>`).join('')}</select></label></div>`:''}
+    <p class="small" style="margin:6px 0 0">${esc(stateHint(s))}</p></div>`).join('')}
+  ${p.quotes.length?'<h3 class="sub">關鍵台詞</h3>':''}
+  ${p.quotes.map((q,i)=>`<div class="pitem"><div class="head"><span>台詞 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="quotes" data-i="${i}">移除</button></div>
+    <div class="g2" style="margin-top:0"><label><span class="k">日期</span><input type="text" data-p="quotes.${i}.dateText" value="${esc(q.dateText)}"></label>
+    <label><span class="k">時段</span><input type="text" data-p="quotes.${i}.period" value="${esc(q.period)}"></label></div>
+    <div class="g"><label><span class="k">說話者</span><input type="text" data-p="quotes.${i}.speaker" value="${esc(q.speaker)}"></label>
+    <label><span class="k">對象</span><input type="text" data-p="quotes.${i}.to" value="${esc(q.to)}"></label>
+    <label><span class="k">類型</span><select data-p="quotes.${i}.type">${QT.map(t=>`<option ${q.type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>
+    <textarea data-p="quotes.${i}.text">${esc(q.text)}</textarea>
+    <label><span class="k" style="margin-top:6px">原因</span><input type="text" data-p="quotes.${i}.why" value="${esc(q.why)}"></label></div>`).join('')}
+  <div class="row" style="margin-top:14px"><button class="btn ghost" data-act="cancelParse">放棄</button><button class="btn primary grow" data-act="commit">寫入${label}</button></div></section>`;
+}
+function vWork(){
+  const pro=ui.mode==='pro';let h='';
+  if(ui.justCommitted){h+=`<div class="notice ok">已寫入${esc(ui.justCommitted.label)}，目前日期為 ${esc(fmt(S.cur))}。要順手匯出備份嗎？<div class="row"><button class="btn sm primary" data-act="exportData">匯出備份</button><button class="btn sm ghost" data-act="dismissCommit">稍後</button></div></div>`}
+  else h+=backupNotice();
+  h+=`<div class="seg modebar"><button class="${!pro?'on':''}" data-act="setMode" data-v="seg">整理本段</button><button class="${pro?'on':''}" data-act="setMode" data-v="pro">匯入過往事件</button></div>`;
+  if(pro){
+    h+=`<section class="sec"><h2><span class="stepn">1</span>複製格式轉換指令</h2>
+    <p class="hint">先把過往事件依時間整理好，每筆標上年月日（只知道年或月也可以）。複製指令後，連同你的紀錄貼給任一 LLM。匯入的事件會歸入「序章」，可分批進行。</p>`;
+  }else{
+    h+=`<section class="sec"><h2><span class="stepn">1</span>複製整理指令</h2>
+    <p class="hint">${segLabel(curSeg()+1)}從 ${esc(fmt(S.cur))} 開始。指令會帶入 ${openFs().length} 條未回收伏筆與 ${S.characters.length} 位角色名稱。</p>`;
+  }
+  h+=`<button class="btn primary big" data-act="copyPrompt">${pro?'複製格式轉換指令':'複製整理指令'}</button>
+  <div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="togglePrompt">${ui.showPrompt?'收起指令內容':'查看指令內容'}</button></div>
+  ${ui.showPrompt?`<pre class="prev">${esc(fillPrompt())}</pre>`:''}</section>`;
+  h+=`<section class="sec"><h2><span class="stepn">2</span>貼上 LLM 的${pro?'轉換':'整理'}結果</h2>
+  <p class="hint">${pro?'複製 LLM 轉換後的整則回覆，再回到這裡。':'在對戲 App 中複製 LLM 的整則回覆，再回到這裡。'}</p>
+  <button class="btn big" data-act="pasteClip">從剪貼簿貼上</button>
+  <div style="margin-top:10px"><textarea data-ui="pasteText" rows="6" placeholder="也可以在這裡長按貼上">${esc(ui.pasteText)}</textarea></div>
+  <div class="row end" style="margin-top:8px"><button class="btn primary" data-act="parse">解析</button></div></section>`;
+  if(ui.parsed&&ui.parsed.mode===ui.mode)h+=previewHtml();
+  else h+=`<section class="sec muted"><h2><span class="stepn">3</span>校對後寫入</h2><p class="hint">解析後會在這裡列出結果。</p></section>`;
+  if(pro)return h;
+  const pend=S.notes.filter(x=>x.kind==='pending');
+  if(pend.length){
+    h+=`<section class="sec"><h2>待整理的快速記錄</h2><p class="hint">對戲中隨手記下的內容，歸類後才會出現在對應分頁。</p>
+    ${pend.map(x=>`<div class="item"><div class="desc">${esc(x.text)}</div><div class="row"><button class="btn sm" data-act="noteTo" data-to="event" data-id="${x.id}">轉為事件</button><button class="btn sm" data-act="noteTo" data-to="fs" data-id="${x.id}">轉為伏筆</button><button class="btn sm" data-act="noteTo" data-to="quote" data-id="${x.id}">轉為台詞</button><button class="btn sm" data-act="noteTo" data-to="idea" data-id="${x.id}">靈感筆記</button><button class="btn sm ghost" data-act="noteDel" data-id="${x.id}">刪除</button></div></div>`).join('')}</section>`;
+  }
+  h+=`<section class="sec"><h2><span class="stepn">4</span>產生前情提要</h2>
+  <p class="hint">貼回對戲中，幫 LLM 補上前情與角色現況。選「全部」時會包含序章。</p>
+  <div class="row"><select data-uic="sumRange" style="flex:1"><option value="1" ${ui.sumRange==='1'?'selected':''}>最近 1 段</option><option value="2" ${ui.sumRange==='2'?'selected':''}>最近 2 段</option><option value="3" ${ui.sumRange==='3'?'selected':''}>最近 3 段</option><option value="all" ${ui.sumRange==='all'?'selected':''}>全部</option></select>
+  <select data-uic="sumLevel" style="flex:1"><option value="h" ${ui.sumLevel==='h'?'selected':''}>精簡：只含重要事件</option><option value="m" ${ui.sumLevel==='m'?'selected':''}>標準：重要與中等</option><option value="l" ${ui.sumLevel==='l'?'selected':''}>詳細：全部事件</option></select></div>
+  <label class="check" style="margin-top:10px"><input type="checkbox" data-uichk="sumQuotes" ${ui.sumQuotes?'checked':''}><span>附上關鍵台詞（含尚未兌現或揭穿的話）</span></label>
+  <button class="btn primary big" style="margin-top:10px" data-act="makeSummary">產生並複製</button>
+  ${ui.sumText?`<pre class="prev">${esc(ui.sumText)}</pre><p class="small">約 ${ui.sumText.length} 字</p>`:''}</section>`;
+  return h;
+}
+function gapText(days){
+  if(days>=yLen())return `相隔約 ${Math.round(days/yLen())} 年`;
+  if(days>=60)return `相隔約 ${Math.round(days/30)} 個月`;
+  return `相隔 ${days} 天`;
+}
+function quoteItem(q){
+  const op=ui.open[q.id];const pend=QPEND[q.type]&&!q.done;
+  return `<div class="ev q"><button class="ev-btn" data-act="toggleEv" data-id="${q.id}" aria-expanded="${!!op}">
+    <div class="qt">「${esc(q.text)}」</div>
+    <div class="meta"><span>${esc(q.speaker||'？')}${q.to?` → ${esc(q.to)}`:''}</span>${q.period?`<span>${esc(q.period)}</span>`:''}${q.type!=='其他'?`<span class="qtype">${esc(q.type)}</span>`:''}${pend?`<span class="imp-tag">待${QPEND[q.type].slice(1)}</span>`:''}${q.done?`<span>${QPEND[q.type]}</span>`:''}${!valid(q.date)?'<span class="warn-tag">日期不存在於目前曆法</span>':''}</div></button>
+    ${op?`<div class="more">${q.why?`<p class="small" style="margin:0 0 8px">${esc(q.why)}</p>`:''}<p class="small" style="margin:0 0 8px">${segLabel(q.seg)}　${esc(fmt(q.date))}</p>
+    <div class="row">${QPEND[q.type]?`<button class="btn sm" data-act="toggleQDone" data-id="${q.id}">${q.done?'取消標記':'標記為'+QPEND[q.type]}</button>`:''}<button class="btn sm" data-act="editQuote" data-id="${q.id}">編輯</button><button class="btn sm danger" data-act="delQuote" data-id="${q.id}">刪除</button></div></div>`:''}</div>`;
+}
+function eventItem(e){
+  const op=ui.open[e.id];const bad=!valid(e.date);
+  return `<div class="ev ${esc(e.imp)}"><button class="ev-btn" data-act="toggleEv" data-id="${e.id}" aria-expanded="${!!op}">
+    <div class="sum">${esc(e.summary)}</div>
+    <div class="meta">${e.period?`<span>${esc(e.period)}</span>`:''}${e.place?`<span>${esc(e.place)}</span>`:''}${e.imp==='h'?'<span class="imp-tag">重要</span>':''}${bad?'<span class="warn-tag">日期不存在於目前曆法</span>':''}</div>
+    ${e.chars.length?`<div class="chips">${e.chars.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>`:''}</button>
+    ${op?`<div class="more"><p class="small" style="margin:0 0 8px">${segLabel(e.seg)}　${e.src==='llm'?'由 LLM 整理':e.src==='pro'?'過往事件匯入':'手動記錄'}　${esc(fmt(e.date))}</p>
+    <div class="row"><button class="btn sm" data-act="evMove" data-dir="-1" data-id="${e.id}">上移</button><button class="btn sm" data-act="evMove" data-dir="1" data-id="${e.id}">下移</button><button class="btn sm" data-act="editEvent" data-id="${e.id}">編輯</button><button class="btn sm danger" data-act="delEvent" data-id="${e.id}">刪除</button></div></div>`:''}
+  </div>`;
+}
+function vTimeline(){
+  let evs=S.events.map(e=>Object.assign({kind:'e'},e));
+  let qs=S.quotes.map(q=>Object.assign({kind:'q'},q));
+  if(ui.tlChar){evs=evs.filter(e=>e.chars.includes(ui.tlChar));qs=qs.filter(q=>q.speaker===ui.tlChar||splitNames(q.to).includes(ui.tlChar))}
+  if(ui.tlImp==='h')evs=evs.filter(e=>e.imp==='h');else if(ui.tlImp==='m')evs=evs.filter(e=>e.imp!=='l');
+  if(ui.tlSeg!==''){evs=evs.filter(e=>String(e.seg)===ui.tlSeg);qs=qs.filter(q=>String(q.seg)===ui.tlSeg)}
+  const all=[...evs,...qs].sort((a,b)=>sortKey(a.date)-sortKey(b.date)||(a.order||0)-(b.order||0));
+  const segs=S.segments.slice().sort((a,b)=>a.n-b.n);
+  let h=`<div class="filters">
+  <select data-uic="tlChar" aria-label="篩選角色"><option value="">全部角色</option>${S.characters.map(c=>`<option ${ui.tlChar===c.name?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+  <select data-uic="tlImp" aria-label="篩選重要度"><option value="">所有重要度</option><option value="h" ${ui.tlImp==='h'?'selected':''}>只看高</option><option value="m" ${ui.tlImp==='m'?'selected':''}>中以上</option></select>
+  <select data-uic="tlSeg" aria-label="篩選段落"><option value="">所有段落</option>${segs.map(s=>`<option value="${s.n}" ${ui.tlSeg===String(s.n)?'selected':''}>${segLabel(s.n)}</option>`).join('')}</select></div>
+  <div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addQuote">新增台詞</button><button class="btn sm" data-act="addEvent">新增事件</button></div>`;
+  if(!all.length)return h+`<p class="empty">${S.events.length||S.quotes.length?'沒有符合篩選條件的內容。':'還沒有事件。到工作台匯入過往事件或第一段劇情，或點「新增事件」手動記錄。'}</p>`;
+  const groups=[];all.forEach(e=>{const k=`${e.date.y}-${e.date.m||0}-${e.date.d||0}-${e.date.prec}`;const g=groups[groups.length-1];if(g&&g.k===k)g.list.push(e);else groups.push({k,date:e.date,list:[e]})});
+  let prev=null,prevYm=null;
+  groups.forEach(g=>{
+    const dt=g.date;const ym=dt.prec==='y'?`${dt.y}`:`${dt.y}-${dt.m}`;
+    if(prev&&prev.prec==='d'&&dt.prec==='d'){const gap=idx(dt)-idx(prev);if(gap>7)h+=`<div class="gap">${gapText(gap)}</div>`}
+    if(ym!==prevYm)h+=`<div class="mdiv">${dt.prec==='y'?`${dt.y}年`:`${dt.y}年${esc(monthName(dt.m))}`}</div>`;
+    const seal=dt.prec==='d'?`<span class="dseal">${esc(monthName(dt.m))}<b>${dt.d}</b>日</span>`:`<span class="dseal vague">${dt.prec==='m'?'日期未定':'月日未定'}</span>`;
+    const ne=g.list.filter(x=>x.kind==='e').length,nq=g.list.length-ne;
+    h+=`<div class="day"><div class="dayhead">${seal}<span class="rule"></span><span class="cnt">${[ne?`${ne} 件事`:'',nq?`${nq} 句台詞`:''].filter(Boolean).join('、')}</span></div>`;
+    g.list.forEach(x=>{h+=x.kind==='e'?eventItem(x):quoteItem(x)});
+    h+='</div>';prev=dt;prevYm=ym;
+  });
+  return h;
+}
+function pick(arr,n){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,n)}
+function vThreads(){
+  const cnt=k=>S.foreshadows.filter(f=>f.status===k).length;
+  let h=`<div class="seg">
+   <button class="${ui.thrView==='fs'?'on':''}" data-act="set" data-k="thrView" data-v="fs">伏筆</button>
+   <button class="${ui.thrView==='cf'?'on':''}" data-act="set" data-k="thrView" data-v="cf">衝突<span class="n">${S.conflicts.filter(c=>!c.resolved).length}</span></button>
+   <button class="${ui.thrView==='qt'?'on':''}" data-act="set" data-k="thrView" data-v="qt">台詞<span class="n">${S.quotes.filter(q=>QPEND[q.type]&&!q.done).length}</span></button>
+   <button class="${ui.thrView==='idea'?'on':''}" data-act="set" data-k="thrView" data-v="idea">靈感</button></div>`;
+  if(ui.thrView==='fs'){
+    h+=`<div class="chips" style="margin-top:10px">${Object.keys(FSN).map(k=>`<button class="chip ${ui.fsTab===k?'on':''}" data-act="set" data-k="fsTab" data-v="${k}">${FSN[k]} ${cnt(k)}</button>`).join('')}</div>
+    <div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addFs">新增伏筆</button></div>`;
+    const list=S.foreshadows.filter(f=>f.status===ui.fsTab);
+    if(!list.length)h+=`<p class="empty">這個狀態下沒有伏筆。</p>`;
+    list.forEach(f=>{
+      const gap=curSeg()-f.lastSeg;
+      h+=`<div class="item"><div class="name">${esc(f.name)}${f.status!=='resolved'&&gap>=1&&f.lastSeg>0?`<span class="stale">${gap} 段未推進</span>`:''}${f.status!=='resolved'&&f.lastSeg===0&&curSeg()>0?`<span class="stale">序章後未推進</span>`:''}</div>
+      <div class="desc">${esc(f.content)}</div>
+      <div class="meta">埋下於${segLabel(f.plantedSeg)}，最後推進於${segLabel(f.lastSeg)}${f.chars.length?'　'+f.chars.map(esc).join('、'):''}</div>
+      <div class="row"><select data-fsstatus="${f.id}" style="width:auto;padding:6px 10px">${Object.keys(FSN).map(k=>`<option value="${k}" ${f.status===k?'selected':''}>${FSN[k]}</option>`).join('')}</select><button class="btn sm" data-act="editFs" data-id="${f.id}">編輯</button><button class="btn sm danger" data-act="delFs" data-id="${f.id}">刪除</button></div></div>`;
+    });
+  }else if(ui.thrView==='qt'){
+    h+=`<div class="chips" style="margin-top:10px"><button class="chip ${ui.qtTab==='pend'?'on':''}" data-act="set" data-k="qtTab" data-v="pend">尚未兌現或揭穿</button><button class="chip ${ui.qtTab==='all'?'on':''}" data-act="set" data-k="qtTab" data-v="all">全部台詞</button></div>
+    <div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addQuote">新增台詞</button></div>`;
+    const list=sortedEvents(S.quotes.filter(q=>ui.qtTab==='all'||(QPEND[q.type]&&!q.done)));
+    if(!list.length)h+=`<p class="empty">${ui.qtTab==='pend'?'沒有待兌現的承諾或待揭穿的謊言。':'還沒有記錄關鍵台詞。'}</p>`;
+    list.forEach(q=>{h+=`<div class="item"><div class="qt">「${esc(q.text)}」</div><div class="meta">${esc(fmt(q.date))}　${esc(q.speaker||'？')}${q.to?' → '+esc(q.to):''}　${esc(q.type)}${q.done?'，'+QPEND[q.type]:''}</div>${q.why?`<div class="small" style="margin-top:2px">${esc(q.why)}</div>`:''}
+      <div class="row">${QPEND[q.type]?`<button class="btn sm" data-act="toggleQDone" data-id="${q.id}">${q.done?'取消標記':'標記為'+QPEND[q.type]}</button>`:''}<button class="btn sm" data-act="editQuote" data-id="${q.id}">編輯</button><button class="btn sm danger" data-act="delQuote" data-id="${q.id}">刪除</button></div></div>`});
+  }else if(ui.thrView==='cf'){
+    h+=`<div class="row end" style="margin-top:12px"><button class="btn sm" data-act="addCf">新增衝突</button></div>`;
+    const list=S.conflicts.slice().sort((a,b)=>a.resolved-b.resolved);
+    if(!list.length)h+=`<p class="empty">目前沒有記錄衝突。</p>`;
+    list.forEach(c=>{h+=`<div class="item ${c.resolved?'done':''}"><label class="check"><input type="checkbox" data-cf="${c.id}" ${c.resolved?'checked':''}><span><div class="desc">${esc(c.content)}</div><div class="meta">${segLabel(c.seg||1)}${c.chars.length?'　'+c.chars.map(esc).join('、'):''}${c.resolved?'　已解決':''}</div></span></label>
+      <div class="row"><button class="btn sm" data-act="editCf" data-id="${c.id}">編輯</button><button class="btn sm danger" data-act="delCf" data-id="${c.id}">刪除</button></div></div>`});
+  }else{
+    if(!ui.qs)ui.qs=pick(DB.settings.questions,3);
+    h+=`<section class="sec"><h2>轉折檢查</h2><p class="hint">從既有劇情找下一步，挑一題想想看。</p>
+    <ol class="qs">${ui.qs.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>
+    <div class="row" style="margin-top:10px"><button class="btn sm" data-act="newQs">換一組問題</button></div></section>`;
+    const cats=Object.keys(DB.settings.cards);
+    h+=`<section class="sec"><h2>抽卡</h2><p class="hint">選一個類別，或從全部卡池隨機抽。</p>
+    <div class="chips"><button class="chip ${!ui.drawCat?'on':''}" data-act="set" data-k="drawCat" data-v="">全部</button>${cats.map(c=>`<button class="chip ${ui.drawCat===c?'on':''}" data-act="set" data-k="drawCat" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+    <button class="btn primary big" style="margin-top:12px" data-act="draw">抽一張</button>
+    ${ui.drawn?`<div class="card-draw"><div class="cat">${esc(ui.drawn.cat)}</div><div class="txt">${esc(ui.drawn.text)}</div></div>`:''}</section>`;
+    const sp=selfProfiles().length;
+    h+=`<section class="sec"><h2>靈感提示詞</h2><p class="hint">打包近期事件、伏筆、衝突、角色現況${sp?'與 PC 設定':''}，請 LLM 提出三個不同走向。${sp?'':'在「角色」分頁填寫 PC 設定後，提示詞會更貼合你的角色。'}</p>
+    <button class="btn primary big" data-act="ideaPrompt">產生並複製</button>
+    ${ui.ideaText?`<pre class="prev">${esc(ui.ideaText)}</pre>`:''}</section>`;
+    const ideas=S.notes.filter(x=>x.kind==='idea');
+    h+=`<section class="sec"><h2>靈感筆記</h2>${ideas.length?ideas.map(x=>`<div class="item"><div class="desc">${esc(x.text)}</div><div class="row"><button class="btn sm ghost" data-act="noteDel" data-id="${x.id}">刪除</button></div></div>`).join(''):'<p class="hint">用右下角的「記」按鈕快速記下想法，歸類為靈感筆記後會出現在這裡。</p>'}</section>`;
+  }
+  return h;
+}
+function charCard(c){
+  const L=c.cur;const op=ui.charOpen===c.id;const self=c.type==='self';
+  const loc=L.single['位置']?L.single['位置'].v:'位置未記錄';
+  const qs=sortedEvents(S.quotes.filter(q=>q.speaker===c.name||splitNames(q.to).includes(c.name)));
+  let h=`<div class="char ${op?'open':''}"><button class="char-btn" data-act="toggleChar" data-id="${c.id}" aria-expanded="${op}"><span class="avatar ${self?'':'other'}">${esc(c.name.slice(0,1))}</span><span class="info"><b>${esc(c.name)}<span class="typetag ${self?'self':''}">${self?'PC':'對方'}</span></b><span>${esc(loc)}</span></span><span class="chev">›</span></button>`;
+  if(op){
+    h+=`<div class="cdetail">`;
+    if(self){
+      const has=PROF.some(([k])=>c.profile&&c.profile[k]);
+      h+=has?`<dl class="prof">${PROF.map(([k,l])=>c.profile[k]?`<dt>${l}</dt><dd>${esc(c.profile[k])}</dd>`:'').join('')}</dl>`:`<p class="hint">尚未填寫角色設定。</p>`;
+    }else h+=`<p class="hint">對方角色只記錄劇情中表現出來的狀態，不保存設定。</p>`;
+    h+=`<p class="small" style="margin:0 0 6px">點擊內容即可修改</p><dl class="stt">`;
+    SINGLE.forEach(k=>{const v=L.single[k];h+=`<dt>${k}</dt><dd><button class="fv" data-act="editField" data-c="${c.id}" data-cat="${k}">${v?esc(v.v):'<span class="small">未記錄</span>'}</button>${v?` <small>${esc(fmt(v.date))}</small>`:''}</dd>`});
+    Object.entries(L.rel).forEach(([t,s])=>{h+=`<dt>對${esc(t)}</dt><dd><button class="fv" data-act="editRel" data-c="${c.id}" data-t="${esc(t)}">${esc(s.v)}</button> <small>${esc(fmt(s.date))}</small></dd>`});
+    h+=`<dt>關係</dt><dd><button class="chip add" data-act="addRel" data-c="${c.id}">＋ 新增對象</button></dd>`;
+    h+=`<dt>持有物</dt><dd><div class="chips">${L.items['持有物'].map(it=>`<button class="chip" data-act="editItem" data-c="${c.id}" data-cat="持有物" data-id="${it.id}">${esc(it.v)}</button>`).join('')}<button class="chip add" data-act="addItem" data-c="${c.id}" data-cat="持有物" aria-label="新增持有物">＋</button></div></dd>`;
+    const subjOf=S.secrets.filter(x=>x.subjects.includes(c.name));
+    h+=`<dt>知情</dt><dd><div class="chips">${subjOf.map(x=>`<button class="chip subj" data-act="editSecret" data-id="${x.id}">當事人｜${esc(x.text)}</button>`).join('')}${L.items['知情'].map(it=>{const sec=secretById(it.sid);return sec?`<button class="chip" data-act="editKnow" data-c="${c.id}" data-id="${it.id}">${esc(sec.text)}</button>`:''}).join('')}<button class="chip add" data-act="addKnow" data-c="${c.id}" aria-label="新增知情">＋</button></div></dd>`;
+    h+=`</dl>
+    <details class="fold"><summary>變化歷程（${c.hist.length}）</summary>${c.hist.length?`<ul class="hist">${c.hist.slice().sort((a,b)=>sortKey(b.date)-sortKey(a.date)).map(x=>`<li><span class="t">${esc(histText(x))}</span><span class="d">${esc(fmt(x.date))}</span><button class="btn sm ghost" data-act="delHist" data-c="${c.id}" data-id="${x.id}" aria-label="刪除此紀錄">✕</button></li>`).join('')}</ul>`:'<p class="small">尚無變化紀錄。</p>'}</details>
+    ${qs.length?`<details class="fold"><summary>相關台詞（${qs.length}）</summary><ul class="hist">${qs.map(q=>`<li><span class="t">${esc(q.speaker)}${q.to?' → '+esc(q.to):''}：「${esc(q.text)}」</span><span class="d">${esc(fmt(q.date))}</span></li>`).join('')}</ul></details>`:''}
+    <div class="row" style="margin-top:12px">${self?`<button class="btn sm primary" data-act="editProfile" data-id="${c.id}">編輯設定</button>`:''}<button class="btn sm" data-act="toggleType" data-id="${c.id}">改為${self?'對方':'PC'}</button><button class="btn sm" data-act="renameChar" data-id="${c.id}">改名</button><button class="btn sm danger" data-act="delChar" data-id="${c.id}">刪除</button></div></div>`;
+  }
+  return h+'</div>';
+}
+function vChars(){
+  let h=`<div class="seg"><button class="${ui.charView==='list'?'on':''}" data-act="set" data-k="charView" data-v="list">角色狀態</button><button class="${ui.charView==='know'?'on':''}" data-act="set" data-k="charView" data-v="know">誰知道什麼</button></div>`;
+  if(ui.charView==='list'){
+    h+=`<div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addChar">新增角色</button></div>`;
+    if(!S.characters.length)return h+`<p class="empty">還沒有角色。匯入時會自動建立為對方角色，也可以手動新增。</p>`;
+    const mine=S.characters.filter(c=>c.type==='self'),theirs=S.characters.filter(c=>c.type!=='self');
+    h+=`<div class="grp">PC</div>`+(mine.length?mine.map(charCard).join(''):'<p class="hint">尚無 PC。展開角色後可切換為 PC。</p>');
+    h+=`<div class="grp">對方</div>`+(theirs.length?theirs.map(charCard).join(''):'<p class="hint">尚無對方角色。</p>');
+  }else{
+    h+=`<div class="row" style="margin-top:12px"><p class="hint grow" style="margin:0">點擊秘密即可編輯內容、當事人與知情者。</p><button class="btn sm" data-act="addSecret">新增秘密</button></div>`;
+    if(!S.secrets.length)return h+`<p class="empty">還沒有秘密。匯入「知情」類別的角色狀態時會自動建立，也可以手動新增。</p>`;
+    S.secrets.forEach(sec=>{
+      const kn=knowersOf(sec);const un=S.characters.filter(c=>!sec.subjects.includes(c.name)&&!kn.includes(c));
+      const notes=kn.map(c=>{const it=c.cur.items['知情'].find(x=>x.sid===sec.id);return it&&it.note?`${c.name}：${it.note}（${fmt(it.date)}）`:''}).filter(Boolean);
+      h+=`<div class="secret"><button class="sec-btn" data-act="editSecret" data-id="${sec.id}"><span class="name">${esc(sec.text)}</span><span class="chev">›</span></button>
+      ${sec.subjects.length?`<div class="knows"><span>當事人</span><span class="chips" style="display:inline-flex">${sec.subjects.map(n=>`<span class="chip subj">${esc(n)}</span>`).join('')}</span></div>`:''}
+      <div class="knows"><span>知情</span><span class="chips" style="display:inline-flex">${kn.length?kn.map(c=>`<span class="chip yes">${esc(c.name)}</span>`).join(''):'<span class="small">－</span>'}</span></div>
+      ${notes.length?`<div class="small" style="margin-top:4px">${notes.map(esc).join('<br>')}</div>`:''}
+      ${un.length?`<div class="knows"><span>不知情</span><span class="chips" style="display:inline-flex">${un.map(c=>`<span class="chip no">${esc(c.name)}</span>`).join('')}</span></div>`:''}</div>`;
+    });
+  }
+  return h;
+}
+function vSettings(){
+  const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
+  const cardsText=Object.entries(DB.settings.cards).map(([k,v])=>v.map(t=>`${k}：${t}`).join('\n')).join('\n');
+  const monthsText=S.cal.months.map((m,i)=>`${m.name||`${i+1}月`} ${m.days}`).join('\n');
+  const bad=invalidCount();const ids=Object.keys(DB.stories);
+  return `<section class="sec"><h2>故事</h2>
+  ${ids.length>1||true?`<label class="fld"><span>目前故事</span><select data-story="1">${ids.map(id=>`<option value="${id}" ${id===DB.active?'selected':''}>${esc(DB.stories[id].name)}</option>`).join('')}</select></label>`:''}
+  <div class="row"><button class="btn sm" data-act="newStory">新增故事</button>${ids.length>1?'<button class="btn sm danger" data-act="delStory">刪除這個故事</button>':''}</div>
+  <label class="fld" style="margin-top:14px"><span>故事名稱</span><input type="text" data-st="name" value="${esc(S.name)}"></label>
+  <label class="fld"><span>故事起始日期（故事第 1 天）</span><input type="text" data-stdate="start" value="${esc(fmt(S.start))}"></label>
+  <label class="fld"><span>目前日期</span><input type="text" data-stdate="cur" value="${esc(fmt(S.cur))}"></label>
+  <p class="small">共 ${curSeg()} 段${S.segments.some(s=>s.n===0)?'與序章':''}、${S.events.length} 個事件、${S.characters.length} 位角色。</p></section>
+  <section class="sec"><h2>曆法</h2>
+  <div class="seg" style="margin-top:4px"><button class="${S.cal.type==='greg'?'on':''}" data-act="setCal" data-v="greg">標準公曆</button><button class="${S.cal.type==='custom'?'on':''}" data-act="setCal" data-v="custom">自訂曆法</button></div>
+  ${S.cal.type==='greg'?'<p class="hint" style="margin-top:8px">依實際月份天數與閏年計算，年份可為任意數字。</p>':`<p class="hint" style="margin-top:8px">一行一個月，格式為「名稱 天數」，名稱可省略只填天數。不含閏年。</p><textarea data-cal="1" rows="8">${esc(monthsText)}</textarea>`}
+  ${bad?`<p class="err">有 ${bad} 筆紀錄的日期在目前曆法中不存在，已在時間軸上標示。</p>`:''}</section>
+  <section class="sec"><h2>備份與還原</h2>
+  <p class="hint">${DB.lastBackup?`上次備份：${new Date(DB.lastBackup).toLocaleString('zh-TW')}`:'尚未備份過。'}　備份包含所有故事與設定，建議存到 iCloud 雲碟。匯入時可以只挑選其中幾個故事。</p>
+  <div class="row"><button class="btn primary" data-act="exportData">匯出備份</button><button class="btn" data-act="pickFile">從檔案匯入</button></div>
+  ${ui.exportText?`<p class="small" style="margin-top:12px">此環境無法直接分享檔案，請複製以下內容另存為 .json 檔：</p><pre class="prev">${esc(ui.exportText.slice(0,800))}${ui.exportText.length>800?'\n…':''}</pre><div class="row" style="margin-top:8px"><button class="btn sm" data-act="copyExport">複製完整備份內容</button></div>`:''}
+  <h3 class="sub">或貼上備份內容匯入</h3>
+  <textarea data-ui="importText" rows="3" placeholder="貼上 .json 備份內容">${esc(ui.importText)}</textarea>
+  <div class="row end" style="margin-top:8px"><button class="btn sm" data-act="importPaste">匯入</button></div></section>
+  ${DB.settings.tplNotice?`<section class="sec"><div class="notice" style="margin:0">整理指令有新版（加入關鍵台詞、持有物動作、秘密清單與當事人），但你修改過範本，所以沒有自動更新。<div class="row"><button class="btn sm primary" data-act="useNewTpl">改用新版</button><button class="btn sm ghost" data-act="keepTpl">保留我的版本</button></div></div></section>`:''}<section class="sec"><h2>整理指令範本</h2><p class="hint">保留 {起始日期}、{伏筆清單}、{角色名單}、{秘密清單} 四個標記，複製時會自動填入。</p>
+  <textarea data-set="template" rows="10">${esc(DB.settings.template)}</textarea>
+  <div class="row end" style="margin-top:8px"><button class="btn sm ghost" data-act="resetTemplate" data-k="template">還原預設</button></div></section>
+  <section class="sec"><h2>格式轉換指令範本</h2><p class="hint">用於匯入過往事件。</p>
+  <textarea data-set="proTemplate" rows="8">${esc(DB.settings.proTemplate)}</textarea>
+  <div class="row end" style="margin-top:8px"><button class="btn sm ghost" data-act="resetTemplate" data-k="proTemplate">還原預設</button></div></section>
+  <section class="sec"><h2>轉折檢查問題</h2><p class="hint">一行一題，所有故事共用。</p>
+  <textarea data-set="questions" rows="8">${esc(DB.settings.questions.join('\n'))}</textarea></section>
+  <section class="sec"><h2>抽卡卡池</h2><p class="hint">一行一張，格式為「類別：內容」，所有故事共用。</p>
+  <textarea data-set="cards" rows="10">${esc(cardsText)}</textarea></section>
+  <section class="sec"><h2>使用環境</h2><p class="hint">${standalone?'目前從主畫面開啟。':'目前在瀏覽器分頁中開啟。正式使用時，請加入主畫面並固定從圖示開啟，iOS 上兩者的資料是分開存放的。'}</p></section>
+  <section class="sec"><h2>重設</h2><div class="row"><button class="btn danger" data-act="clearAll">清空所有資料</button></div></section>`;
+}
+function vSetup(){
+  return `<section class="sec"><h2>建立第一個故事</h2><p class="hint">填寫故事名稱與起始日期即可開始。起始日期是故事的第 1 天，之後都能在設定中修改。</p>
+  <label class="fld"><span>故事名稱</span><input type="text" id="suName" placeholder="例如：鐘塔與護身符"></label>
+  <label class="fld"><span>故事起始日期</span><input type="text" id="suStart" placeholder="例如：1892年2月26日"></label>
+  <label class="fld"><span>曆法</span><select id="suCal"><option value="greg">標準公曆</option><option value="custom">自訂曆法（建立後到設定中編輯月份）</option></select></label>
+  <label class="fld"><span>PC 名稱（選填，多位以頓號分隔）</span><input type="text" id="suSelf" placeholder="之後也可以在角色分頁新增"></label>
+  <button class="btn primary big" data-act="setupDone">開始使用</button></section>
+  <section class="sec"><h2>已經有備份？</h2><p class="hint">從先前匯出的備份檔還原所有故事與設定。</p>
+  <div class="row"><button class="btn" data-act="pickFile">從檔案匯入</button></div>
+  <textarea data-ui="importText" rows="3" placeholder="或貼上 .json 備份內容" style="margin-top:10px">${esc(ui.importText)}</textarea>
+  <div class="row end" style="margin-top:8px"><button class="btn sm" data-act="importPaste">匯入</button></div></section>`;
+}
+function render(){
+  const setup=DB.ready===false;document.body.classList.toggle('setup',setup);
+  if(setup){$('#storyName').textContent='對戲帳本';$('#storySub').textContent='尚未建立故事';$('#main').innerHTML=vSetup();return}
+  $('#storyName').textContent=S.name||'未命名故事';
+  $('#storySub').textContent=`${S.cur.y}年　故事第 ${storyDay()} 天　${segLabel(curSeg())==='序章'?'尚未開始正式段落':`已整理 ${curSeg()} 段`}`;
+  $('#sealMn').textContent=monthName(S.cur.m);$('#sealNum').textContent=S.cur.d;
+  document.querySelectorAll('.tab').forEach(t=>{const on=t.dataset.tab===ui.tab;t.classList.toggle('on',on);t.setAttribute('aria-current',on?'page':'false')});
+  $('#main').innerHTML=({work:vWork,timeline:vTimeline,threads:vThreads,chars:vChars,settings:vSettings})[ui.tab]();
+}
+
+/* ---------- sheet & forms ---------- */
+let formCb=null,confirmCb=null;
+function showSheet(html){$('#sheetBody').innerHTML=html;$('#sheet').hidden=false;const f=$('#sheetBody').querySelector('input,textarea');if(f)setTimeout(()=>f.focus(),60)}
+function closeSheet(){$('#sheet').hidden=true;$('#sheetBody').innerHTML='';formCb=confirmCb=formExtraCb=null}
+let formExtraCb=null;
+function openForm(title,fields,vals,cb,note,extra){
+  formCb=cb;formExtraCb=extra?extra.cb:null;
+  showSheet(`<h3>${esc(title)}</h3>${note?`<p class="hint">${esc(note)}</p>`:''}`+fields.map(f=>{
+    const v=vals[f.k]??'';let inp;
+    if(f.t==='textarea')inp=`<textarea name="${f.k}" rows="3">${esc(v)}</textarea>`;
+    else if(f.t==='select')inp=`<select name="${f.k}">${f.o.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+    else inp=`<input name="${f.k}" type="text" value="${esc(v)}">`;
+    return `<label class="fld"><span>${esc(f.l)}</span>${inp}</label>`;
+  }).join('')+`<div class="row">${extra?`<button class="btn danger" data-act="formExtra">${esc(extra.label)}</button>`:''}<span style="flex:1"></span><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="saveForm">儲存</button></div>`);
+}
+function askConfirm(msg,yes,label){confirmCb=yes;showSheet(`<h3>${esc(msg)}</h3><div class="row end"><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn danger" data-act="confirmYes">${esc(label||'確定')}</button></div>`)}
+function readDate(text,fallbackY){const p=parseDate(text,fallbackY||S.cur.y);if(!p){toast('無法辨識日期，請用「1892年3月5日」這類格式');return null}if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return null}return p}
+const qFields=[{k:'date',l:'日期'},{k:'period',l:'時段'},{k:'speaker',l:'說話者'},{k:'to',l:'對象'},{k:'text',l:'台詞（原句）',t:'textarea'},{k:'type',l:'類型',t:'select',o:QT.map(x=>[x,x])},{k:'why',l:'為何重要'}];
+function saveQuote(q,o){
+  const p=readDate(o.date);if(!p)return false;
+  if(!o.text.trim()){toast('請填寫台詞');return false}
+  [o.speaker,o.to].forEach(n=>splitNames(n).forEach(x=>ensureChar(x)));
+  Object.assign(q,{date:p.date,period:o.period.trim(),speaker:o.speaker.trim(),to:o.to.trim(),text:o.text.trim().replace(/^[「『"“]+|[」』"”]+$/g,''),type:o.type,why:o.why.trim()});
+}
+function newQuoteForm(prefill){
+  openForm('新增關鍵台詞',qFields,Object.assign({date:fmt(S.cur),type:'其他'},prefill||{}),o=>{
+    const q={id:uid(),seg:curSeg(),done:false,order:maxOrder()+1};
+    if(saveQuote(q,o)===false)return false;S.quotes.push(q);toast('已新增台詞');
+  });
+}
+const modeField={k:'mode',l:'這次修改是',t:'select',o:[['change','劇情中的變化（舊值移入歷程）'],['fix','修正記錄錯誤（不留歷程）']]};
+const dateField={k:'date',l:'變化日期（劇情變化時使用）'};
+const evFields=[{k:'date',l:'日期（如 1892年3月5日，只知道年月也可以）'},{k:'period',l:'時段'},{k:'place',l:'地點'},{k:'chars',l:'角色（以頓號分隔）'},{k:'summary',l:'摘要',t:'textarea'},{k:'imp',l:'重要度',t:'select',o:[['h','高'],['m','中'],['l','低']]}];
+const fsFields=[{k:'name',l:'名稱'},{k:'content',l:'內容',t:'textarea'},{k:'status',l:'狀態',t:'select',o:Object.entries(FSN)},{k:'chars',l:'相關角色（以頓號分隔）'}];
+const cfFields=[{k:'content',l:'內容',t:'textarea'},{k:'chars',l:'相關角色（以頓號分隔）'}];
+function saveEvent(e,o){
+  const p=readDate(o.date);if(!p)return false;
+  if(!o.summary.trim()){toast('請填寫摘要');return false}
+  const chars=splitNames(o.chars);chars.forEach(c=>ensureChar(c));
+  Object.assign(e,{date:p.date,period:o.period.trim(),place:o.place.trim(),chars,summary:o.summary.trim(),imp:o.imp});
+}
+function newEventForm(prefill){
+  openForm('新增事件',evFields,Object.assign({date:fmt(S.cur),imp:'m'},prefill||{}),o=>{
+    const e={id:uid(),seg:curSeg(),src:'manual',order:maxOrder()+1};
+    if(saveEvent(e,o)===false)return false;S.events.push(e);toast('已新增事件');
+  });
+}
+function newFsForm(prefill){
+  openForm('新增伏筆',fsFields,Object.assign({status:'planted'},prefill||{}),o=>{
+    if(!o.name.trim()){toast('請填寫名稱');return false}
+    S.foreshadows.push({id:uid(),name:o.name.trim(),content:o.content.trim(),status:o.status,chars:splitNames(o.chars),plantedSeg:curSeg(),lastSeg:curSeg()});toast('已新增伏筆');
+  });
+}
+
+/* ---------- import / export ---------- */
+function stamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`}
+function markBackup(){DB.lastBackup=new Date().toISOString();ui.justCommitted=null;save();render()}
+let pendingImport=null;
+function importJson(text){
+  let raw;try{raw=JSON.parse(text)}catch(e){toast('無法讀取：內容不是有效的備份格式');return}
+  let d=null;try{d=cleanDB(raw)}catch(e){d=null}
+  if(!d){toast('無法讀取：缺少故事資料');return}
+  pendingImport=d;
+  const rows=Object.keys(d.stories).map(id=>{
+    const st=d.stories[id],ex=DB.ready!==false?DB.stories[id]:null;
+    let note='新故事，將加入',older=false;
+    if(ex){older=!!(st.updatedAt&&ex.updatedAt&&new Date(st.updatedAt)<new Date(ex.updatedAt));note=`將覆蓋目前的「${ex.name}」`+(st.updatedAt&&ex.updatedAt?(older?'（備份較舊）':'（備份較新）'):'')}
+    return `<label class="check improw"><input type="checkbox" name="imp" value="${esc(id)}" ${older?'':'checked'}><span><b>${esc(st.name||'未命名故事')}</b><div class="small">${esc(note)}　${cArr(st.events).length} 個事件</div></span></label>`;
+  }).join('');
+  showSheet(`<h3>匯入備份</h3><p class="hint">勾選要匯入的故事。沒有勾選的、以及備份裡沒有的故事都會保留，不受影響。</p>${rows}
+  <div class="row" style="margin-top:16px"><button class="btn sm danger" data-act="importReplaceAll">全部取代</button><span style="flex:1"></span><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="importMerge">匯入勾選的故事</button></div>`);
+}
+
+$('#fileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importJson(r.result);r.readAsText(f);e.target.value=''});
+
+/* ---------- actions ---------- */
+function switchStory(id){DB.active=id;S=DB.stories[id];resetUi();save();render()}
+const ACT={
+  tab:d=>{ui.tab=d.tab;render();window.scrollTo(0,0)},
+  set:d=>{ui[d.k]=d.v;render()},
+  setMode:d=>{ui.mode=d.v;ui.showPrompt=false;render()},
+  togglePrompt:()=>{ui.showPrompt=!ui.showPrompt;render()},
+  copyPrompt:()=>copy(fillPrompt(),ui.mode==='pro'?'已複製格式轉換指令':'已複製整理指令，貼到對戲 App 吧'),
+  pasteClip:async()=>{try{const t=await navigator.clipboard.readText();if(!t){toast('剪貼簿是空的');return}ui.pasteText=t;render();toast('已貼上，請點「解析」')}catch(e){toast('無法讀取剪貼簿，請在文字框中長按貼上')}},
+  parse:()=>{if(!ui.pasteText.trim()){toast('請先貼上整理結果');return}ui.parsed=parseOutput(ui.pasteText,ui.mode);render()},
+  pDel:d=>{ui.parsed[d.k].splice(+d.i,1);render()},
+  cancelParse:()=>{ui.parsed=null;render()},
+  commit:()=>{const p=ui.parsed;if(!p.events.length&&!p.foreshadows.length&&!p.states.length&&!p.conflicts.length&&!p.quotes.length){toast('沒有可寫入的內容');return}
+    for(const e of p.events){const pd=parseDate(e.dateText,S.cur.y);if(!pd){toast(`無法辨識日期「${e.dateText}」，請修正`);return}}
+    commitParsed()},
+  dismissCommit:()=>{ui.justCommitted=null;render()},
+  makeSummary:()=>{ui.sumText=buildSummary();render();copy(ui.sumText,'已複製前情提要')},
+  toggleEv:d=>{ui.open[d.id]=!ui.open[d.id];render()},
+  addEvent:()=>newEventForm(),
+  editEvent:d=>{const e=S.events.find(x=>x.id===d.id);openForm('編輯事件',evFields,Object.assign({},e,{date:fmt(e.date),chars:e.chars.join('、')}),o=>saveEvent(e,o))},
+  delEvent:d=>askConfirm('刪除這個事件？',()=>{S.events=S.events.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  evMove:d=>{
+    const e=S.events.find(x=>x.id===d.id);const k=sortKey(e.date);const sib=sortedEvents(S.events.filter(x=>sortKey(x.date)===k));
+    const i=sib.indexOf(e),j=i+(+d.dir);if(j<0||j>=sib.length){toast(+d.dir<0?'已是當天第一個':'已是當天最後一個');return}
+    const t=sib[j].order;sib[j].order=e.order;e.order=t;save();render();
+  },
+  addFs:()=>newFsForm(),
+  editFs:d=>{const f=S.foreshadows.find(x=>x.id===d.id);openForm('編輯伏筆',fsFields,Object.assign({},f,{chars:f.chars.join('、')}),o=>{Object.assign(f,{name:o.name.trim(),content:o.content.trim(),status:o.status,chars:splitNames(o.chars)})})},
+  delFs:d=>askConfirm('刪除這條伏筆？',()=>{S.foreshadows=S.foreshadows.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  addCf:()=>openForm('新增衝突',cfFields,{},o=>{if(!o.content.trim())return false;S.conflicts.push({id:uid(),content:o.content.trim(),chars:splitNames(o.chars),resolved:false,seg:curSeg()})}),
+  editCf:d=>{const c=S.conflicts.find(x=>x.id===d.id);openForm('編輯衝突',cfFields,Object.assign({},c,{chars:c.chars.join('、')}),o=>{c.content=o.content.trim();c.chars=splitNames(o.chars)})},
+  delCf:d=>askConfirm('刪除這個衝突？',()=>{S.conflicts=S.conflicts.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  newQs:()=>{ui.qs=pick(DB.settings.questions,3);render()},
+  draw:()=>{
+    const pool=[];Object.entries(DB.settings.cards).forEach(([k,v])=>{if(!ui.drawCat||ui.drawCat===k)v.forEach(t=>pool.push({cat:k,text:t}))});
+    if(!pool.length){toast('卡池是空的');return}
+    let c;do{c=pool[Math.floor(Math.random()*pool.length)]}while(pool.length>1&&ui.drawn&&c.text===ui.drawn.text);
+    ui.drawn=c;render();
+  },
+  ideaPrompt:()=>{ui.ideaText=buildIdeaPrompt();render();copy(ui.ideaText,'已複製靈感提示詞')},
+  toggleChar:d=>{ui.charOpen=ui.charOpen===d.id?null:d.id;render()},
+  addChar:()=>openForm('新增角色',[{k:'name',l:'名稱'},{k:'type',l:'類型',t:'select',o:[['self','PC（可填寫設定）'],['other','對方（只記錄劇情表現）']]}],{type:'self'},o=>{const n=o.name.trim();if(!n)return false;if(S.characters.some(c=>c.name===n)){toast('已有同名角色');return false}const c=ensureChar(n,o.type);ui.charOpen=c.id}),
+  editProfile:d=>{const c=S.characters.find(x=>x.id===d.id);openForm(`${c.name}的設定`,PROF.map(([k,l])=>({k,l,t:'textarea'})),c.profile||{},o=>{c.profile=o},'這份設定會用於靈感提示詞與轉折檢查。')},
+  toggleType:d=>{const c=S.characters.find(x=>x.id===d.id);c.type=c.type==='self'?'other':'self';if(!c.profile)c.profile={};save();render();toast(`已改為${c.type==='self'?'PC':'對方角色'}`)},
+  renameChar:d=>{const c=S.characters.find(x=>x.id===d.id);openForm('角色改名',[{k:'name',l:'新名稱'}],{name:c.name},o=>{
+    const nn=o.name.trim(),old=c.name;if(!nn)return false;
+    c.name=nn;S.events.forEach(e=>e.chars=e.chars.map(x=>x===old?nn:x));S.foreshadows.forEach(f=>f.chars=f.chars.map(x=>x===old?nn:x));S.conflicts.forEach(f=>f.chars=f.chars.map(x=>x===old?nn:x));
+    S.characters.forEach(ch=>{if(ch.cur.rel[old]){ch.cur.rel[nn]=ch.cur.rel[old];delete ch.cur.rel[old]}ch.hist.forEach(h=>{if(h.target===old)h.target=nn})});
+    S.secrets.forEach(x=>{x.subjects=x.subjects.map(n=>n===old?nn:n)});
+    S.quotes.forEach(q=>{if(q.speaker===old)q.speaker=nn;q.to=splitNames(q.to).map(x=>x===old?nn:x).join('、')});
+  })},
+  delChar:d=>askConfirm('刪除這個角色與其狀態紀錄？事件中的名字會保留。',()=>{const c=S.characters.find(x=>x.id===d.id);S.secrets.forEach(x=>{x.subjects=x.subjects.filter(n=>n!==c.name)});S.characters=S.characters.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  quickNote:()=>{formCb=o=>{if(!o.text.trim())return false;S.notes.push({id:uid(),text:o.text.trim(),at:Date.now(),kind:'pending'});toast('已記下，稍後在工作台歸類')};
+    showSheet(`<h3>快速記錄</h3><label class="fld"><span>先記下來，之後在工作台歸類</span><textarea name="text" rows="4" placeholder="例如：凱提到小時候住過北方"></textarea></label><div class="row end"><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="saveForm">記下</button></div>`)},
+  noteTo:d=>{
+    const n=S.notes.find(x=>x.id===d.id);
+    if(d.to==='idea'){n.kind='idea';save();render();toast('已移到靈感筆記');return}
+    const done=()=>{S.notes=S.notes.filter(x=>x.id!==n.id)};
+    if(d.to==='event')newEventForm({summary:n.text});else if(d.to==='quote')newQuoteForm({text:n.text});else newFsForm({content:n.text,name:n.text.slice(0,10)});
+    const cb=formCb;formCb=o=>{const r=cb(o);if(r!==false)done();return r};
+  },
+  noteDel:d=>{S.notes=S.notes.filter(x=>x.id!==d.id);save();render()},
+  addQuote:()=>newQuoteForm(),
+  editQuote:d=>{const q=S.quotes.find(x=>x.id===d.id);openForm('編輯台詞',qFields,Object.assign({},q,{date:fmt(q.date)}),o=>saveQuote(q,o))},
+  delQuote:d=>askConfirm('刪除這句台詞？',()=>{S.quotes=S.quotes.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  toggleQDone:d=>{const q=S.quotes.find(x=>x.id===d.id);q.done=!q.done;save();render();toast(q.done?`已標記為${QPEND[q.type]}`:'已取消標記')},
+  editField:d=>{
+    const c=S.characters.find(x=>x.id===d.c),cat=d.cat,cur=c.cur.single[cat];
+    openForm(`${c.name}｜${cat}`,[{k:'v',l:cat},modeField,dateField],{v:cur?cur.v:'',mode:'change',date:fmt(S.cur)},o=>{
+      const v=o.v.trim();
+      if(o.mode==='fix'){if(!v)delete c.cur.single[cat];else c.cur.single[cat]={v,date:cur?cur.date:{...S.cur}};return}
+      if(!v){toast('請填寫內容');return false}
+      const p=readDate(o.date);if(!p)return false;applyState(c,{cat,change:v},p.date,curSeg());
+    },'',cur?{label:'清空',cb:o=>{if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat,from:cur.v,to:'（清空）',date:p?p.date:{...S.cur},seg:curSeg()})}delete c.cur.single[cat]}}:null);
+  },
+  editRel:d=>{
+    const c=S.characters.find(x=>x.id===d.c),t=d.t,cur=c.cur.rel[t];
+    openForm(`${c.name}｜對${t}`,[{k:'v',l:'關係'},modeField,dateField],{v:cur.v,mode:'change',date:fmt(S.cur)},o=>{
+      const v=o.v.trim();if(!v){toast('請填寫內容');return false}
+      if(o.mode==='fix'){cur.v=v;return}
+      const p=readDate(o.date);if(!p)return false;applyState(c,{cat:'關係',target:t,change:v},p.date,curSeg());
+    },'',{label:'移除',cb:o=>{if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat:'關係',target:t,from:cur.v,to:'（移除）',date:p?p.date:{...S.cur},seg:curSeg()})}delete c.cur.rel[t]}});
+  },
+  addRel:d=>{const c=S.characters.find(x=>x.id===d.c);openForm(`${c.name}｜新增關係`,[{k:'t',l:'對象'},{k:'v',l:'關係'},{k:'date',l:'日期'}],{date:fmt(S.cur)},o=>{
+    const t=o.t.trim(),v=o.v.trim();if(!t||!v){toast('請填寫對象與關係');return false}
+    const p=readDate(o.date);if(!p)return false;applyState(c,{cat:'關係',target:t,change:v},p.date,curSeg());
+  })},
+  addItem:d=>{const c=S.characters.find(x=>x.id===d.c),cat=d.cat;const know=cat==='知情';
+    openForm(`${c.name}｜新增${cat}`,know?[{k:'v',l:'得知的內容'},{k:'note',l:'如何得知（選填）'},{k:'date',l:'日期'}]:[{k:'v',l:'物品'},{k:'date',l:'取得日期'}],{date:fmt(S.cur)},o=>{
+      const v=o.v.trim();if(!v){toast('請填寫內容');return false}
+      const p=readDate(o.date);if(!p)return false;
+      applyState(c,know?{cat,target:v,change:(o.note||'').trim()}:{cat,act:'取得',change:v},p.date,curSeg());
+    })},
+  editItem:d=>{
+    const c=S.characters.find(x=>x.id===d.c),cat=d.cat,list=c.cur.items[cat],it=list.find(x=>x.id===d.id);const know=cat==='知情';
+    const fields=[{k:'v',l:know?'得知的內容':'物品'}];if(know)fields.push({k:'note',l:'如何得知'});fields.push(modeField,dateField);
+    openForm(`${c.name}｜${cat}`,fields,{v:it.v,note:it.note||'',mode:'fix',date:fmt(S.cur)},o=>{
+      const v=o.v.trim();if(!v){toast('請填寫內容');return false}
+      if(o.mode==='change'&&v!==it.v){const p=readDate(o.date);if(!p)return false;c.hist.push({id:uid(),cat,act:'變更',from:it.v,to:v,date:p.date,seg:curSeg()})}
+      it.v=v;if(know)it.note=(o.note||'').trim();
+    },'修改時選「劇情中的變化」會留下紀錄；按「移除」時同樣依照這個選項。',{label:know?'移除':'失去／移除',cb:o=>{
+      if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat,act:know?'移除':'失去',to:it.v,date:p?p.date:{...S.cur},seg:curSeg()})}
+      c.cur.items[cat]=list.filter(x=>x!==it);
+    }});
+  },
+  addKnow:d=>{const c=S.characters.find(x=>x.id===d.c);
+    openForm(`${c.name}｜新增知情`,[{k:'sid',l:'秘密',t:'select',o:[['new','（新的秘密）'],...S.secrets.map(x=>[x.id,x.text])]},{k:'v',l:'新秘密的內容（選既有秘密時免填）'},{k:'note',l:'如何得知（選填）'},{k:'date',l:'日期'}],{sid:'new',date:fmt(S.cur)},o=>{
+      if(o.sid==='new'&&!o.v.trim()){toast('請填寫秘密內容');return false}
+      const p=readDate(o.date);if(!p)return false;
+      const sec=o.sid==='new'?ensureSecret(o.v):secretById(o.sid);
+      if(sec.subjects.includes(c.name)){toast(`${c.name}是這件事的當事人，不需另外加入知情`);return false}
+      applyState(c,{cat:'知情',sid:sec.id,target:sec.text,change:(o.note||'').trim()},p.date,curSeg());
+    })},
+  editKnow:d=>{
+    const c=S.characters.find(x=>x.id===d.c),it=c.cur.items['知情'].find(x=>x.id===d.id),sec=secretById(it.sid);
+    openForm(`${c.name}｜知情`,[{k:'text',l:'秘密內容（修改會同步到所有相關角色）',t:'textarea'},{k:'note',l:'如何得知'},modeField,dateField],{text:sec.text,note:it.note||'',mode:'fix',date:fmt(S.cur)},o=>{
+      const t=o.text.trim();if(!t){toast('請填寫內容');return false}
+      if(t!==sec.text&&S.secrets.some(x=>x!==sec&&x.text===t)){toast('已有相同內容的秘密，請改用「合併」');return false}
+      sec.text=t;it.note=(o.note||'').trim();
+    },'「移除」會讓這個角色不再知情；選「劇情中的變化」會留下紀錄。',{label:'移除',cb:o=>{
+      if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat:'知情',act:'移除',sid:sec.id,to:sec.text,date:p?p.date:{...S.cur},seg:curSeg()})}
+      c.cur.items['知情']=c.cur.items['知情'].filter(x=>x!==it);
+    }});
+  },
+  addSecret:()=>openForm('新增秘密',[{k:'text',l:'內容',t:'textarea'},{k:'subj',l:'當事人（選填，以頓號分隔）'}],{},o=>{
+    const t=o.text.trim();if(!t){toast('請填寫內容');return false}
+    if(S.secrets.some(x=>x.text===t)){toast('已有相同內容的秘密');return false}
+    const sec=ensureSecret(t);splitNames(o.subj).forEach(n=>{ensureChar(n);if(!sec.subjects.includes(n))sec.subjects.push(n)});normSecrets();
+  }),
+  editSecret:d=>{
+    const sec=secretById(d.id);const kn=knowersOf(sec).map(c=>c.name);
+    const box=(name,list)=>S.characters.map(c=>`<label class="chip ck"><input type="checkbox" name="${name}" value="${esc(c.name)}" ${list.includes(c.name)?'checked':''}>${esc(c.name)}</label>`).join('');
+    const others=S.secrets.filter(x=>x!==sec);
+    showSheet(`<h3>編輯秘密</h3>
+    <label class="fld"><span>內容（所有相關角色同步更新）</span><textarea id="secText" rows="3">${esc(sec.text)}</textarea></label>
+    <div class="fld"><span>當事人：與這件事直接相關的人，自動視為知情</span><div class="chips">${box('subj',sec.subjects)}</div></div>
+    <div class="fld"><span>知情者：從劇情中得知的人（同時勾選為當事人者以當事人為準）</span><div class="chips">${box('know',kn)}</div></div>
+    <div class="row end"><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="saveSecret" data-id="${sec.id}">儲存</button></div>
+    ${others.length?`<h3 class="sub">合併</h3><p class="hint">把這個秘密併入另一個，當事人與知情者會一起合併，這個秘密的內容會被捨棄。</p>
+    <div class="row"><select id="secMerge" style="flex:1">${others.map(x=>`<option value="${x.id}">${esc(x.text)}</option>`).join('')}</select><button class="btn sm" data-act="mergeSecret" data-id="${sec.id}">合併</button></div>`:''}
+    <div class="row" style="margin-top:18px"><button class="btn sm danger" data-act="delSecret" data-id="${sec.id}">刪除這個秘密</button></div>`);
+  },
+  saveSecret:d=>{
+    const sec=secretById(d.id);const body=$('#sheetBody');
+    const t=body.querySelector('#secText').value.trim();if(!t){toast('請填寫內容');return}
+    if(t!==sec.text&&S.secrets.some(x=>x!==sec&&x.text===t)){toast('已有相同內容的秘密，請改用「合併」');return}
+    const subj=[...body.querySelectorAll('input[name=subj]:checked')].map(x=>x.value);
+    const know=[...body.querySelectorAll('input[name=know]:checked')].map(x=>x.value);
+    sec.text=t;sec.subjects=subj;
+    S.characters.forEach(c=>{
+      const has=c.cur.items['知情'].some(x=>x.sid===sec.id);
+      if(know.includes(c.name)&&!subj.includes(c.name)&&!has)c.cur.items['知情'].push({id:uid(),sid:sec.id,note:'',date:{...S.cur}});
+      if(!know.includes(c.name)&&has)c.cur.items['知情']=c.cur.items['知情'].filter(x=>x.sid!==sec.id);
+    });
+    normSecrets();closeSheet();save();render();toast('已更新秘密');
+  },
+  mergeSecret:d=>{
+    const sec=secretById(d.id);const tid=$('#sheetBody').querySelector('#secMerge').value;const tgt=secretById(tid);if(!tgt)return;
+    askConfirm(`把「${sec.text}」併入「${tgt.text}」？`,()=>{
+      sec.subjects.forEach(n=>{if(!tgt.subjects.includes(n))tgt.subjects.push(n)});
+      S.characters.forEach(c=>{
+        const list=c.cur.items['知情'];const a=list.find(x=>x.sid===sec.id),b=list.find(x=>x.sid===tgt.id);
+        if(a&&b){if(!b.note&&a.note)b.note=a.note;c.cur.items['知情']=list.filter(x=>x!==a)}else if(a)a.sid=tgt.id;
+        c.hist.forEach(h=>{if(h.sid===sec.id)h.sid=tgt.id});
+      });
+      S.secrets=S.secrets.filter(x=>x!==sec);normSecrets();save();render();toast('已合併');
+    },'合併');
+  },
+  delSecret:d=>{const sec=secretById(d.id);askConfirm(`刪除「${sec.text}」？所有角色的這筆知情也會一併移除。`,()=>{
+    S.characters.forEach(c=>{c.cur.items['知情']=c.cur.items['知情'].filter(x=>x.sid!==sec.id)});S.secrets=S.secrets.filter(x=>x!==sec);save();render();
+  },'刪除')},
+  delHist:d=>{const c=S.characters.find(x=>x.id===d.c);c.hist=c.hist.filter(h=>h.id!==d.id);save();render()},
+  formExtra:()=>{const o={};$('#sheetBody').querySelectorAll('[name]').forEach(el=>o[el.name]=el.value);const cb=formExtraCb;closeSheet();if(cb&&cb(o)!==false){save();render()}},
+  useNewTpl:()=>{DB.settings.template=DEFAULT_TEMPLATE;DB.settings.proTemplate=DEFAULT_PRO;delete DB.settings.tplNotice;save();render();toast('已改用新版範本')},
+  keepTpl:()=>{delete DB.settings.tplNotice;save();render()},
+  importMerge:()=>{
+    const ids=[...$('#sheetBody').querySelectorAll('input[name=imp]:checked')].map(x=>x.value);
+    if(!ids.length){toast('請至少勾選一個故事');return}
+    const d=pendingImport;
+    if(DB.ready===false){DB.stories={};DB.ready=true}
+    ids.forEach(id=>{DB.stories[id]=d.stories[id]});
+    if(!DB.stories[DB.active])DB.active=ids[0];
+    S=DB.stories[DB.active];migrateAll();
+    closeSheet();resetUi();ui.importText='';pendingImport=null;save();render();
+    toast(`已匯入 ${ids.length} 個故事，其他故事保留不變`);
+  },
+  importReplaceAll:()=>askConfirm('全部取代會刪除目前所有故事與設定，改為備份中的內容，確定嗎？',()=>{
+    const d=pendingImport;d.ready=true;if(!d.settings)d.settings=defaultSettings();if(!d.stories[d.active])d.active=Object.keys(d.stories)[0];
+    DB=d;S=DB.stories[DB.active];migrateAll();resetUi();ui.importText='';pendingImport=null;save();render();toast('已取代為備份內容');
+  },'全部取代'),
+  closeSheet:()=>closeSheet(),
+  saveForm:()=>{const o={};$('#sheetBody').querySelectorAll('[name]').forEach(el=>o[el.name]=el.value);if(formCb&&formCb(o)===false)return;closeSheet();save();render()},
+  confirmYes:()=>{const cb=confirmCb;closeSheet();cb&&cb()},
+  setupDone:()=>{
+    const name=$('#suName').value.trim()||'我的故事';
+    S.cal.type=$('#suCal').value;
+    const p=parseDate($('#suStart').value,null);
+    if(!p||p.date.prec!=='d'){toast('請填寫完整的起始日期，例如 1892年2月26日');return}
+    if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return}
+    S.name=name;S.start=p.date;S.cur={...p.date};
+    splitNames($('#suSelf').value).forEach(n=>ensureChar(n,'self'));
+    DB.ready=true;save();render();toast('故事已建立');
+  },
+  setCal:d=>{S.cal.type=d.v;if(!S.cal.months||!S.cal.months.length)S.cal.months=defaultCal().months;save();render();const b=invalidCount();toast(b?`切換完成，有 ${b} 筆日期在此曆法中不存在`:'已切換曆法')},
+  newStory:()=>openForm('新增故事',[{k:'name',l:'故事名稱'},{k:'start',l:'故事起始日期（如 1892年2月26日）'}],{},o=>{
+    const p=parseDate(o.start,null);if(!p||p.date.prec!=='d'){toast('請填寫完整的起始日期');return false}
+    const s=blankStory(o.name.trim(),defaultCal(),p.date);DB.stories[s.id]=s;setTimeout(()=>{switchStory(s.id);toast('已建立新故事')},0);
+  },'曆法預設為標準公曆，建立後可在設定中更改。'),
+  delStory:()=>askConfirm(`刪除「${S.name}」？此動作無法復原。`,()=>{delete DB.stories[DB.active];switchStory(Object.keys(DB.stories)[0])},'刪除'),
+  exportData:async()=>{
+    const json=JSON.stringify(Object.assign({},DB,{exportedAt:new Date().toISOString()}));
+    const name=`對戲帳本_${stamp()}.json`;
+    try{const file=new File([json],name,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});markBackup();toast('已匯出備份');return}
+    }catch(e){if(e&&e.name==='AbortError')return}
+    ui.exportText=json;ui.tab='settings';render();toast('請複製備份內容另存');
+  },
+  copyExport:async()=>{if(await copy(ui.exportText,'已複製備份內容'))markBackup()},
+  pickFile:()=>$('#fileIn').click(),
+  copyRaw:()=>{let r='';try{r=localStorage.getItem(KEY)||localStorage.getItem(KEY+'-unreadable')||''}catch(e){}if(!r){toast('沒有可複製的資料');return}copy(r,'已複製原始資料，請貼到記事本保存')},
+  importPaste:()=>{if(!ui.importText.trim()){toast('請先貼上備份內容');return}importJson(ui.importText)},
+  resetTemplate:d=>{DB.settings[d.k]=d.k==='template'?DEFAULT_TEMPLATE:DEFAULT_PRO;save();render();toast('已還原預設指令')},
+  clearAll:()=>askConfirm('清空所有故事與資料？此動作無法復原。',()=>{DB=firstDB();S=DB.stories[DB.active];resetUi();ui.tab='work';save();render()},'清空')
+};
+
+document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;const f=ACT[a.dataset.act];if(f){e.preventDefault();f(a.dataset,a)}});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.ui!==undefined)ui[t.dataset.ui]=t.value;
+  else if(t.dataset.p){const [k,i,f]=t.dataset.p.split('.');ui.parsed[k][+i][f]=t.value}
+  else if(t.dataset.st){S[t.dataset.st]=t.value;save();$('#storyName').textContent=S.name||'未命名故事'}
+  else if(t.dataset.cal){
+    const months=t.value.split('\n').map(l=>l.trim()).filter(Boolean).map((l,i)=>{const m=l.match(/^(.*?)\s*(\d+)\s*$/);if(!m)return null;const nm=m[1].trim();return {name:/^\d+月$/.test(nm)?'':nm,days:Math.min(1000,Math.max(1,+m[2]))}}).filter(Boolean);
+    if(months.length){S.cal.months=months;save()}
+  }
+  else if(t.dataset.set){
+    const k=t.dataset.set;
+    if(k==='template'||k==='proTemplate')DB.settings[k]=t.value;
+    else if(k==='questions')DB.settings.questions=t.value.split('\n').map(x=>x.trim()).filter(Boolean);
+    else if(k==='cards'){const o={};t.value.split('\n').forEach(l=>{const m=l.match(/^\s*([^：:]+)[：:]\s*(.+)$/);if(m)(o[m[1].trim()]=o[m[1].trim()]||[]).push(m[2].trim())});DB.settings.cards=o;ui.qs=null}
+    save();
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.uichk){ui[t.dataset.uichk]=t.checked}
+  else if(t.dataset.uic){ui[t.dataset.uic]=t.value;render()}
+  else if(t.dataset.story){switchStory(t.value)}
+  else if(t.dataset.cal){render()}
+  else if(t.dataset.stdate){const p=readDate(t.value);if(!p||p.date.prec!=='d'){if(p)toast('請填寫完整的年月日');t.value=fmt(S[t.dataset.stdate]);return}S[t.dataset.stdate]=p.date;save();render();toast('已更新日期')}
+  else if(t.dataset.fsstatus){const f=S.foreshadows.find(x=>x.id===t.dataset.fsstatus);f.status=t.value;f.lastSeg=Math.max(f.lastSeg,curSeg());save();render();toast(`已改為「${FSN[t.value]}」`)}
+  else if(t.dataset.cf){const c=S.conflicts.find(x=>x.id===t.dataset.cf);c.resolved=t.checked;save();render()}
+});
+document.addEventListener('focusin',e=>{if(e.target.matches('input:not([type=checkbox]),textarea,select'))document.body.classList.add('typing')});
+document.addEventListener('focusout',()=>document.body.classList.remove('typing'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)closeSheet()});
+function boot(){
+  try{migrateAll();render()}
+  catch(e){
+    console.error(e);
+    $('#main').innerHTML=`<section class="sec"><h2>資料讀取失敗</h2><p class="hint">儲存的資料格式有問題，App 無法正常顯示。請先複製原始資料保存，再選擇重設；也可以重設後用正常的備份檔匯入。</p><div class="row"><button class="btn primary" data-act="copyRaw">複製原始資料</button><button class="btn danger" data-act="clearAll">重設</button></div></section>`;
+  }
+}
+boot();
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+
+</script>
+</body>
+</html>
