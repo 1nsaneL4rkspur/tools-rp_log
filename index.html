@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>對戲帳本</title>
+<meta name="apple-mobile-web-app-title" content="劇情整理小工具">
+<title>劇情整理小工具</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@200;300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#E7EAE3; --surface:#F4F5F1; --ink:#1E2433; --mute:#5C6373; --line:#C8CDC3;
@@ -227,21 +228,254 @@ button.chip.subj{font-size:.85rem}
 .chip.ck input{width:18px;height:18px;margin:0;accent-color:var(--jade)}
 .chip.ck:has(input:checked){border-color:var(--jade);background:var(--jade-soft)}
 .fld > .chips{margin-top:2px}
+.fab span{font-size:1.45rem;line-height:1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.dayfold{display:block;margin:2px 0 0 30px;background:none;border:0;padding:8px 0;min-height:40px;color:var(--jade);font-size:.85rem;font-weight:700;cursor:pointer;text-align:left}
+.dayfold:focus-visible{outline:2px solid var(--jade);outline-offset:2px;border-radius:6px}
+.kindtag{display:inline-block;font-size:.72rem;font-weight:700;border:1px solid var(--jade);color:var(--jade);border-radius:4px;padding:0 6px;margin-right:6px;vertical-align:2px}
+.kindtag.cf{border-color:var(--seal);color:var(--seal)}
+.grp-btn{all:unset;display:block;width:100%;cursor:pointer;padding:4px 0}
+.grp-btn:focus-visible{outline:2px solid var(--jade);outline-offset:2px;border-radius:6px}
+.seal.undated{border-style:dashed;background:transparent}
+.seal.undated b{font-size:.95rem;margin-top:3px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ===== v2：當代展間風格（全站） ===== */
+body.v2{
+  --bg:#E8E8E5; --surface:#F4F4F1; --ink:#111214; --mute:#6B6D70; --line:#CBCBC7; --line2:#8E908B;
+  --accent:#1F3BFF; --accent-ink:#FFFFFF; --accent-soft:#DDE2FF;
+  --ghost:#ADAEA9; --grid:rgba(17,18,20,.055); --stripe:rgba(17,18,20,.2);
+  --jade:var(--accent); --jade-ink:var(--accent-ink); --jade-soft:var(--accent-soft);
+  --seal:var(--ink); --seal-soft:transparent;
+  --disp:"Space Grotesk",var(--sans);
+  overflow-x:clip;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) body.v2{
+    --bg:#0E0F11; --surface:#17181B; --ink:#ECECE8; --mute:#8B8D91; --line:#2B2D31; --line2:#55585E;
+    --accent:#4A68FF; --accent-soft:#151B3D; --ghost:#3A3C42; --grid:rgba(236,236,232,.045); --stripe:rgba(236,236,232,.24);
+  }
+}
+:root[data-theme="dark"] body.v2{
+  --bg:#0E0F11; --surface:#17181B; --ink:#ECECE8; --mute:#8B8D91; --line:#2B2D31; --line2:#55585E;
+  --accent:#4A68FF; --accent-soft:#151B3D; --ghost:#3A3C42; --grid:rgba(236,236,232,.045); --stripe:rgba(236,236,232,.24);
+}
+body.v2 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 頁首：日期被底線裁切的大數字 */
+body.v2 .top{background:var(--bg);border-bottom:1px solid var(--ink);overflow:hidden}
+body.v2 .top-in{align-items:flex-end;padding:14px 18px 0;gap:18px}
+body.v2 .story{padding-bottom:12px}
+body.v2 .story h1{font-family:var(--sans);font-weight:900;font-size:1.12rem;letter-spacing:.02em}
+body.v2 .story p{font-family:var(--disp);font-size:.78rem;letter-spacing:.01em}
+body.v2 .seal{width:auto;height:auto;border:0;border-radius:0;background:none;transform:none;color:var(--ink);
+  flex-direction:row;align-items:flex-start;gap:6px;font-family:var(--disp);line-height:1}
+body.v2 .seal small.mn{font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--mute);padding-top:.35rem}
+body.v2 .seal b{font-family:var(--disp);font-weight:300;font-size:3.6rem;line-height:.8;letter-spacing:-.04em;margin:0 0 -.2em;font-variant-numeric:tabular-nums}
+body.v2 .seal #sealD{display:none}
+body.v2 .seal.undated b{font-family:var(--sans);font-weight:200;font-size:2.2rem;margin-bottom:-.12em}
+
+/* 主欄：可見的系統網格 */
+body.v2 main{min-height:calc(100dvh - 78px);
+  background:
+    linear-gradient(to right,var(--grid) 1px,transparent 1px) 18px 0/calc((100% - 36px) / 4) 100% repeat-x;
+}
+
+/* 篩選與操作：完全秩序 */
+body.v2 .btn{border-radius:0;border-color:var(--line2);background:transparent}
+body.v2 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+body.v2 .btn.danger{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+body.v2 .btn.ghost{border-color:transparent;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;padding-left:4px;padding-right:10px}
+body.v2 .btn:active{transform:none;background:var(--surface)}
+body.v2 .btn.primary:active{filter:brightness(.92);background:var(--accent)}
+body.v2 textarea,body.v2 input[type=text],body.v2 input[type=number],body.v2 select{border-radius:0;border-color:var(--line2);background:var(--surface)}
+body.v2 .filters{gap:0;margin-top:20px}
+body.v2 .filters select + select{border-left:0}
+body.v2 .chip{border-radius:0;background:transparent;border-color:var(--line2);font-size:.76rem;padding:1px 8px}
+
+/* 月份分隔：極端字重對比＋斷裂細線 */
+body.v2 .mdiv{margin:52px 0 0;gap:8px;align-items:baseline;font-family:var(--disp);font-size:1.5rem;letter-spacing:-.01em;line-height:1.1}
+body.v2 .mdiv .y{font-weight:300;color:var(--mute)}
+body.v2 .mdiv .m{font-family:var(--sans);font-weight:900}
+body.v2 .mdiv::after{height:1px;opacity:1;align-self:center;
+  background:linear-gradient(to right,var(--ink) 0 58%,transparent 58% calc(58% + 18px),var(--ink) calc(58% + 18px))}
+body.v2 .row + .mdiv,body.v2 .filters + .row + .mdiv{margin-top:36px}
+
+/* 單日：日期數字＋被當日邊界裁切的鏤空巨型數字 */
+body.v2 .day{margin-top:30px}
+body.v2 .dayhead{gap:12px;margin-bottom:2px;align-items:flex-end}
+body.v2 .dseal{border:0;background:none;padding:0;border-radius:0;color:var(--ink);display:inline-flex;align-items:flex-start;gap:5px;font-family:var(--disp);line-height:1}
+body.v2 .dseal .dm{font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--mute);padding-top:.2rem}
+body.v2 .dseal b{font-size:2.1rem;font-weight:500;letter-spacing:-.03em;margin:0;font-variant-numeric:tabular-nums}
+body.v2 .dseal .dd{display:none}
+body.v2 .dseal.vague{font-family:var(--sans);font-size:.82rem;font-weight:500;color:var(--mute);border:1px dashed var(--line2);padding:3px 8px}
+body.v2 .dayhead .rule{background:var(--line);margin-bottom:.45rem}
+body.v2 .day[style] .dayhead .rule{height:11px;margin-bottom:calc(.45rem - 5px);background:
+  linear-gradient(var(--accent),var(--accent)) calc(var(--p) * 100%) 0/2px 100% no-repeat,
+  linear-gradient(var(--line2),var(--line2)) 0 50%/calc(var(--p) * 100%) 1px no-repeat,
+  repeating-linear-gradient(to right,var(--line2) 0 2px,transparent 2px 6px) 0 50%/100% 1px no-repeat}
+body.v2 .dayhead .cnt{font-family:var(--disp);font-size:.76rem;margin-bottom:.2rem}
+
+/* 事件軸：細線＋方形節點 */
+body.v2 .ev{border-left:1px solid var(--line2);margin-left:10px;padding:12px 0 12px 20px}
+body.v2 .ev::before{left:-5px;top:20px;width:9px;height:9px;border-radius:0;background:var(--bg);border:1px solid var(--mute)}
+body.v2 .ev.m::before{border:1.5px solid var(--ink)}
+body.v2 .ev.h{border-left-color:var(--accent)}
+body.v2 .ev.h::before{background:var(--accent);border-color:var(--accent);width:11px;height:11px;left:-6px;top:19px}
+body.v2 .ev.h .sum{font-weight:500}
+body.v2 .ev.q::before{border-radius:0;background:var(--bg);border:1.5px solid var(--ink);transform:rotate(45deg)}
+body.v2 .ev-btn:focus-visible{outline:2px solid var(--accent);border-radius:0}
+body.v2 .ev .sum{font-size:1rem;line-height:1.6}
+body.v2 .ev .meta{font-size:.78rem;gap:4px 12px}
+body.v2 .ev .more{border-top:1px solid var(--line)}
+body.v2 .qt{font-family:var(--sans);font-weight:300;font-size:1.06rem;line-height:1.7}
+body.v2 .qtype{color:var(--ink);font-weight:700}
+body.v2 .imp-tag{background:var(--accent);color:var(--accent-ink);font-weight:700;padding:0 9px 0 6px;
+  clip-path:polygon(0 0,100% 0,100% 55%,calc(100% - 6px) 100%,0 100%)}
+body.v2 .warn-tag{color:var(--ink);font-weight:500;padding:0 6px;
+  background:repeating-linear-gradient(135deg,var(--stripe) 0 1px,transparent 1px 5px)}
+body.v2 .gap{margin:16px 0 0 10px;padding:8px 0 8px 20px;border-left:1px dashed var(--line2);font-family:var(--disp);font-size:.76rem}
+body.v2 .dayfold{margin-left:30px;color:var(--ink);font-weight:500;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+body.v2 .dayfold:focus-visible{outline-color:var(--accent);border-radius:0}
+
+/* 空狀態：幾何構成 */
+body.v2 .empty{padding:44px 10px}
+body.v2 .empty::before{content:"";display:block;width:132px;height:88px;margin:0 auto 20px;background:
+  linear-gradient(var(--accent),var(--accent)) 82px 18px/14px 14px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 0 52px/100% 1px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 36px 0/1px 100% no-repeat,
+  linear-gradient(to top right,transparent calc(50% - .6px),var(--mute) 50%,transparent calc(50% + .6px)) 36px 0/96px 88px no-repeat}
+
+/* 分頁列與浮動按鈕 */
+body.v2 .tabbar{background:var(--bg);border-top:1px solid var(--ink)}
+body.v2 .tab{font-weight:500}
+body.v2 .tab.on{color:var(--ink);font-weight:900}
+body.v2 .tab.on::before{left:0;right:0;top:-1px;height:3px;border-radius:0;background:var(--accent)}
+body.v2 .fab{border-radius:0;background:var(--bg);border:1px solid var(--ink);box-shadow:none;width:44px;height:44px;right:18px;bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+body.v2[data-tab="settings"] .fab,body.v2.setup .fab{display:none}
+body.v2 .fab span{display:none}
+body.v2 .fab::before,body.v2 .fab::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:1.5px;background:var(--ink);transform:translate(-50%,-50%)}
+body.v2 .fab::after{transform:translate(-50%,-50%) rotate(90deg)}
+
+body.v2 .tabbar{transition:transform .22s ease}
+body.v2 .fab{transition:transform .22s ease,opacity .18s ease}
+body.v2.navhide .tabbar{transform:translateY(100%)}
+body.v2.navhide .fab{transform:translateY(140px);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){body.v2 .tabbar,body.v2 .fab{transition:none}}
+
+/* ===== v2 全站元件 ===== */
+/* 分區與步驟編號 */
+body.v2 .sec{padding:30px 0 28px;position:relative}
+body.v2 .sec h2{font-family:var(--sans);font-weight:900;font-size:1.08rem;align-items:baseline;gap:12px;margin-bottom:8px}
+body.v2 .stepn{width:auto;height:auto;border:0;border-radius:0;color:var(--ink);font-family:var(--disp);font-weight:300;font-size:2.2rem;line-height:.8;letter-spacing:-.04em;display:inline-block;font-variant-numeric:tabular-nums}
+body.v2 .sec.muted h2{color:var(--mute)}
+body.v2 .sec.muted .stepn{color:var(--line2);border:0}
+body.v2 .hint{color:var(--mute)}
+body.v2 h3.sub{font-weight:900;font-size:.85rem;color:var(--ink);margin-top:24px;display:flex;align-items:center;gap:10px}
+body.v2 h3.sub::after{content:"";flex:1;height:1px;background:var(--line)}
+body.v2 pre.prev{border-radius:0;border:1px solid var(--line);background:var(--surface)}
+
+/* 提示框 */
+body.v2 .notice{border-radius:0;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--ink)}
+body.v2 .notice.ok{background:var(--accent-soft);border-color:var(--accent-soft);border-left-color:var(--accent)}
+body.v2 .err{color:var(--ink);font-weight:500;padding:2px 6px;background:repeating-linear-gradient(135deg,var(--stripe) 0 1px,transparent 1px 5px)}
+
+/* 分段切換：與分頁列同一語彙 */
+body.v2 .seg{background:transparent;border:0;border-bottom:1px solid var(--ink);border-radius:0;padding:0;gap:0}
+body.v2 .seg button{border-radius:0;color:var(--mute);font-weight:500;position:relative;min-height:44px}
+body.v2 .seg button + button{border-left:1px solid var(--line)}
+body.v2 .seg button.on{background:transparent;color:var(--ink);font-weight:900}
+body.v2 .seg button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--accent)}
+body.v2 .seg button .n{font-family:var(--disp);opacity:1;color:var(--mute);font-weight:400}
+
+/* 標籤 */
+body.v2 button.chip{min-height:34px;padding:4px 12px;font-size:.86rem}
+body.v2 button.chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+body.v2 .chip.add{border-style:dashed;color:var(--accent);border-color:var(--accent)}
+body.v2 .chip.subj{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+body.v2 .chip.yes{border-color:var(--accent);color:var(--accent)}
+body.v2 .chip.no{color:var(--mute);border-style:dashed}
+body.v2 .chip.ck:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+body.v2 .stale{border:0;border-radius:0;color:var(--ink);padding:0 6px;background:repeating-linear-gradient(135deg,var(--stripe) 0 1px,transparent 1px 5px)}
+body.v2 .kindtag{border-radius:0;border-color:var(--ink);color:var(--ink)}
+body.v2 .kindtag.cf{background:var(--ink);color:var(--bg)}
+body.v2 .typetag{border-radius:0;border-color:var(--line2)}
+body.v2 .typetag.self{border-color:var(--accent);color:var(--accent)}
+
+/* 解析預覽與列表 */
+body.v2 .pitem{border-radius:0;border-color:var(--line2);background:var(--surface)}
+body.v2 .pitem input,body.v2 .pitem select,body.v2 .pitem textarea{border-radius:0;background:var(--bg)}
+body.v2 .item .name{font-weight:700}
+body.v2 .improw{border-bottom-color:var(--line)}
+body.v2 .card-draw{border-radius:0;border:1px solid var(--ink);background:var(--surface);position:relative;padding:22px 18px 18px}
+body.v2 .card-draw::before{content:"";position:absolute;top:-1px;right:-1px;width:14px;height:14px;background:var(--accent)}
+body.v2 .card-draw .txt{font-family:var(--sans);font-weight:300;font-size:1.2rem;line-height:1.6}
+
+/* 角色 */
+body.v2 .grp{margin:30px 0 0;padding-bottom:6px;border-bottom:1px solid var(--ink);color:var(--ink);font-weight:900;font-size:.85rem}
+body.v2 .grp-btn{padding:4px 0 6px}
+body.v2 .avatar{border-radius:0;background:var(--accent);color:var(--accent-ink);font-family:var(--sans);font-weight:900;
+  clip-path:polygon(0 0,calc(100% - 11px) 0,100% 11px,100% 100%,0 100%)}
+body.v2 .avatar.other{background:transparent;border:1px solid var(--line2);color:var(--ink)}
+body.v2 .char-btn:focus-visible,body.v2 .sec-btn:focus-visible,body.v2 .grp-btn:focus-visible,body.v2 .fv:focus-visible{outline-color:var(--accent);border-radius:0}
+body.v2 .prof{border-radius:0;border-color:var(--line);background:var(--surface)}
+body.v2 .hist li{border-top-style:solid}
+body.v2 .fv{border-bottom:1px dashed var(--line2)}
+body.v2 details.fold{border-top-color:var(--line)}
+
+@media (min-width:960px){
+  body.v2 .sec h2 .stepn{position:absolute;left:-84px;top:26px;font-size:3.4rem;width:64px;text-align:right}
+}
+
+/* 回顧則數 */
+body.v2 .revrow{display:flex;align-items:center;gap:8px;margin:14px 0 14px;font-size:.92rem}
+body.v2 .revrow .btn{min-width:40px;min-height:40px;font-family:var(--disp);font-size:1.1rem;padding:0}
+body.v2 .revrow input{width:76px;text-align:center;font-family:var(--disp);font-size:1.15rem;font-weight:500;padding:6px 4px;-moz-appearance:textfield}
+body.v2 .revrow input::-webkit-inner-spin-button,body.v2 .revrow input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+/* 頭像 */
+body.v2 .avatar{overflow:hidden}
+body.v2 .avatar svg{width:100%;height:100%;display:block}
+body.v2 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+body.v2 .avatar.av-auto:not(.other){background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+body.v2 .avopt .row .btn{flex:none;white-space:nowrap}
+body.v2 .avatar.av-img{background:var(--surface);border:0}
+body.v2 .avatar.av-txt{font-size:1.05rem}
+body.v2 .avatar.lg{width:56px;height:56px;font-size:1.4rem;clip-path:polygon(0 0,calc(100% - 15px) 0,100% 15px,100% 100%,0 100%)}
+body.v2 .avopts{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+body.v2 .avopt{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;padding:14px 4px;border-bottom:1px solid var(--line);cursor:pointer;position:relative}
+body.v2 div.avopt{cursor:default}
+body.v2 .avopt b{display:block;font-weight:700}
+body.v2 .avopt small{display:block;color:var(--mute);font-size:.8rem}
+body.v2 .avopt .grow{flex:1;min-width:0}
+body.v2 .avopt.on::before{content:"";position:absolute;left:-18px;top:0;bottom:0;width:3px;background:var(--accent)}
+body.v2 button.avopt:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* 底部面板：斜切上緣 */
+body.v2 .scrim{background:rgba(14,15,17,.55)}
+body.v2 .panel{border-radius:0;padding-top:34px;clip-path:polygon(0 16px,64% 0,100% 0,100% 100%,0 100%)}
+body.v2 .panel h3{font-family:var(--sans);font-weight:900}
+body.v2 .toast{border-radius:0}
+
+/* 寬螢幕：主欄偏左，右側留白，巨型數字溢出進留白 */
+@media (min-width:960px){
+  body.v2 .top-in,body.v2 main,body.v2 .tabbar-in{margin-left:calc(50% - 470px);margin-right:auto}
+  body.v2 .fab{right:calc(50% - 192px)}
+}
 </style>
 </head>
-<body>
+<body class="v2">
 <header class="top"><div class="top-in">
-  <div class="story"><h1 id="storyName">對戲帳本</h1><p id="storySub"></p></div>
-  <div class="seal" aria-label="目前日期"><small class="mn" id="sealMn">1月</small><b id="sealNum">1</b><small>日</small></div>
+  <div class="story"><h1 id="storyName">劇情整理小工具</h1><p id="storySub"></p></div>
+  <div class="seal" id="seal" aria-label="目前日期"><small class="mn" id="sealMn">1月</small><b id="sealNum">1</b><small id="sealD">日</small></div>
 </div></header>
 
 <main id="main"></main>
 
-<button class="fab" data-act="quickNote" aria-label="快速記錄">記</button>
+<button class="fab" data-act="quickNote" aria-label="快速記錄"><span aria-hidden="true">✏️</span></button>
 <nav class="tabbar" aria-label="分頁"><div class="tabbar-in">
   <button class="tab" data-act="tab" data-tab="work">工作台</button>
   <button class="tab" data-act="tab" data-tab="timeline">時間軸</button>
-  <button class="tab" data-act="tab" data-tab="threads">伏筆與靈感</button>
+  <button class="tab" data-act="tab" data-tab="threads">戲劇要素</button>
   <button class="tab" data-act="tab" data-tab="chars">角色</button>
   <button class="tab" data-act="tab" data-tab="settings">設定</button>
 </div></nav>
@@ -252,6 +486,7 @@ button.chip.subj{font-size:.85rem}
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
+<input type="file" id="avIn" accept="image/*" hidden>
 
 <script>
 
@@ -261,7 +496,10 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const uid=()=>Math.random().toString(36).slice(2,10);
 const IMP={h:'高',m:'中',l:'低'};
-const FSN={planted:'新埋下',developing:'發展中',resolved:'已回收'};
+const FSN={planted:'新埋下',developing:'發展中',resolved:'已收尾'};
+const FKIND={foreshadow:'伏筆',conflict:'衝突'};
+const CTYPE={self:'PC',major:'主要角色',minor:'次要角色',extra:'配角'};
+const CTYPE_ORDER=['self','major','minor','extra'];
 const CATS=['位置','身體','持有物','關係','心境','知情'];
 const SINGLE=['位置','身體','心境'],LISTC=['持有物','知情'];
 const QT=['承諾','坦白','謊言','威脅','其他'];
@@ -415,7 +653,7 @@ const OLD4_TEMPLATE=`請暫停角色扮演，整理本段劇情。
 （最多5句，只記錄之後可能被提起、引用或兌現的台詞）
 
 整理完畢後，等待我的指示再繼續角色扮演。`;
-const DEFAULT_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+const OLD5_TEMPLATE=`請暫停角色扮演，整理本段劇情。
 所有整理內容請放在同一則回覆中。
 請使用純文字輸出，不要使用粗體、標題、編號或清單符號等格式。
 只記錄劇情中發生的事，不需要整理或補充角色設定。
@@ -448,6 +686,109 @@ const DEFAULT_TEMPLATE=`請暫停角色扮演，整理本段劇情。
 【未解衝突】
 內容：
 相關角色：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+（只記錄本段有變化的項目，每項變化一個區塊）
+
+【關鍵台詞】
+時間：+N天 時段
+說話者：
+對象：
+台詞：原句照錄，40字內，過長可節錄
+類型：承諾／坦白／謊言／威脅／其他
+原因：為何影響後續，20字內
+
+（最多5句，只記錄之後可能被提起、引用或兌現的台詞）
+
+整理完畢後，等待我的指示再繼續角色扮演。`;
+const OLD6_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+所有整理內容請放在同一則回覆中。
+請使用純文字輸出，不要使用粗體、標題、編號或清單符號等格式。
+只記錄劇情中發生的事，不需要整理或補充角色設定。
+
+本段起始時間：{起始日期}
+目前未收尾的戲劇要素（伏筆與衝突）：
+{戲劇要素清單}
+角色名單（請沿用以下名稱）：
+{角色名單}
+目前已記錄的秘密（知情類別請沿用以下措辭）：
+{秘密清單}
+
+請嚴格依下列格式輸出，不要加入其他說明：
+
+【事件】
+時間：+N天 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，最多12個，只記錄影響後續劇情的事件）
+
+【戲劇要素】
+名稱：簡短名稱，既有項目請沿用上方名稱
+類型：伏筆／衝突
+狀態：新埋下／推進／收尾
+內容：
+相關角色：
+
+（伏筆與衝突都使用【戲劇要素】區塊，每項一個區塊）
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+（只記錄本段有變化的項目，每項變化一個區塊）
+
+【關鍵台詞】
+時間：+N天 時段
+說話者：
+對象：
+台詞：原句照錄，40字內，過長可節錄
+類型：承諾／坦白／謊言／威脅／其他
+原因：為何影響後續，20字內
+
+（最多5句，只記錄之後可能被提起、引用或兌現的台詞）
+
+整理完畢後，等待我的指示再繼續角色扮演。`;
+const DEFAULT_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+所有整理內容請放在同一則回覆中。
+請使用純文字輸出，不要使用粗體、標題、編號或清單符號等格式。
+只記錄劇情中發生的事，不需要整理或補充角色設定。
+
+整理範圍：最近 {回顧則數} 則訊息。
+時間欄以這段範圍的第一天為 +0天。
+
+請嚴格依下列格式輸出，不要加入其他說明：
+
+【事件】
+時間：+N天 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，最多12個，只記錄影響後續劇情的事件）
+
+【戲劇要素】
+名稱：簡短名稱
+類型：伏筆／衝突
+狀態：新埋下／推進／收尾
+內容：
+相關角色：
+
+（伏筆與衝突都使用【戲劇要素】區塊，每項一個區塊）
 
 【角色狀態】
 角色：
@@ -599,7 +940,7 @@ const OLD4_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換�
 
 以下是我的紀錄：
 （在此貼上）`;
-const DEFAULT_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
+const OLD5_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
 
 規則：
 1. 只轉換格式，不要推測或補充紀錄中沒有的內容
@@ -647,6 +988,55 @@ const DEFAULT_PRO=`以下是我整理的故事過往事件紀錄，請協助轉�
 
 以下是我的紀錄：
 （在此貼上）`;
+const DEFAULT_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
+
+規則：
+1. 只轉換格式，不要推測或補充紀錄中沒有的內容
+2. 時間請沿用我寫的故事時間，格式為「YYYY年M月D日 時段」，只知道年或月時照實填寫
+3. 資訊不足的欄位請留空
+4. 所有內容放在同一則回覆中，不要加入其他說明
+5. 請使用純文字輸出，不要使用粗體、標題、編號或清單符號等格式
+
+【事件】
+時間：YYYY年M月D日 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，依時間先後排列）
+
+若紀錄中有提到尚未解決的伏筆或衝突，請另外列出：
+
+【戲劇要素】
+名稱：
+類型：伏筆／衝突
+狀態：新埋下／推進
+內容：
+相關角色：
+
+若紀錄中有提到角色目前的處境，請另外列出：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+若紀錄中有重要台詞，請另外列出：
+
+【關鍵台詞】
+時間：YYYY年M月D日 時段
+說話者：
+對象：
+台詞：原句照錄，40字內
+類型：承諾／坦白／謊言／威脅／其他
+原因：20字內
+
+以下是我的紀錄：
+（在此貼上）`;
 
 const DEFAULT_QUESTIONS=['你的角色想要的東西，現在離他多遠？','你的角色的弱點，最近有沒有被碰觸到？','哪段關係目前最不穩定？','有什麼秘密快藏不住了？','哪個伏筆已經太久沒有推進？','目前誰知道得最多，誰被蒙在鼓裡？','對立勢力這段時間在做什麼？','哪個角色最近太順利了？','有沒有一個地點還沒被利用？','如果時間快轉三天，會發生什麼？','主角現在最不想面對的是什麼？','上一段的情緒基調，下一段可以如何反轉？'];
 const DEFAULT_CARDS={
@@ -656,7 +1046,7 @@ const DEFAULT_CARDS={
  '環境變化':['天氣驟變','節慶或儀式打亂日常','地點被封鎖','夜幕降臨帶來新規則','疾病開始蔓延','季節更替'],
  '角色內在':['被壓抑的回憶浮現','一個長期信念開始動搖','某人第一次承認自己害怕','舊傷發作','想起一個未完成的承諾','對自身能力產生懷疑']
 };
-const defaultSettings=()=>({template:DEFAULT_TEMPLATE,proTemplate:DEFAULT_PRO,questions:DEFAULT_QUESTIONS.slice(),cards:JSON.parse(JSON.stringify(DEFAULT_CARDS)),tplVer:5});
+const defaultSettings=()=>({template:DEFAULT_TEMPLATE,proTemplate:DEFAULT_PRO,questions:DEFAULT_QUESTIONS.slice(),cards:JSON.parse(JSON.stringify(DEFAULT_CARDS)),tplVer:7,reviewN:20});
 const defaultCal=()=>({type:'greg',months:Array.from({length:12},()=>({name:'',days:30}))});
 
 const D=(y,m,d)=>({y,m,d,prec:'d'}),Dm=(y,m)=>({y,m,prec:'m'}),Dy=y=>({y,prec:'y'});
@@ -679,7 +1069,7 @@ function cDate(v,fb){
 }
 const cNames=v=>cArr(v).map(cStr).filter(Boolean);
 function cChar(c){
-  const o={id:cId(c.id),name:cStr(c.name).trim()||'未命名角色',type:pickE(c.type,['self','other'],'other'),profile:{}};
+  const o={id:cId(c.id),name:cStr(c.name).trim()||'未命名角色',type:(t=>t==='other'?'major':t)(pickE(c.type,['self','major','minor','extra','other'],'major')),profile:{}};
   const p=cObj(c.profile);PROF.forEach(([k])=>{if(p[k]!=null&&p[k]!=='')o.profile[k]=cStr(p[k])});
   if(isObj(c.cur)&&Array.isArray(c.hist)){
     const single={},rel={},items=cObj(c.cur.items);
@@ -698,6 +1088,7 @@ function cChar(c){
   }else{
     o.states=cArr(c.states).filter(isObj).map(x=>({cat:pickE(x.cat,CATS,'心境'),target:cStr(x.target),change:cStr(x.change),date:cDate(x.date),seg:cInt(x.seg)}));
   }
+  const av=cObj(c.av);if(av.t==='txt'&&cStr(av.v).trim())o.av={t:'txt',v:graphemes(cStr(av.v).trim()).slice(0,2).join('')};else if(av.t==='img'&&typeof av.v==='string'&&av.v.length<300000&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(av.v))o.av={t:'img',v:av.v};
   return o;
 }
 function cStory(raw,id){
@@ -707,13 +1098,13 @@ function cStory(raw,id){
   const start=cDate(s.start);
   const o={
     id,name:cStr(s.name),cal:{type:pickE(cal.type,['greg','custom'],'greg'),months},
-    start,cur:cDate(s.cur,start),
+    start,cur:cDate(s.cur,start),undated:s.undated===true,
     segments:cArr(s.segments).filter(isObj).map(g=>({id:cId(g.id),n:Math.max(0,cInt(g.n)),startDate:cDate(g.startDate,start),endDate:cDate(g.endDate,start)})),
     events:cArr(s.events).filter(isObj).map(e=>({id:cId(e.id),seg:cInt(e.seg),date:cDate(e.date,start),period:cStr(e.period),place:cStr(e.place),chars:cNames(e.chars),summary:cStr(e.summary),imp:pickE(e.imp,['h','m','l'],'m'),src:pickE(e.src,['llm','pro','manual'],'manual'),order:cInt(e.order)})),
-    foreshadows:cArr(s.foreshadows).filter(isObj).map(f=>({id:cId(f.id),name:cStr(f.name),content:cStr(f.content),status:pickE(f.status,Object.keys(FSN),'planted'),chars:cNames(f.chars),plantedSeg:cInt(f.plantedSeg),lastSeg:cInt(f.lastSeg)})),
+    foreshadows:cArr(s.foreshadows).filter(isObj).map(f=>({id:cId(f.id),name:cStr(f.name),content:cStr(f.content),status:pickE(f.status,Object.keys(FSN),'planted'),kind:pickE(f.kind,Object.keys(FKIND),'foreshadow'),chars:cNames(f.chars),plantedSeg:cInt(f.plantedSeg),lastSeg:cInt(f.lastSeg)})),
     conflicts:cArr(s.conflicts).filter(isObj).map(c=>({id:cId(c.id),content:cStr(c.content),chars:cNames(c.chars),resolved:c.resolved===true,seg:cInt(c.seg)})),
     characters:cArr(s.characters).filter(isObj).map(cChar),
-    notes:cArr(s.notes).filter(isObj).map(n=>({id:cId(n.id),text:cStr(n.text),at:cInt(n.at),kind:pickE(n.kind,['pending','idea'],'pending')})),
+    notes:cArr(s.notes).filter(isObj).map(n=>({id:cId(n.id),text:cStr(n.text),at:cInt(n.at),kind:'pending'})),
     quotes:cArr(s.quotes).filter(isObj).map(q=>({id:cId(q.id),seg:cInt(q.seg),date:cDate(q.date,start),period:cStr(q.period),speaker:cStr(q.speaker),to:cStr(q.to),text:cStr(q.text),type:pickE(q.type,QT,'其他'),why:cStr(q.why),done:q.done===true,order:cInt(q.order)})),
     secrets:cArr(s.secrets).filter(isObj).map(x=>({id:cId(x.id),text:cStr(x.text),subjects:cNames(x.subjects)}))
   };
@@ -726,7 +1117,7 @@ function cSettings(v){
   const cards={};
   Object.entries(isObj(v.cards)?v.cards:d.cards).forEach(([k,list])=>{if(okKey(k)){const l=cNames(list);if(l.length)cards[k]=l}});
   const o={template:typeof v.template==='string'?v.template:d.template,proTemplate:typeof v.proTemplate==='string'?v.proTemplate:d.proTemplate,
-    questions:Array.isArray(v.questions)?cNames(v.questions):d.questions,cards,tplVer:cInt(v.tplVer,0)};
+    questions:Array.isArray(v.questions)?cNames(v.questions):d.questions,cards,tplVer:cInt(v.tplVer,0),reviewN:Math.min(500,Math.max(1,cInt(v.reviewN,20)))};
   if(v.tplNotice===true)o.tplNotice=true;return o;
 }
 function cleanDB(raw){
@@ -737,7 +1128,7 @@ function cleanDB(raw){
   return {v:2,ready:d.ready!==false,active:hasOwn(stories,d.active)?d.active:ids[0],stories,settings:cSettings(d.settings),lastBackup:lb,updatedAt:cStr(d.updatedAt)||new Date().toISOString()};
 }
 
-function blankStory(name,cal,start){return {id:uid(),name:name||'新的故事',cal:cal||defaultCal(),start:start||D(1,1,1),cur:start||D(1,1,1),segments:[],events:[],foreshadows:[],conflicts:[],characters:[],notes:[],quotes:[],secrets:[]}}
+function blankStory(name,cal,start){return {id:uid(),name:name||'新的故事',cal:cal||defaultCal(),undated:!start,start:start?{...start}:D(2000,1,1),cur:start?{...start}:D(2000,1,1),segments:[],events:[],foreshadows:[],conflicts:[],characters:[],notes:[],quotes:[],secrets:[]}}
 function firstDB(){const s=blankStory('',defaultCal(),D(2000,1,1));return {v:2,ready:false,active:s.id,stories:{[s.id]:s},settings:defaultSettings(),lastBackup:null,updatedAt:new Date().toISOString()}}
 function loadDB(){let r=null;try{r=localStorage.getItem(KEY);if(r){const d=cleanDB(JSON.parse(r));if(d)return d}}catch(e){}
   if(r){try{localStorage.setItem(KEY+'-unreadable',r)}catch(e){}}
@@ -745,10 +1136,10 @@ function loadDB(){let r=null;try{r=localStorage.getItem(KEY);if(r){const d=clean
 let DB=loadDB();let S=DB.stories[DB.active];
 function save(){DB.updatedAt=new Date().toISOString();if(S&&DB.ready!==false)S.updatedAt=DB.updatedAt;try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
 
-const ui={tab:'work',mode:'seg',pasteText:'',parsed:null,showPrompt:false,sumRange:'2',sumLevel:'m',sumQuotes:true,qtTab:'pend',sumText:'',
-  tlChar:'',tlImp:'',tlSeg:'',open:{},thrView:'fs',fsTab:'developing',drawCat:'',drawn:null,qs:null,ideaText:'',
+const ui={tab:'work',mode:'seg',pasteText:'',parsed:null,showPrompt:false,qtTab:'pend',
+  tlChar:'',tlImp:'',tlSeg:'',open:{},dayOpen:{},allOpen:false,fkKind:'',extraOpen:false,thrView:'fs',fsTab:'developing',
   charView:'list',charOpen:null,exportText:'',importText:'',justCommitted:null};
-function resetUi(){Object.assign(ui,{parsed:null,pasteText:'',sumText:'',ideaText:'',tlChar:'',tlSeg:'',open:{},charOpen:null,justCommitted:null,drawn:null})}
+function resetUi(){Object.assign(ui,{dayOpen:{},allOpen:false,parsed:null,pasteText:'',tlChar:'',tlSeg:'',open:{},charOpen:null,justCommitted:null})}
 
 /* ---------- calendar ---------- */
 const GD=[31,28,31,30,31,30,31,31,30,31,30,31];
@@ -772,6 +1163,9 @@ function valid(dt){if(!dt)return false;if(dt.prec==='y')return true;if(dt.m<1||d
 function monthName(m){return (custom()&&S.cal.months[m-1]&&S.cal.months[m-1].name)||`${m}月`}
 function fmt(dt){if(!dt)return'';if(dt.prec==='y')return `${dt.y}年`;if(dt.prec==='m')return `${dt.y}年${monthName(dt.m)}`;return `${dt.y}年${monthName(dt.m)}${dt.d}日`}
 function storyDay(){return idx(S.cur)-idx(S.start)+1}
+const curY=()=>S.undated?null:S.cur.y;
+const curText=()=>S.undated?'':fmt(S.cur);
+function setFirstDate(dt){S.start={...dt};S.cur={...dt};S.undated=false}
 function parseDate(str,prevY){
   str=String(str||'').trim();let m;
   const names=custom()?S.cal.months.map(x=>x.name).filter(Boolean):[];
@@ -799,7 +1193,26 @@ async function copy(text,msg){
 }
 const segLabel=n=>n===0?'序章':`第 ${n} 段`;
 function curSeg(){return S.segments.filter(s=>s.n>0).length}
-function newChar(name,type){return {id:uid(),name,type:type||'other',profile:{},cur:{single:{},rel:{},items:{'持有物':[],'知情':[]}},hist:[]}}
+function graphemes(t){t=String(t);try{if(typeof Intl!=='undefined'&&Intl.Segmenter)return [...new Intl.Segmenter('zh-Hant',{granularity:'grapheme'}).segment(t)].map(x=>x.segment)}catch(e){}return [...t]}
+function nameHash(t){let h=2166136261;for(const ch of String(t)){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function avAuto(name){
+  let h=nameHash(name),out='',used=0;
+  const cell=(i,k)=>{const x=(i%2)*20,y=(i>>1)*20,r=(h>>>(8+i*2))&3;
+    switch(k){
+      case 1:return `<rect x="${x}" y="${y}" width="20" height="20"/>`;
+      case 2:{const cx=x+(r&1?20:0),cy=y+(r&2?20:0),sx=r&1?-1:1,sy=r&2?-1:1;return `<path d="M${cx} ${cy}h${20*sx}a20 20 0 0 ${sx*sy>0?1:0} ${-20*sx} ${20*sy}z"/>`}
+      case 3:return r&1?`<path d="M${x} ${y}h20v20z"/>`:`<path d="M${x} ${y+20}h20v-20z"/>`;
+      case 4:return `<rect x="${x}" y="${y+(r&1?10:0)}" width="20" height="10"/>`;
+      case 5:return `<circle cx="${x+10}" cy="${y+10}" r="7"/>`;
+      default:return '';
+    }};
+  const MAP=[0,2,3,1,2,5,0,4];let sq=0;for(let i=0;i<4;i++){let k=MAP[(h>>>(i*3))&7];if(k===1&&sq++)k=2;if(i===3&&used<2&&!k)k=2+(h%4);if(k)used++;out+=cell(i,k)}
+  return `<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="currentColor">${out}</g></svg>`;
+}
+function avInner(c){if(c.av&&c.av.t==='img')return `<img src="${esc(c.av.v)}" alt="">`;if(c.av&&c.av.t==='txt')return esc(c.av.v);return avAuto(c.name)}
+let avTarget=null;
+function shrinkImage(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const N=128,cv=document.createElement('canvas');cv.width=cv.height=N;const s=Math.min(im.width,im.height);cv.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,N,N);cb(cv.toDataURL('image/jpeg',.82))};im.onerror=()=>toast('無法讀取這張圖片');im.src=r.result};r.readAsDataURL(file)}
+function newChar(name,type){return {id:uid(),name,type:type||'major',profile:{},cur:{single:{},rel:{},items:{'持有物':[],'知情':[]}},hist:[]}}
 function ensureChar(name,type){name=String(name||'').trim();if(!name)return null;let c=S.characters.find(c=>c.name===name);if(!c){c=newChar(name,type);S.characters.push(c)}return c}
 const LOSE_RE=/^(失去|遺失|交出|被奪|被奪走|丟失|用掉|消耗|移除|歸還)\s*[：:]?\s*/;
 const GAIN_RE=/^(取得|獲得|得到|拿到|收到)\s*[：:]?\s*/;
@@ -839,20 +1252,24 @@ function histText(h){
 }
 function migrateChar(c){
   if(c.cur&&c.hist)return c;
-  const n=newChar(c.name,c.type);n.id=c.id;n.profile=c.profile||{};
+  const n=newChar(c.name,c.type==='other'?'major':c.type);n.id=c.id;n.profile=c.profile||{};if(c.av)n.av=c.av;
   (c.states||[]).slice().sort((a,b)=>sortKey(a.date)-sortKey(b.date)).forEach(s=>applyState(n,{cat:s.cat,target:s.target,act:'',change:s.change},s.date,s.seg));
   return n;
 }
 function migrateAll(){
   const keep=S;
-  Object.values(DB.stories).forEach(st=>{S=st;st.quotes=st.quotes||[];st.secrets=st.secrets||[];st.characters=st.characters.map(migrateChar);
+  Object.values(DB.stories).forEach(st=>{S=st;st.quotes=st.quotes||[];st.secrets=st.secrets||[];
+    (st.conflicts||[]).forEach(c=>{const nm=String(c.content||'').slice(0,14)||'衝突';st.foreshadows.push({id:c.id||uid(),name:nm,content:c.content||'',status:c.resolved?'resolved':'developing',kind:'conflict',chars:c.chars||[],plantedSeg:c.seg||0,lastSeg:c.seg||0})});st.conflicts=[];
+    st.foreshadows.forEach(f=>{if(!f.kind)f.kind='foreshadow'});
+    st.characters.forEach(c=>{if(c.type==='other'||!CTYPE[c.type])c.type='major'});
+    st.notes.forEach(x=>{x.kind='pending'});st.characters=st.characters.map(migrateChar);
     st.characters.forEach(c=>{c.cur.items['知情'].forEach(x=>{if(!x.sid){x.sid=ensureSecret(x.v).id;delete x.v}});c.hist.forEach(h=>{if(h.cat==='知情'&&!h.sid){const f=st.secrets.find(y=>y.text===h.to);if(f)h.sid=f.id}})})});
   S=keep;
   const st=DB.settings;
-  if((st.tplVer||0)<5){
-    if([OLD_TEMPLATE,OLD3_TEMPLATE,OLD4_TEMPLATE].includes(st.template))st.template=DEFAULT_TEMPLATE;else if(st.template!==DEFAULT_TEMPLATE)st.tplNotice=true;
-    if([OLD_PRO,OLD3_PRO,OLD4_PRO].includes(st.proTemplate))st.proTemplate=DEFAULT_PRO;
-    st.tplVer=5;save();
+  if((st.tplVer||0)<7){
+    if([OLD_TEMPLATE,OLD3_TEMPLATE,OLD4_TEMPLATE,OLD5_TEMPLATE,OLD6_TEMPLATE].includes(st.template))st.template=DEFAULT_TEMPLATE;else if(st.template!==DEFAULT_TEMPLATE)st.tplNotice=true;
+    if([OLD_PRO,OLD3_PRO,OLD4_PRO,OLD5_PRO].includes(st.proTemplate))st.proTemplate=DEFAULT_PRO;
+    st.tplVer=7;save();
   }
 }
 function openFs(){return S.foreshadows.filter(f=>f.status!=='resolved')}
@@ -860,9 +1277,10 @@ function sortedEvents(list){return list.slice().sort((a,b)=>sortKey(a.date)-sort
 function maxOrder(){return [...S.events,...S.quotes].reduce((m,e)=>Math.max(m,e.order||0),0)}
 function fillPrompt(){
   if(ui.mode==='pro')return DB.settings.proTemplate;
-  const fs=openFs().map(f=>`・${f.name}：${f.content}`).join('\n')||'（無）';
-  const names=S.characters.map(c=>c.name).join('、')||'（尚無）';
-  return DB.settings.template.split('{起始日期}').join(fmt(S.cur)).split('{伏筆清單}').join(fs).split('{角色名單}').join(names).split('{秘密清單}').join(S.secrets.map(x=>`・${x.text}`).join('\n')||'（無）');
+  const fs=openFs().map(f=>`・${f.name}（${FKIND[f.kind]||'伏筆'}）：${f.content}`).join('\n')||'（無）';
+  const names=S.characters.filter(c=>c.type!=='extra').map(c=>c.name).join('、')||'（尚無）';
+  const secs=S.secrets.map(x=>`・${x.text}`).join('\n')||'（無）';
+  return DB.settings.template.split('{起始日期}').join(fmt(S.cur)).split('{戲劇要素清單}').join(fs).split('{伏筆清單}').join(fs).split('{角色名單}').join(names).split('{秘密清單}').join(secs).split('{回顧則數}').join(String(DB.settings.reviewN||20));
 }
 function invalidCount(){return S.events.filter(e=>!valid(e.date)).length+S.quotes.filter(q=>!valid(q.date)).length+S.characters.reduce((a,c)=>a+c.hist.filter(h=>!valid(h.date)).length,0)}
 /* ---------- parser ---------- */
@@ -885,36 +1303,37 @@ function fieldsOf(body,keysOut){
   return o;
 }
 function impOf(s){s=String(s||'');return s.includes('高')?'h':s.includes('低')?'l':'m'}
-function statusOf(s){s=String(s||'');return s.includes('回收')?'resolved':(s.includes('推進')||s.includes('發展'))?'developing':'planted'}
+function statusOf(s){s=String(s||'');return (s.includes('回收')||s.includes('收尾')||s.includes('解決'))?'resolved':(s.includes('推進')||s.includes('發展'))?'developing':'planted'}
 function parseOutput(txt,mode){
-  const out={mode,events:[],foreshadows:[],conflicts:[],states:[],quotes:[],errors:[]};
+  const out={mode,events:[],foreshadows:[],states:[],quotes:[],errors:[]};
   const re=/【\s*([^】]+?)\s*】/g;let m;const heads=[];
   while((m=re.exec(txt)))heads.push({type:m[1],idx:m.index,start:re.lastIndex});
   if(!heads.length){out.fatal='找不到任何【區塊】標記，所以沒有讀出內容。請確認貼上的是 LLM 的整理結果，且每個區塊以【事件】【伏筆】這類標記開頭。若 LLM 改用了其他標題格式，請把指令重新貼給它，請它依格式重新輸出。';return out}
   const keys=[];
-  let prevY=S.cur.y;
+  let prevY=curY();
   const readTime=(raw,label)=>{
     let date=null,period=raw;const plus=raw.match(/[+＋]\s*(\d+)\s*天/);
     if(plus&&mode==='seg'){date=addDays(S.cur,+plus[1]);period=raw.replace(plus[0],'')}
     else{const p=parseDate(raw,prevY);if(p){date=p.date;period=p.rest}}
-    if(!date){date={...S.cur};out.errors.push(`${label}的時間無法辨識，暫定為${fmt(date)}，請校正。`)}
+    if(!date){
+      if(S.undated){out.errors.push(`${label}的時間無法辨識，請在下方填寫日期。`);return {date:null,period:clean(period)}}
+      date={...S.cur};out.errors.push(`${label}的時間無法辨識，暫定為${fmt(date)}，請校正。`)}
     else if(!valid(date))out.errors.push(`${label}的日期「${fmt(date)}」在目前曆法中不存在，請校正。`);
     prevY=date.y;return {date,period:clean(period)};
   };
   heads.forEach((h,i)=>{
     const body=txt.slice(h.start,i+1<heads.length?heads[i+1].idx:txt.length);const f=fieldsOf(body,keys);const t=h.type;
     if(t.includes('事件')&&!f['摘要'])f['摘要']=f['內容']||f['描述']||'';
-    if((t.includes('伏筆')||t.includes('懸念')||t.includes('衝突'))&&!f['內容'])f['內容']=f['描述']||f['摘要']||'';
+    if((t.includes('戲劇要素')||t.includes('伏筆')||t.includes('懸念')||t.includes('衝突'))&&!f['內容'])f['內容']=f['描述']||f['摘要']||'';
     if(t.includes('事件')){
       if(!f['摘要']){out.errors.push(`第 ${out.events.length+1} 個事件缺少「摘要」，已略過。`);return}
       const tm=readTime(f['時間']||'',`事件「${f['摘要'].slice(0,12)}…」`);
       out.events.push({dateText:fmt(tm.date),period:tm.period,place:f['地點']||'',chars:(f['角色']||'').trim(),summary:f['摘要'],imp:impOf(f['重要度'])});
-    }else if(t.includes('伏筆')||t.includes('懸念')){
-      const name=f['名稱']||(f['內容']||'').slice(0,10);
-      if(!name){out.errors.push('有一個伏筆缺少名稱與內容，已略過。');return}
-      out.foreshadows.push({name,status:statusOf(f['狀態']),content:f['內容']||'',chars:f['相關角色']||''});
-    }else if(t.includes('衝突')){
-      if(f['內容'])out.conflicts.push({content:f['內容'],chars:f['相關角色']||''});
+    }else if(t.includes('戲劇要素')||t.includes('伏筆')||t.includes('懸念')||t.includes('衝突')){
+      const kind=(f['類型']||'').includes('衝突')||(!f['類型']&&t.includes('衝突'))?'conflict':'foreshadow';
+      const name=(f['名稱']||(f['內容']||'').slice(0,14)).trim();
+      if(!name){out.errors.push('有一個戲劇要素缺少名稱與內容，已略過。');return}
+      out.foreshadows.push({name,kind,status:statusOf(f['狀態']),content:f['內容']||'',chars:f['相關角色']||''});
     }else if(t.includes('台詞')||t.includes('對白')){
       const text=String(f['台詞']||'').replace(/^[「『"“]+|[」』"”]+$/g,'').trim();
       if(!text){out.errors.push('有一句台詞缺少內容，已略過。');return}
@@ -931,13 +1350,13 @@ function parseOutput(txt,mode){
       out.states.push({char:f['角色'],cat,target,act,change:f['變化'],subjects,sid});
     }
   });
-  const total=out.events.length+out.foreshadows.length+out.conflicts.length+out.states.length+out.quotes.length;
+  const total=out.events.length+out.foreshadows.length+out.states.length+out.quotes.length;
   if(!total){const uniq=[...new Set(keys)].slice(0,12);out.fatal=`找到 ${heads.length} 個【區塊】，但沒有讀出任何內容。${uniq.length?`工具讀到的欄位名稱是：${uniq.join('、')}。`:'區塊中找不到「欄位：內容」格式的文字。'}請確認欄位名稱與指令相同（例如「時間」「角色」「摘要」），或把指令重新貼給 LLM，請它依格式重新輸出。`}
   return out;
 }
 function commitParsed(){
   const p=ui.parsed;const pro=p.mode==='pro';const n=pro?0:curSeg()+1;
-  let ord=maxOrder();const dates=[];let prevY=S.cur.y;
+  let ord=maxOrder();const dates=[];let prevY=curY();
   p.events.forEach(e=>{
     const pd=parseDate(e.dateText,prevY);const date=pd?pd.date:{...S.cur};prevY=date.y;dates.push(date);
     const chars=splitNames(e.chars);chars.forEach(c=>ensureChar(c));
@@ -947,15 +1366,14 @@ function commitParsed(){
   const sorted=dates.slice().sort((a,b)=>sortKey(a)-sortKey(b));
   const first=sorted[0],last=sorted[sorted.length-1];
   let endDate;
-  if(pro){endDate=last?toExact(last):{...S.cur};if(last&&idx(endDate)>idx(S.cur))S.cur=endDate}
+  if(pro){endDate=last?toExact(last):{...S.cur};if(last&&(S.undated||idx(endDate)>idx(S.cur))){if(S.undated)setFirstDate(endDate);else S.cur=endDate}}
   else{endDate=last&&idx(last)>idx(S.cur)?toExact(last):{...S.cur}}
   const stateDate=pro?endDate:endDate;
   p.foreshadows.forEach(f=>{
     const ex=S.foreshadows.find(x=>x.name.trim()===f.name.trim());const chars=splitNames(f.chars);
-    if(ex){ex.status=f.status;if(f.content)ex.content=f.content;ex.lastSeg=Math.max(ex.lastSeg,n);chars.forEach(c=>{if(!ex.chars.includes(c))ex.chars.push(c)})}
-    else S.foreshadows.push({id:uid(),name:f.name,content:f.content,status:f.status,chars,plantedSeg:n,lastSeg:n});
+    if(ex){ex.status=f.status;ex.kind=f.kind||ex.kind;if(f.content)ex.content=f.content;ex.lastSeg=Math.max(ex.lastSeg,n);chars.forEach(c=>{if(!ex.chars.includes(c))ex.chars.push(c)})}
+    else S.foreshadows.push({id:uid(),name:f.name,content:f.content,status:f.status,kind:f.kind||'foreshadow',chars,plantedSeg:n,lastSeg:n});
   });
-  p.conflicts.forEach(c=>{if(!S.conflicts.some(x=>x.content===c.content))S.conflicts.push({id:uid(),content:c.content,chars:splitNames(c.chars),resolved:false,seg:n})});
   p.states.forEach(s=>{const c=ensureChar(s.char);if(c)applyState(c,{cat:s.cat,target:s.target,act:s.act,change:s.change,subjects:s.subjects,sid:s.sid},stateDate,n)});
   if(pro){
     let seg=S.segments.find(s=>s.n===0);
@@ -964,68 +1382,14 @@ function commitParsed(){
   }else{
     S.segments.push({id:uid(),n,startDate:{...S.cur},endDate});S.cur=endDate;
   }
+  recalcSegments();
   ui.parsed=null;ui.pasteText='';ui.justCommitted={n,label:segLabel(n)};
   save();render();window.scrollTo(0,0);
 }
 
 /* ---------- summaries ---------- */
-function charStatusLines(){
-  return S.characters.map(c=>{
-    const L=c.cur;const parts=[];
-    SINGLE.forEach(k=>{if(L.single[k])parts.push(`${k}：${L.single[k].v}`)});
-    if(L.items['持有物'].length)parts.push('持有：'+L.items['持有物'].map(x=>x.v).join('、'));
-    Object.entries(L.rel).forEach(([t,s])=>parts.push(`對${t}：${s.v}`));
-    if(L.items['知情'].length)parts.push('已知：'+L.items['知情'].map(x=>{const sec=secretById(x.sid);return sec?sec.text:''}).filter(Boolean).join('、'));
-    return parts.length?`${c.name}｜${parts.join('；')}`:'';
-  }).filter(Boolean);
-}
-const quoteLine=q=>`・${fmt(q.date)} ${q.speaker||'？'}${q.to?'對'+q.to:''}：「${q.text}」${q.type!=='其他'?`（${q.type}${q.done?'，'+QPEND[q.type]:''}）`:''}`;
-function buildSummary(){
-  const n=curSeg();const minSeg=ui.sumRange==='all'?0:n-parseInt(ui.sumRange)+1;const lv=ui.sumLevel;
-  const inRange=x=>ui.sumRange==='all'||x.seg>=Math.max(1,minSeg);
-  const ok=e=>(lv==='l'||(lv==='m'&&e.imp!=='l')||(lv==='h'&&e.imp==='h'));
-  const evs=sortedEvents(S.events.filter(e=>inRange(e)&&ok(e)));
-  let out=`【前情提要】目前為${fmt(S.cur)}。\n`;let lastK=null;
-  evs.forEach(e=>{const k=fmt(e.date);if(k!==lastK){out+=`\n${k}\n`;lastK=k}out+=`・${[e.period,e.place].filter(Boolean).join(' ')}${e.period||e.place?'：':''}${e.summary}\n`});
-  if(ui.sumQuotes){
-    const qs=sortedEvents(S.quotes.filter(q=>inRange(q)||(QPEND[q.type]&&!q.done)));
-    if(qs.length)out+=`\n【關鍵台詞】\n`+qs.map(quoteLine).join('\n')+'\n';
-  }
-  const fs=openFs();if(fs.length)out+=`\n【未回收伏筆】\n`+fs.map(f=>`・${f.name}：${f.content}`).join('\n')+'\n';
-  const cf=S.conflicts.filter(c=>!c.resolved);if(cf.length)out+=`\n【未解衝突】\n`+cf.map(c=>`・${c.content}`).join('\n')+'\n';
-  const cs=charStatusLines();if(cs.length)out+=`\n【角色現況】\n`+cs.join('\n')+'\n';
-  return out.trim();
-}
-function selfProfiles(){
-  return S.characters.filter(c=>c.type==='self').map(c=>{
-    const parts=PROF.filter(([k])=>c.profile&&c.profile[k]).map(([k,l])=>`${l}：${c.profile[k]}`);
-    return parts.length?`${c.name}｜${parts.join('；')}`:'';
-  }).filter(Boolean);
-}
-function buildIdeaPrompt(){
-  const n=curSeg();
-  const evs=sortedEvents(S.events.filter(e=>e.seg>=Math.max(1,n-1)&&e.imp!=='l')).map(e=>`・${fmt(e.date)} ${e.summary}`).join('\n')||'（無）';
-  const fs=openFs().map(f=>`・${f.name}（${FSN[f.status]}）：${f.content}`).join('\n')||'（無）';
-  const cf=S.conflicts.filter(c=>!c.resolved).map(c=>`・${c.content}`).join('\n')||'（無）';
-  const cs=charStatusLines().join('\n')||'（無）';
-  const sp=selfProfiles();
-  const pq=S.quotes.filter(q=>QPEND[q.type]&&!q.done).map(quoteLine).join('\n');
-  const sl=S.secrets.map(sec=>{const k=knowersOf(sec).map(c=>c.name);const un=S.characters.map(c=>c.name).filter(n=>!sec.subjects.includes(n)&&!k.includes(n));return `・${sec.text}｜當事人：${sec.subjects.join('、')||'－'}；知情：${k.join('、')||'－'}；不知情：${un.join('、')||'－'}`}).join('\n');
-  const ideas=S.notes.filter(x=>x.kind==='idea').map(x=>`・${x.text}`).join('\n');
-  return `請暫停角色扮演，以作者的角度協助我構思下一段劇情。
 
-目前時間：${fmt(S.cur)}
-近期事件：
-${evs}
-未回收伏筆：
-${fs}
-未解衝突：
-${cf}
-角色現況：
-${cs}${sp.length?`\nPC 設定：\n${sp.join('\n')}`:''}${pq?`\n尚未兌現或揭穿的話：\n${pq}`:''}${sl?`\n秘密與資訊落差：\n${sl}`:''}${ideas?`\n我自己的零散想法：\n${ideas}`:''}
 
-請提出三個走向截然不同的發展方向，每個方向說明：觸發事件、主要牽動的角色、可以推進或回收的伏筆。${sp.length?'請特別考慮 PC 的目標、弱點與秘密，讓方向能推動或考驗他。':''}避免常見套路，優先利用既有伏筆，以及角色之間「誰知道、誰不知道」的資訊落差。提出後等待我選擇，不要直接開始寫劇情。`;
-}
 
 /* ---------- views ---------- */
 function backupNotice(){
@@ -1045,7 +1409,7 @@ function stateHint(s){
 function previewHtml(){
   const p=ui.parsed;const pro=p.mode==='pro';const label=pro?'序章':segLabel(curSeg()+1);
   return `<section class="sec"><h2><span class="stepn">3</span>校對後寫入</h2>
-  <p class="hint">解析出 ${p.events.length} 個事件、${p.foreshadows.length} 條伏筆、${p.conflicts.length} 個衝突、${p.states.length} 筆角色狀態、${p.quotes.length} 句台詞。直接修改有誤的欄位。</p>
+  <p class="hint">解析出 ${p.events.length} 個事件、${p.foreshadows.length} 個戲劇要素、${p.states.length} 筆角色狀態、${p.quotes.length} 句台詞。直接修改有誤的欄位。</p>
   ${p.fatal?`<div class="notice" style="margin:0 0 12px"><b>沒有讀出內容</b><br>${esc(p.fatal)}</div>`:''}
   ${p.errors.map(e=>`<p class="err">${esc(e)}</p>`).join('')}
   ${p.events.length?'<h3 class="sub">事件</h3>':''}
@@ -1056,15 +1420,12 @@ function previewHtml(){
     <label><span class="k">角色</span><input type="text" data-p="events.${i}.chars" value="${esc(e.chars)}"></label></div>
     <div class="g2"><label><span class="k">重要度</span><select data-p="events.${i}.imp">${['h','m','l'].map(k=>`<option value="${k}" ${e.imp===k?'selected':''}>${IMP[k]}</option>`).join('')}</select></label><span></span></div>
     <textarea data-p="events.${i}.summary">${esc(e.summary)}</textarea></div>`).join('')}
-  ${p.foreshadows.length?'<h3 class="sub">伏筆</h3>':''}
-  ${p.foreshadows.map((f,i)=>{const ex=S.foreshadows.find(x=>x.name.trim()===f.name.trim());return `<div class="pitem"><div class="head"><span>${ex?'更新既有伏筆':'新伏筆'}</span><button class="btn sm ghost" data-act="pDel" data-k="foreshadows" data-i="${i}">移除</button></div>
-    <div class="g2" style="margin-top:0"><label><span class="k">名稱</span><input type="text" data-p="foreshadows.${i}.name" value="${esc(f.name)}"></label>
+  ${p.foreshadows.length?'<h3 class="sub">戲劇要素</h3>':''}
+  ${p.foreshadows.map((f,i)=>{const ex=S.foreshadows.find(x=>x.name.trim()===f.name.trim());return `<div class="pitem"><div class="head"><span>${ex?'更新既有項目':'新項目'}</span><button class="btn sm ghost" data-act="pDel" data-k="foreshadows" data-i="${i}">移除</button></div>
+    <div class="g" style="margin-top:0"><label><span class="k">名稱</span><input type="text" data-p="foreshadows.${i}.name" value="${esc(f.name)}"></label>
+    <label><span class="k">類型</span><select data-p="foreshadows.${i}.kind">${Object.keys(FKIND).map(k=>`<option value="${k}" ${f.kind===k?'selected':''}>${FKIND[k]}</option>`).join('')}</select></label>
     <label><span class="k">狀態</span><select data-p="foreshadows.${i}.status">${Object.keys(FSN).map(k=>`<option value="${k}" ${f.status===k?'selected':''}>${FSN[k]}</option>`).join('')}</select></label></div>
     <textarea data-p="foreshadows.${i}.content">${esc(f.content)}</textarea></div>`}).join('')}
-  ${p.conflicts.length?'<h3 class="sub">未解衝突</h3>':''}
-  ${p.conflicts.map((c,i)=>`<div class="pitem"><div class="head"><span>衝突 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="conflicts" data-i="${i}">移除</button></div>
-    <textarea data-p="conflicts.${i}.content" style="margin-top:0">${esc(c.content)}</textarea>
-    <label><span class="k" style="margin-top:6px">相關角色</span><input type="text" data-p="conflicts.${i}.chars" value="${esc(c.chars)}"></label></div>`).join('')}
   ${p.states.length?'<h3 class="sub">角色狀態</h3>':''}
   ${p.states.map((s,i)=>`<div class="pitem"><div class="head"><span>狀態 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="states" data-i="${i}">移除</button></div>
     <div class="g"><label><span class="k">角色</span><input type="text" data-p="states.${i}.char" value="${esc(s.char)}"></label>
@@ -1088,7 +1449,7 @@ function previewHtml(){
 }
 function vWork(){
   const pro=ui.mode==='pro';let h='';
-  if(ui.justCommitted){h+=`<div class="notice ok">已寫入${esc(ui.justCommitted.label)}，目前日期為 ${esc(fmt(S.cur))}。要順手匯出備份嗎？<div class="row"><button class="btn sm primary" data-act="exportData" data-scope="story">匯出這個故事</button><button class="btn sm ghost" data-act="dismissCommit">稍後</button></div></div>`}
+  if(ui.justCommitted){h+=`<div class="notice ok">已寫入${esc(ui.justCommitted.label)}，目前日期為 ${S.undated?'未定':esc(fmt(S.cur))}。要順手匯出備份嗎？<div class="row"><button class="btn sm primary" data-act="exportData" data-scope="story">匯出這個故事</button><button class="btn sm ghost" data-act="dismissCommit">稍後</button></div></div>`}
   else h+=backupNotice();
   h+=`<div class="seg modebar"><button class="${!pro?'on':''}" data-act="setMode" data-v="seg">整理本段</button><button class="${pro?'on':''}" data-act="setMode" data-v="pro">匯入過往事件</button></div>`;
   if(pro){
@@ -1096,9 +1457,11 @@ function vWork(){
     <p class="hint">先把過往事件依時間整理好，每筆標上年月日（只知道年或月也可以）。複製指令後，連同你的紀錄貼給任一 LLM。匯入的事件會歸入「序章」，可分批進行。</p>`;
   }else{
     h+=`<section class="sec"><h2><span class="stepn">1</span>複製整理指令</h2>
-    <p class="hint">${segLabel(curSeg()+1)}從 ${esc(fmt(S.cur))} 開始。指令會帶入 ${openFs().length} 條未回收伏筆與 ${S.characters.length} 位角色名稱。</p>`;
+    ${S.undated?`<p class="hint">這個故事還沒有日期。請先填寫本段的起始日期，工具才能換算 LLM 回報的「+N天」。只需填一次，之後的段落會自動接續。若你打算先匯入過往事件，可以切換到上方的「匯入過往事件」，序章寫入後會自動取得日期。</p>
+    <div class="row" style="margin-bottom:12px"><input type="text" id="segStart" placeholder="例如：1892年2月26日" style="flex:1" aria-label="本段起始日期"><button class="btn" data-act="setSegStart">確定</button></div>`:`<p class="hint">${segLabel(curSeg()+1)}從 ${esc(fmt(S.cur))} 開始。選擇要讓 LLM 回顧的訊息則數，大約涵蓋這段劇情即可。</p>`}
+    <div class="revrow"><span>回顧最近</span><button class="btn sm" data-act="revN" data-v="-5" aria-label="減少 5 則">−</button><input type="number" id="revN" inputmode="numeric" min="1" max="500" value="${DB.settings.reviewN||20}" aria-label="回顧訊息則數"><button class="btn sm" data-act="revN" data-v="5" aria-label="增加 5 則">＋</button><span>則訊息</span></div>`;
   }
-  h+=`<button class="btn primary big" data-act="copyPrompt">${pro?'複製格式轉換指令':'複製整理指令'}</button>
+  h+=`<button class="btn primary big" data-act="copyPrompt" ${!pro&&S.undated?'disabled':''}>${pro?'複製格式轉換指令':'複製整理指令'}</button>
   <div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="togglePrompt">${ui.showPrompt?'收起指令內容':'查看指令內容'}</button></div>
   ${ui.showPrompt?`<pre class="prev">${esc(fillPrompt())}</pre>`:''}</section>`;
   h+=`<section class="sec"><h2><span class="stepn">2</span>貼上 LLM 的${pro?'轉換':'整理'}結果</h2>
@@ -1112,15 +1475,8 @@ function vWork(){
   const pend=S.notes.filter(x=>x.kind==='pending');
   if(pend.length){
     h+=`<section class="sec"><h2>待整理的快速記錄</h2><p class="hint">對戲中隨手記下的內容，歸類後才會出現在對應分頁。</p>
-    ${pend.map(x=>`<div class="item"><div class="desc">${esc(x.text)}</div><div class="row"><button class="btn sm" data-act="noteTo" data-to="event" data-id="${x.id}">轉為事件</button><button class="btn sm" data-act="noteTo" data-to="fs" data-id="${x.id}">轉為伏筆</button><button class="btn sm" data-act="noteTo" data-to="quote" data-id="${x.id}">轉為台詞</button><button class="btn sm" data-act="noteTo" data-to="idea" data-id="${x.id}">靈感筆記</button><button class="btn sm ghost" data-act="noteDel" data-id="${x.id}">刪除</button></div></div>`).join('')}</section>`;
+    ${pend.map(x=>`<div class="item"><div class="desc">${esc(x.text)}</div><div class="row"><button class="btn sm" data-act="noteTo" data-to="event" data-id="${x.id}">轉為事件</button><button class="btn sm" data-act="noteTo" data-to="fs" data-id="${x.id}">轉為戲劇要素</button><button class="btn sm" data-act="noteTo" data-to="quote" data-id="${x.id}">轉為台詞</button><button class="btn sm ghost" data-act="noteDel" data-id="${x.id}">刪除</button></div></div>`).join('')}</section>`;
   }
-  h+=`<section class="sec"><h2><span class="stepn">4</span>產生前情提要</h2>
-  <p class="hint">貼回對戲中，幫 LLM 補上前情與角色現況。選「全部」時會包含序章。</p>
-  <div class="row"><select data-uic="sumRange" style="flex:1"><option value="1" ${ui.sumRange==='1'?'selected':''}>最近 1 段</option><option value="2" ${ui.sumRange==='2'?'selected':''}>最近 2 段</option><option value="3" ${ui.sumRange==='3'?'selected':''}>最近 3 段</option><option value="all" ${ui.sumRange==='all'?'selected':''}>全部</option></select>
-  <select data-uic="sumLevel" style="flex:1"><option value="h" ${ui.sumLevel==='h'?'selected':''}>精簡：只含重要事件</option><option value="m" ${ui.sumLevel==='m'?'selected':''}>標準：重要與中等</option><option value="l" ${ui.sumLevel==='l'?'selected':''}>詳細：全部事件</option></select></div>
-  <label class="check" style="margin-top:10px"><input type="checkbox" data-uichk="sumQuotes" ${ui.sumQuotes?'checked':''}><span>附上關鍵台詞（含尚未兌現或揭穿的話）</span></label>
-  <button class="btn primary big" style="margin-top:10px" data-act="makeSummary">產生並複製</button>
-  ${ui.sumText?`<pre class="prev">${esc(ui.sumText)}</pre><p class="small">約 ${ui.sumText.length} 字</p>`:''}</section>`;
   return h;
 }
 function gapText(days){
@@ -1132,7 +1488,7 @@ function quoteItem(q){
   const op=ui.open[q.id];const pend=QPEND[q.type]&&!q.done;
   return `<div class="ev q"><button class="ev-btn" data-act="toggleEv" data-id="${q.id}" aria-expanded="${!!op}">
     <div class="qt">「${esc(q.text)}」</div>
-    <div class="meta"><span>${esc(q.speaker||'？')}${q.to?` → ${esc(q.to)}`:''}</span>${q.period?`<span>${esc(q.period)}</span>`:''}${q.type!=='其他'?`<span class="qtype">${esc(q.type)}</span>`:''}${pend?`<span class="imp-tag">待${QPEND[q.type].slice(1)}</span>`:''}${q.done?`<span>${QPEND[q.type]}</span>`:''}${!valid(q.date)?'<span class="warn-tag">日期不存在於目前曆法</span>':''}</div></button>
+    <div class="meta"><span>${esc(q.speaker||'？')}${q.to?` → ${esc(q.to)}`:''}</span>${q.period?`<span>${esc(q.period)}</span>`:''}${q.type!=='其他'?`<span class="qtype">${esc(q.type)}</span>`:''}${pend?`<span class="imp-tag">待${QPEND[q.type].slice(1)}</span>`:''}${segMismatch(q)?'<span class="warn-tag">日期與段落順序不一致</span>':''}${q.done?`<span>${QPEND[q.type]}</span>`:''}${!valid(q.date)?'<span class="warn-tag">日期不存在於目前曆法</span>':''}</div></button>
     ${op?`<div class="more">${q.why?`<p class="small" style="margin:0 0 8px">${esc(q.why)}</p>`:''}<p class="small" style="margin:0 0 8px">${segLabel(q.seg)}　${esc(fmt(q.date))}</p>
     <div class="row">${QPEND[q.type]?`<button class="btn sm" data-act="toggleQDone" data-id="${q.id}">${q.done?'取消標記':'標記為'+QPEND[q.type]}</button>`:''}<button class="btn sm" data-act="editQuote" data-id="${q.id}">編輯</button><button class="btn sm danger" data-act="delQuote" data-id="${q.id}">刪除</button></div></div>`:''}</div>`;
 }
@@ -1140,13 +1496,14 @@ function eventItem(e){
   const op=ui.open[e.id];const bad=!valid(e.date);
   return `<div class="ev ${esc(e.imp)}"><button class="ev-btn" data-act="toggleEv" data-id="${e.id}" aria-expanded="${!!op}">
     <div class="sum">${esc(e.summary)}</div>
-    <div class="meta">${e.period?`<span>${esc(e.period)}</span>`:''}${e.place?`<span>${esc(e.place)}</span>`:''}${e.imp==='h'?'<span class="imp-tag">重要</span>':''}${bad?'<span class="warn-tag">日期不存在於目前曆法</span>':''}</div>
+    <div class="meta">${e.period?`<span>${esc(e.period)}</span>`:''}${e.place?`<span>${esc(e.place)}</span>`:''}${e.imp==='h'?'<span class="imp-tag">重要</span>':''}${bad?'<span class="warn-tag">日期不存在於目前曆法</span>':''}${segMismatch(e)?'<span class="warn-tag">日期與段落順序不一致</span>':''}</div>
     ${e.chars.length?`<div class="chips">${e.chars.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>`:''}</button>
     ${op?`<div class="more"><p class="small" style="margin:0 0 8px">${segLabel(e.seg)}　${e.src==='llm'?'由 LLM 整理':e.src==='pro'?'過往事件匯入':'手動記錄'}　${esc(fmt(e.date))}</p>
     <div class="row"><button class="btn sm" data-act="evMove" data-dir="-1" data-id="${e.id}">上移</button><button class="btn sm" data-act="evMove" data-dir="1" data-id="${e.id}">下移</button><button class="btn sm" data-act="editEvent" data-id="${e.id}">編輯</button><button class="btn sm danger" data-act="delEvent" data-id="${e.id}">刪除</button></div></div>`:''}
   </div>`;
 }
 function vTimeline(){
+  const filtering=!!(ui.tlChar||ui.tlImp||ui.tlSeg!=='');
   let evs=S.events.map(e=>Object.assign({kind:'e'},e));
   let qs=S.quotes.map(q=>Object.assign({kind:'q'},q));
   if(ui.tlChar){evs=evs.filter(e=>e.chars.includes(ui.tlChar));qs=qs.filter(q=>q.speaker===ui.tlChar||splitNames(q.to).includes(ui.tlChar))}
@@ -1155,88 +1512,79 @@ function vTimeline(){
   const all=[...evs,...qs].sort((a,b)=>sortKey(a.date)-sortKey(b.date)||(a.order||0)-(b.order||0));
   const segs=S.segments.slice().sort((a,b)=>a.n-b.n);
   let h=`<div class="filters">
-  <select data-uic="tlChar" aria-label="篩選角色"><option value="">全部角色</option>${S.characters.map(c=>`<option ${ui.tlChar===c.name?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+  <select data-uic="tlChar" aria-label="篩選角色"><option value="">全部角色</option>${S.characters.filter(c=>c.type!=='extra').sort((a,b)=>CTYPE_ORDER.indexOf(a.type)-CTYPE_ORDER.indexOf(b.type)).map(c=>`<option ${ui.tlChar===c.name?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
   <select data-uic="tlImp" aria-label="篩選重要度"><option value="">所有重要度</option><option value="h" ${ui.tlImp==='h'?'selected':''}>只看高</option><option value="m" ${ui.tlImp==='m'?'selected':''}>中以上</option></select>
   <select data-uic="tlSeg" aria-label="篩選段落"><option value="">所有段落</option>${segs.map(s=>`<option value="${s.n}" ${ui.tlSeg===String(s.n)?'selected':''}>${segLabel(s.n)}</option>`).join('')}</select></div>
-  <div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addQuote">新增台詞</button><button class="btn sm" data-act="addEvent">新增事件</button></div>`;
+  <div class="row" style="margin-top:10px">${filtering?'':`<button class="btn sm ghost" data-act="allDays" data-v="1">全部展開</button><button class="btn sm ghost" data-act="allDays" data-v="0">全部收合</button>`}<span style="flex:1"></span><button class="btn sm" data-act="addQuote">新增台詞</button><button class="btn sm" data-act="addEvent">新增事件</button></div>`;
   if(!all.length)return h+`<p class="empty">${S.events.length||S.quotes.length?'沒有符合篩選條件的內容。':'還沒有事件。到工作台匯入過往事件或第一段劇情，或點「新增事件」手動記錄。'}</p>`;
   const groups=[];all.forEach(e=>{const k=`${e.date.y}-${e.date.m||0}-${e.date.d||0}-${e.date.prec}`;const g=groups[groups.length-1];if(g&&g.k===k)g.list.push(e);else groups.push({k,date:e.date,list:[e]})});
   let prev=null,prevYm=null;
   groups.forEach(g=>{
     const dt=g.date;const ym=dt.prec==='y'?`${dt.y}`:`${dt.y}-${dt.m}`;
-    if(prev&&prev.prec==='d'&&dt.prec==='d'){const gap=idx(dt)-idx(prev);if(gap>7)h+=`<div class="gap">${gapText(gap)}</div>`}
-    if(ym!==prevYm)h+=`<div class="mdiv">${dt.prec==='y'?`${dt.y}年`:`${dt.y}年${esc(monthName(dt.m))}`}</div>`;
-    const seal=dt.prec==='d'?`<span class="dseal">${esc(monthName(dt.m))}<b>${dt.d}</b>日</span>`:`<span class="dseal vague">${dt.prec==='m'?'日期未定':'月日未定'}</span>`;
+    if(prev&&prev.prec==='d'&&dt.prec==='d'){const gap=idx(dt)-idx(prev);if(gap>7)h+=`<div class="gap">${esc(gapText(gap))}</div>`}
+    if(ym!==prevYm)h+=`<div class="mdiv"><span class="y">${esc(dt.y)}年</span>${dt.prec==='y'?'':`<span class="m">${esc(monthName(dt.m))}</span>`}</div>`;
+    const seal=dt.prec==='d'?`<span class="dseal"><span class="dm">${esc(monthName(dt.m))}</span><b>${esc(dt.d)}</b><span class="dd">日</span></span>`:`<span class="dseal vague">${dt.prec==='m'?'日期未定':'月日未定'}</span>`;
     const ne=g.list.filter(x=>x.kind==='e').length,nq=g.list.length-ne;
-    h+=`<div class="day"><div class="dayhead">${seal}<span class="rule"></span><span class="cnt">${[ne?`${ne} 件事`:'',nq?`${nq} 句台詞`:''].filter(Boolean).join('、')}</span></div>`;
-    g.list.forEach(x=>{h+=x.kind==='e'?eventItem(x):quoteItem(x)});
+    const isOpen=filtering||(g.k in ui.dayOpen?ui.dayOpen[g.k]:ui.allOpen);
+    const lead=g.list.find(x=>x.kind==='e')||g.list[0];
+    const rest=g.list.filter(x=>x!==lead);
+    const rne=rest.filter(x=>x.kind==='e').length,rnq=rest.length-rne;
+    h+=`<div class="day ${isOpen?'':'shut'}" ${dt.prec==='d'?` style="--p:${((dt.d-1)/Math.max(1,mDays(dt.y,dt.m)-1)).toFixed(3)}"`:''}><div class="dayhead">${seal}<span class="rule"></span><span class="cnt">${[ne?`${ne} 件事`:'',nq?`${nq} 句台詞`:''].filter(Boolean).join('、')}</span></div>`;
+    if(isOpen){g.list.forEach(x=>{h+=x.kind==='e'?eventItem(x):quoteItem(x)});
+      if(rest.length&&!filtering)h+=`<button class="dayfold" data-act="toggleDay" data-k="${esc(g.k)}" aria-expanded="true">收合這一天</button>`;}
+    else{h+=lead.kind==='e'?eventItem(lead):quoteItem(lead);
+      if(rest.length)h+=`<button class="dayfold" data-act="toggleDay" data-k="${esc(g.k)}" aria-expanded="false">另有 ${[rne?`${rne} 件事`:'',rnq?`${rnq} 句台詞`:''].filter(Boolean).join('、')}，展開 ▾</button>`;}
     h+='</div>';prev=dt;prevYm=ym;
   });
   return h;
 }
-function pick(arr,n){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,n)}
 function vThreads(){
-  const cnt=k=>S.foreshadows.filter(f=>f.status===k).length;
+  const open=S.foreshadows.filter(f=>f.status!=='resolved').length;
   let h=`<div class="seg">
-   <button class="${ui.thrView==='fs'?'on':''}" data-act="set" data-k="thrView" data-v="fs">伏筆</button>
-   <button class="${ui.thrView==='cf'?'on':''}" data-act="set" data-k="thrView" data-v="cf">衝突<span class="n">${S.conflicts.filter(c=>!c.resolved).length}</span></button>
-   <button class="${ui.thrView==='qt'?'on':''}" data-act="set" data-k="thrView" data-v="qt">台詞<span class="n">${S.quotes.filter(q=>QPEND[q.type]&&!q.done).length}</span></button>
-   <button class="${ui.thrView==='idea'?'on':''}" data-act="set" data-k="thrView" data-v="idea">靈感</button></div>`;
-  if(ui.thrView==='fs'){
-    h+=`<div class="chips" style="margin-top:10px">${Object.keys(FSN).map(k=>`<button class="chip ${ui.fsTab===k?'on':''}" data-act="set" data-k="fsTab" data-v="${k}">${FSN[k]} ${cnt(k)}</button>`).join('')}</div>
-    <div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addFs">新增伏筆</button></div>`;
-    const list=S.foreshadows.filter(f=>f.status===ui.fsTab);
-    if(!list.length)h+=`<p class="empty">這個狀態下沒有伏筆。</p>`;
-    list.forEach(f=>{
-      const gap=curSeg()-f.lastSeg;
-      h+=`<div class="item"><div class="name">${esc(f.name)}${f.status!=='resolved'&&gap>=1&&f.lastSeg>0?`<span class="stale">${gap} 段未推進</span>`:''}${f.status!=='resolved'&&f.lastSeg===0&&curSeg()>0?`<span class="stale">序章後未推進</span>`:''}</div>
-      <div class="desc">${esc(f.content)}</div>
-      <div class="meta">埋下於${segLabel(f.plantedSeg)}，最後推進於${segLabel(f.lastSeg)}${f.chars.length?'　'+f.chars.map(esc).join('、'):''}</div>
-      <div class="row"><select data-fsstatus="${f.id}" style="width:auto;padding:6px 10px">${Object.keys(FSN).map(k=>`<option value="${k}" ${f.status===k?'selected':''}>${FSN[k]}</option>`).join('')}</select><button class="btn sm" data-act="editFs" data-id="${f.id}">編輯</button><button class="btn sm danger" data-act="delFs" data-id="${f.id}">刪除</button></div></div>`;
-    });
-  }else if(ui.thrView==='qt'){
+   <button class="${ui.thrView!=='qt'?'on':''}" data-act="set" data-k="thrView" data-v="fs">戲劇要素<span class="n">${open}</span></button>
+   <button class="${ui.thrView==='qt'?'on':''}" data-act="set" data-k="thrView" data-v="qt">台詞<span class="n">${S.quotes.filter(q=>QPEND[q.type]&&!q.done).length}</span></button></div>`;
+  if(ui.thrView==='qt'){
     h+=`<div class="chips" style="margin-top:10px"><button class="chip ${ui.qtTab==='pend'?'on':''}" data-act="set" data-k="qtTab" data-v="pend">尚未兌現或揭穿</button><button class="chip ${ui.qtTab==='all'?'on':''}" data-act="set" data-k="qtTab" data-v="all">全部台詞</button></div>
     <div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addQuote">新增台詞</button></div>`;
     const list=sortedEvents(S.quotes.filter(q=>ui.qtTab==='all'||(QPEND[q.type]&&!q.done)));
     if(!list.length)h+=`<p class="empty">${ui.qtTab==='pend'?'沒有待兌現的承諾或待揭穿的謊言。':'還沒有記錄關鍵台詞。'}</p>`;
-    list.forEach(q=>{h+=`<div class="item"><div class="qt">「${esc(q.text)}」</div><div class="meta">${esc(fmt(q.date))}　${esc(q.speaker||'？')}${q.to?' → '+esc(q.to):''}　${esc(q.type)}${q.done?'，'+QPEND[q.type]:''}</div>${q.why?`<div class="small" style="margin-top:2px">${esc(q.why)}</div>`:''}
-      <div class="row">${QPEND[q.type]?`<button class="btn sm" data-act="toggleQDone" data-id="${q.id}">${q.done?'取消標記':'標記為'+QPEND[q.type]}</button>`:''}<button class="btn sm" data-act="editQuote" data-id="${q.id}">編輯</button><button class="btn sm danger" data-act="delQuote" data-id="${q.id}">刪除</button></div></div>`});
-  }else if(ui.thrView==='cf'){
-    h+=`<div class="row end" style="margin-top:12px"><button class="btn sm" data-act="addCf">新增衝突</button></div>`;
-    const list=S.conflicts.slice().sort((a,b)=>a.resolved-b.resolved);
-    if(!list.length)h+=`<p class="empty">目前沒有記錄衝突。</p>`;
-    list.forEach(c=>{h+=`<div class="item ${c.resolved?'done':''}"><label class="check"><input type="checkbox" data-cf="${c.id}" ${c.resolved?'checked':''}><span><div class="desc">${esc(c.content)}</div><div class="meta">${segLabel(c.seg||1)}${c.chars.length?'　'+c.chars.map(esc).join('、'):''}${c.resolved?'　已解決':''}</div></span></label>
-      <div class="row"><button class="btn sm" data-act="editCf" data-id="${c.id}">編輯</button><button class="btn sm danger" data-act="delCf" data-id="${c.id}">刪除</button></div></div>`});
-  }else{
-    if(!ui.qs)ui.qs=pick(DB.settings.questions,3);
-    h+=`<section class="sec"><h2>轉折檢查</h2><p class="hint">從既有劇情找下一步，挑一題想想看。</p>
-    <ol class="qs">${ui.qs.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>
-    <div class="row" style="margin-top:10px"><button class="btn sm" data-act="newQs">換一組問題</button></div></section>`;
-    const cats=Object.keys(DB.settings.cards);
-    h+=`<section class="sec"><h2>抽卡</h2><p class="hint">選一個類別，或從全部卡池隨機抽。</p>
-    <div class="chips"><button class="chip ${!ui.drawCat?'on':''}" data-act="set" data-k="drawCat" data-v="">全部</button>${cats.map(c=>`<button class="chip ${ui.drawCat===c?'on':''}" data-act="set" data-k="drawCat" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>
-    <button class="btn primary big" style="margin-top:12px" data-act="draw">抽一張</button>
-    ${ui.drawn?`<div class="card-draw"><div class="cat">${esc(ui.drawn.cat)}</div><div class="txt">${esc(ui.drawn.text)}</div></div>`:''}</section>`;
-    const sp=selfProfiles().length;
-    h+=`<section class="sec"><h2>靈感提示詞</h2><p class="hint">打包近期事件、伏筆、衝突、角色現況${sp?'與 PC 設定':''}，請 LLM 提出三個不同走向。${sp?'':'在「角色」分頁填寫 PC 設定後，提示詞會更貼合你的角色。'}</p>
-    <button class="btn primary big" data-act="ideaPrompt">產生並複製</button>
-    ${ui.ideaText?`<pre class="prev">${esc(ui.ideaText)}</pre>`:''}</section>`;
-    const ideas=S.notes.filter(x=>x.kind==='idea');
-    h+=`<section class="sec"><h2>靈感筆記</h2>${ideas.length?ideas.map(x=>`<div class="item"><div class="desc">${esc(x.text)}</div><div class="row"><button class="btn sm ghost" data-act="noteDel" data-id="${x.id}">刪除</button></div></div>`).join(''):'<p class="hint">用右下角的「記」按鈕快速記下想法，歸類為靈感筆記後會出現在這裡。</p>'}</section>`;
+    list.forEach(q=>{h+=`<div class="item"><div class="qt">「${esc(q.text)}」</div><div class="meta">${esc(fmt(q.date))}　${esc(q.speaker||'？')}${q.to?' → '+esc(q.to):''}　${esc(q.type)}${q.done?'，'+esc(QPEND[q.type]):''}</div>${q.why?`<div class="small" style="margin-top:2px">${esc(q.why)}</div>`:''}
+      <div class="row">${QPEND[q.type]?`<button class="btn sm" data-act="toggleQDone" data-id="${esc(q.id)}">${q.done?'取消標記':'標記為'+esc(QPEND[q.type])}</button>`:''}<button class="btn sm" data-act="editQuote" data-id="${esc(q.id)}">編輯</button><button class="btn sm danger" data-act="delQuote" data-id="${esc(q.id)}">刪除</button></div></div>`});
+    return h;
   }
+  const cnt=k=>S.foreshadows.filter(f=>f.status===k&&(!ui.fkKind||f.kind===ui.fkKind)).length;
+  h+=`<div class="chips" style="margin-top:10px">${Object.keys(FSN).map(k=>`<button class="chip ${ui.fsTab===k?'on':''}" data-act="set" data-k="fsTab" data-v="${k}">${FSN[k]} ${cnt(k)}</button>`).join('')}</div>
+  <div class="row" style="margin-top:10px"><select data-uic="fkKind" style="width:auto;padding:6px 10px" aria-label="篩選類型"><option value="">伏筆與衝突</option>${Object.keys(FKIND).map(k=>`<option value="${k}" ${ui.fkKind===k?'selected':''}>只看${FKIND[k]}</option>`).join('')}</select><span style="flex:1"></span><button class="btn sm" data-act="addFs">新增戲劇要素</button></div>`;
+  const list=S.foreshadows.filter(f=>f.status===ui.fsTab&&(!ui.fkKind||f.kind===ui.fkKind));
+  if(!list.length)h+=`<p class="empty">這個狀態下沒有戲劇要素。</p>`;
+  list.forEach(f=>{
+    const gap=curSeg()-f.lastSeg;
+    h+=`<div class="item"><div class="name"><span class="kindtag ${f.kind==='conflict'?'cf':''}">${esc(FKIND[f.kind]||'伏筆')}</span>${esc(f.name)}${f.status!=='resolved'&&gap>=1&&f.lastSeg>0?`<span class="stale">${gap} 段未推進</span>`:''}${f.status!=='resolved'&&f.lastSeg===0&&curSeg()>0?`<span class="stale">序章後未推進</span>`:''}</div>
+    <div class="desc">${esc(f.content)}</div>
+    <div class="meta">出現於${esc(segLabel(f.plantedSeg))}，最後推進於${esc(segLabel(f.lastSeg))}${f.chars.length?'　'+f.chars.map(esc).join('、'):''}</div>
+    <div class="row"><select data-fsstatus="${esc(f.id)}" style="width:auto;padding:6px 10px" aria-label="狀態">${Object.keys(FSN).map(k=>`<option value="${k}" ${f.status===k?'selected':''}>${FSN[k]}</option>`).join('')}</select><button class="btn sm" data-act="editFs" data-id="${esc(f.id)}">編輯</button><button class="btn sm danger" data-act="delFs" data-id="${esc(f.id)}">刪除</button></div></div>`;
+  });
   return h;
 }
+function onceOnly(c){
+  if(c.type!=='major'||c.hist.length)return false;
+  const segs=new Set();
+  S.events.forEach(e=>{if(e.chars.includes(c.name))segs.add(e.seg)});
+  S.quotes.forEach(q=>{if(q.speaker===c.name||splitNames(q.to).includes(c.name))segs.add(q.seg)});
+  return segs.size===1;
+}
 function charCard(c){
-  const L=c.cur;const op=ui.charOpen===c.id;const self=c.type==='self';
+  const L=c.cur;const op=ui.charOpen===c.id;const self=c.type==='self';const once=onceOnly(c);
   const loc=L.single['位置']?L.single['位置'].v:'位置未記錄';
   const qs=sortedEvents(S.quotes.filter(q=>q.speaker===c.name||splitNames(q.to).includes(c.name)));
-  let h=`<div class="char ${op?'open':''}"><button class="char-btn" data-act="toggleChar" data-id="${c.id}" aria-expanded="${op}"><span class="avatar ${self?'':'other'}">${esc(c.name.slice(0,1))}</span><span class="info"><b>${esc(c.name)}<span class="typetag ${self?'self':''}">${self?'PC':'對方'}</span></b><span>${esc(loc)}</span></span><span class="chev">›</span></button>`;
+  let h=`<div class="char ${op?'open':''}"><button class="char-btn" data-act="toggleChar" data-id="${c.id}" aria-expanded="${op}"><span class="avatar ${self?'':'other'} ${c.av?'av-'+c.av.t:'av-auto'}">${avInner(c)}</span><span class="info"><b>${esc(c.name)}<span class="typetag ${self?'self':''}">${esc(CTYPE[c.type]||'主要角色')}</span>${once?'<span class="stale">只出場過一次</span>':''}</b><span>${esc(loc)}</span></span><span class="chev">›</span></button>`;
   if(op){
     h+=`<div class="cdetail">`;
     if(self){
       const has=PROF.some(([k])=>c.profile&&c.profile[k]);
       h+=has?`<dl class="prof">${PROF.map(([k,l])=>c.profile[k]?`<dt>${l}</dt><dd>${esc(c.profile[k])}</dd>`:'').join('')}</dl>`:`<p class="hint">尚未填寫角色設定。</p>`;
-    }else h+=`<p class="hint">對方角色只記錄劇情中表現出來的狀態，不保存設定。</p>`;
+    }else h+=`<p class="hint">非 PC 角色只記錄劇情中表現出來的狀態，不保存設定。</p>`;
+    if(once)h+=`<div class="notice" style="margin:0 0 12px">這個角色只在單一段落出現，也沒有狀態紀錄。<div class="row"><button class="btn sm" data-act="demote" data-id="${esc(c.id)}">降為配角</button></div></div>`;
     h+=`<p class="small" style="margin:0 0 6px">點擊內容即可修改</p><dl class="stt">`;
     SINGLE.forEach(k=>{const v=L.single[k];h+=`<dt>${k}</dt><dd><button class="fv" data-act="editField" data-c="${c.id}" data-cat="${k}">${v?esc(v.v):'<span class="small">未記錄</span>'}</button>${v?` <small>${esc(fmt(v.date))}</small>`:''}</dd>`});
     Object.entries(L.rel).forEach(([t,s])=>{h+=`<dt>對${esc(t)}</dt><dd><button class="fv" data-act="editRel" data-c="${c.id}" data-t="${esc(t)}">${esc(s.v)}</button> <small>${esc(fmt(s.date))}</small></dd>`});
@@ -1247,7 +1595,7 @@ function charCard(c){
     h+=`</dl>
     <details class="fold"><summary>變化歷程（${c.hist.length}）</summary>${c.hist.length?`<ul class="hist">${c.hist.slice().sort((a,b)=>sortKey(b.date)-sortKey(a.date)).map(x=>`<li><span class="t">${esc(histText(x))}</span><span class="d">${esc(fmt(x.date))}</span><button class="btn sm ghost" data-act="delHist" data-c="${c.id}" data-id="${x.id}" aria-label="刪除此紀錄">✕</button></li>`).join('')}</ul>`:'<p class="small">尚無變化紀錄。</p>'}</details>
     ${qs.length?`<details class="fold"><summary>相關台詞（${qs.length}）</summary><ul class="hist">${qs.map(q=>`<li><span class="t">${esc(q.speaker)}${q.to?' → '+esc(q.to):''}：「${esc(q.text)}」</span><span class="d">${esc(fmt(q.date))}</span></li>`).join('')}</ul></details>`:''}
-    <div class="row" style="margin-top:12px">${self?`<button class="btn sm primary" data-act="editProfile" data-id="${c.id}">編輯設定</button>`:''}<button class="btn sm" data-act="toggleType" data-id="${c.id}">改為${self?'對方':'PC'}</button><button class="btn sm" data-act="renameChar" data-id="${c.id}">改名</button><button class="btn sm danger" data-act="delChar" data-id="${c.id}">刪除</button></div></div>`;
+    <div class="row" style="margin-top:12px">${self?`<button class="btn sm primary" data-act="editProfile" data-id="${c.id}">編輯設定</button>`:''}<select data-chartype="${esc(c.id)}" style="width:auto;padding:6px 10px" aria-label="角色類型">${CTYPE_ORDER.map(k=>`<option value="${k}" ${c.type===k?'selected':''}>${CTYPE[k]}</option>`).join('')}</select><button class="btn sm" data-act="renameChar" data-id="${c.id}">改名</button><button class="btn sm" data-act="editAvatar" data-id="${c.id}">頭像</button><button class="btn sm danger" data-act="delChar" data-id="${c.id}">刪除</button></div></div>`;
   }
   return h+'</div>';
 }
@@ -1255,15 +1603,21 @@ function vChars(){
   let h=`<div class="seg"><button class="${ui.charView==='list'?'on':''}" data-act="set" data-k="charView" data-v="list">角色狀態</button><button class="${ui.charView==='know'?'on':''}" data-act="set" data-k="charView" data-v="know">誰知道什麼</button></div>`;
   if(ui.charView==='list'){
     h+=`<div class="row end" style="margin-top:10px"><button class="btn sm" data-act="addChar">新增角色</button></div>`;
-    if(!S.characters.length)return h+`<p class="empty">還沒有角色。匯入時會自動建立為對方角色，也可以手動新增。</p>`;
-    const mine=S.characters.filter(c=>c.type==='self'),theirs=S.characters.filter(c=>c.type!=='self');
-    h+=`<div class="grp">PC</div>`+(mine.length?mine.map(charCard).join(''):'<p class="hint">尚無 PC。展開角色後可切換為 PC。</p>');
-    h+=`<div class="grp">對方</div>`+(theirs.length?theirs.map(charCard).join(''):'<p class="hint">尚無對方角色。</p>');
+    if(!S.characters.length)return h+`<p class="empty">還沒有角色。匯入時會自動建立為主要角色，也可以手動新增。</p>`;
+    CTYPE_ORDER.forEach(t=>{
+      const list=S.characters.filter(c=>c.type===t);
+      if(t==='extra'){
+        h+=`<button class="grp grp-btn" data-act="toggleExtra" aria-expanded="${ui.extraOpen}">${CTYPE[t]}（${list.length}）${ui.extraOpen?'▴':'▾'}</button>`;
+        if(ui.extraOpen)h+=list.length?list.map(charCard).join(''):'<p class="hint">尚無配角。</p>';
+      }else{
+        h+=`<div class="grp">${CTYPE[t]}</div>`+(list.length?list.map(charCard).join(''):`<p class="hint">尚無${CTYPE[t]}。${t==='self'?'展開角色後可變更類型。':''}</p>`);
+      }
+    });
   }else{
     h+=`<div class="row" style="margin-top:12px"><p class="hint grow" style="margin:0">點擊秘密即可編輯內容、當事人與知情者。</p><button class="btn sm" data-act="addSecret">新增秘密</button></div>`;
     if(!S.secrets.length)return h+`<p class="empty">還沒有秘密。匯入「知情」類別的角色狀態時會自動建立，也可以手動新增。</p>`;
     S.secrets.forEach(sec=>{
-      const kn=knowersOf(sec);const un=S.characters.filter(c=>!sec.subjects.includes(c.name)&&!kn.includes(c));
+      const kn=knowersOf(sec);const un=S.characters.filter(c=>c.type!=='extra'&&!sec.subjects.includes(c.name)&&!kn.includes(c));
       const notes=kn.map(c=>{const it=c.cur.items['知情'].find(x=>x.sid===sec.id);return it&&it.note?`${c.name}：${it.note}（${fmt(it.date)}）`:''}).filter(Boolean);
       h+=`<div class="secret"><button class="sec-btn" data-act="editSecret" data-id="${sec.id}"><span class="name">${esc(sec.text)}</span><span class="chev">›</span></button>
       ${sec.subjects.length?`<div class="knows"><span>當事人</span><span class="chips" style="display:inline-flex">${sec.subjects.map(n=>`<span class="chip subj">${esc(n)}</span>`).join('')}</span></div>`:''}
@@ -1276,15 +1630,14 @@ function vChars(){
 }
 function vSettings(){
   const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
-  const cardsText=Object.entries(DB.settings.cards).map(([k,v])=>v.map(t=>`${k}：${t}`).join('\n')).join('\n');
   const monthsText=S.cal.months.map((m,i)=>`${m.name||`${i+1}月`} ${m.days}`).join('\n');
   const bad=invalidCount();const ids=Object.keys(DB.stories);
   return `<section class="sec"><h2>故事</h2>
   ${ids.length>1||true?`<label class="fld"><span>目前故事</span><select data-story="1">${ids.map(id=>`<option value="${id}" ${id===DB.active?'selected':''}>${esc(DB.stories[id].name)}</option>`).join('')}</select></label>`:''}
   <div class="row"><button class="btn sm" data-act="newStory">新增故事</button>${ids.length>1?'<button class="btn sm danger" data-act="delStory">刪除這個故事</button>':''}</div>
   <label class="fld" style="margin-top:14px"><span>故事名稱</span><input type="text" data-st="name" value="${esc(S.name)}"></label>
-  <label class="fld"><span>故事起始日期（故事第 1 天）</span><input type="text" data-stdate="start" value="${esc(fmt(S.start))}"></label>
-  <label class="fld"><span>目前日期</span><input type="text" data-stdate="cur" value="${esc(fmt(S.cur))}"></label>
+  ${S.undated?`<label class="fld"><span>日期（尚未設定，填寫後即為故事第 1 天與目前日期）</span><input type="text" data-stdate="cur" value="" placeholder="例如：1892年2月26日"></label>`:`<label class="fld"><span>故事起始日期（故事第 1 天）</span><input type="text" data-stdate="start" value="${esc(fmt(S.start))}"></label>
+  <label class="fld"><span>目前日期</span><input type="text" data-stdate="cur" value="${esc(fmt(S.cur))}"></label>`}
   <p class="small">共 ${curSeg()} 段${S.segments.some(s=>s.n===0)?'與序章':''}、${S.events.length} 個事件、${S.characters.length} 位角色。</p></section>
   <section class="sec"><h2>曆法</h2>
   <div class="seg" style="margin-top:4px"><button class="${S.cal.type==='greg'?'on':''}" data-act="setCal" data-v="greg">標準公曆</button><button class="${S.cal.type==='custom'?'on':''}" data-act="setCal" data-v="custom">自訂曆法</button></div>
@@ -1299,25 +1652,22 @@ function vSettings(){
   <h3 class="sub">或貼上備份內容匯入</h3>
   <textarea data-ui="importText" rows="3" placeholder="貼上 .json 備份內容">${esc(ui.importText)}</textarea>
   <div class="row end" style="margin-top:8px"><button class="btn sm" data-act="importPaste">匯入</button></div></section>
-  ${DB.settings.tplNotice?`<section class="sec"><div class="notice" style="margin:0">整理指令有新版（加入純文字輸出要求、關鍵台詞、秘密清單等），但你修改過範本，所以沒有自動更新。<div class="row"><button class="btn sm primary" data-act="useNewTpl">改用新版</button><button class="btn sm ghost" data-act="keepTpl">保留我的版本</button></div></div></section>`:''}<section class="sec"><h2>整理指令範本</h2><p class="hint">保留 {起始日期}、{伏筆清單}、{角色名單}、{秘密清單} 四個標記，複製時會自動填入。</p>
+  ${DB.settings.tplNotice?`<section class="sec"><div class="notice" style="margin:0">整理指令有新版（改為指定回顧的訊息則數，不再附上戲劇要素、角色與秘密清單），但你修改過範本，所以沒有自動更新。<div class="row"><button class="btn sm primary" data-act="useNewTpl">改用新版</button><button class="btn sm ghost" data-act="keepTpl">保留我的版本</button></div></div></section>`:''}<section class="sec"><h2>整理指令範本</h2><p class="hint">保留 {回顧則數} 標記，複製時會填入工作台選擇的則數。舊版的 {起始日期}、{戲劇要素清單}、{角色名單}、{秘密清單} 標記仍可使用。</p>
   <textarea data-set="template" rows="10">${esc(DB.settings.template)}</textarea>
   <div class="row end" style="margin-top:8px"><button class="btn sm ghost" data-act="resetTemplate" data-k="template">還原預設</button></div></section>
   <section class="sec"><h2>格式轉換指令範本</h2><p class="hint">用於匯入過往事件。</p>
   <textarea data-set="proTemplate" rows="8">${esc(DB.settings.proTemplate)}</textarea>
   <div class="row end" style="margin-top:8px"><button class="btn sm ghost" data-act="resetTemplate" data-k="proTemplate">還原預設</button></div></section>
-  <section class="sec"><h2>轉折檢查問題</h2><p class="hint">一行一題，所有故事共用。</p>
-  <textarea data-set="questions" rows="8">${esc(DB.settings.questions.join('\n'))}</textarea></section>
-  <section class="sec"><h2>抽卡卡池</h2><p class="hint">一行一張，格式為「類別：內容」，所有故事共用。</p>
-  <textarea data-set="cards" rows="10">${esc(cardsText)}</textarea></section>
+  
   <section class="sec"><h2>使用環境</h2><p class="hint">${standalone?'目前從主畫面開啟。':'目前在瀏覽器分頁中開啟。正式使用時，請加入主畫面並固定從圖示開啟，iOS 上兩者的資料是分開存放的。'}</p></section>
   <section class="sec"><h2>重設</h2><div class="row"><button class="btn danger" data-act="clearAll">清空所有資料</button></div></section>`;
 }
 function vSetup(){
-  return `<section class="sec"><h2>建立第一個故事</h2><p class="hint">填寫故事名稱與起始日期即可開始。起始日期是故事的第 1 天，之後都能在設定中修改。</p>
-  <label class="fld"><span>故事名稱</span><input type="text" id="suName" placeholder="例如：鐘塔與護身符"></label>
-  <label class="fld"><span>故事起始日期</span><input type="text" id="suStart" placeholder="例如：1892年2月26日"></label>
+  return `<section class="sec"><h2>建立第一個故事</h2><p class="hint">只有 PC 名稱是必填，其餘都可以之後在設定中補上或修改。</p>
+  <label class="fld"><span>PC 名稱（必填，多位以頓號分隔）</span><input type="text" id="suSelf" placeholder="例如：艾琳"></label>
+  <label class="fld"><span>故事名稱（選填，未填時為「PC 名稱的故事」）</span><input type="text" id="suName" placeholder="例如：鐘塔與護身符"></label>
+  <label class="fld"><span>故事起始日期（選填）</span><input type="text" id="suStart" placeholder="例如：1892年2月26日"></label>
   <label class="fld"><span>曆法</span><select id="suCal"><option value="greg">標準公曆</option><option value="custom">自訂曆法（建立後到設定中編輯月份）</option></select></label>
-  <label class="fld"><span>PC 名稱（選填，多位以頓號分隔）</span><input type="text" id="suSelf" placeholder="之後也可以在角色分頁新增"></label>
   <button class="btn primary big" data-act="setupDone">開始使用</button></section>
   <section class="sec"><h2>已經有備份？</h2><p class="hint">從先前匯出的備份檔還原所有故事與設定。</p>
   <div class="row"><button class="btn" data-act="pickFile">從檔案匯入</button></div>
@@ -1325,18 +1675,19 @@ function vSetup(){
   <div class="row end" style="margin-top:8px"><button class="btn sm" data-act="importPaste">匯入</button></div></section>`;
 }
 function render(){
-  const setup=DB.ready===false;document.body.classList.toggle('setup',setup);
-  if(setup){$('#storyName').textContent='對戲帳本';$('#storySub').textContent='尚未建立故事';$('#main').innerHTML=vSetup();return}
+  const setup=DB.ready===false;document.body.classList.toggle('setup',setup);document.body.classList.remove('navhide');document.body.dataset.tab=ui.tab;
+  if(setup){$('#storyName').textContent='劇情整理小工具';$('#storySub').textContent='尚未建立故事';$('#main').innerHTML=vSetup();return}
   $('#storyName').textContent=S.name||'未命名故事';
-  $('#storySub').textContent=`${S.cur.y}年　故事第 ${storyDay()} 天　${segLabel(curSeg())==='序章'?'尚未開始正式段落':`已整理 ${curSeg()} 段`}`;
-  $('#sealMn').textContent=monthName(S.cur.m);$('#sealNum').textContent=S.cur.d;
+  $('#storySub').textContent=`${S.undated?'尚未設定日期':`${S.cur.y}年　故事第 ${storyDay()} 天`}　${segLabel(curSeg())==='序章'?'尚未開始正式段落':`已整理 ${curSeg()} 段`}`;
+  if(S.undated){$('#sealMn').textContent='日期';$('#sealNum').textContent='未定';$('#sealD').hidden=true;$('#seal').classList.add('undated')}
+  else{$('#sealMn').textContent=monthName(S.cur.m);$('#sealNum').textContent=S.cur.d;$('#sealD').hidden=false;$('#seal').classList.remove('undated')}
   document.querySelectorAll('.tab').forEach(t=>{const on=t.dataset.tab===ui.tab;t.classList.toggle('on',on);t.setAttribute('aria-current',on?'page':'false')});
   $('#main').innerHTML=({work:vWork,timeline:vTimeline,threads:vThreads,chars:vChars,settings:vSettings})[ui.tab]();
 }
 
 /* ---------- sheet & forms ---------- */
 let formCb=null,confirmCb=null;
-function showSheet(html){$('#sheetBody').innerHTML=html;$('#sheet').hidden=false;const f=$('#sheetBody').querySelector('input,textarea');if(f)setTimeout(()=>f.focus(),60)}
+function showSheet(html){$('#sheetBody').innerHTML=html;$('#sheet').hidden=false;const f=$('#sheetBody').querySelector('input:not([data-nofocus]),textarea');if(f)setTimeout(()=>f.focus(),60)}
 function closeSheet(){$('#sheet').hidden=true;$('#sheetBody').innerHTML='';formCb=confirmCb=formExtraCb=null}
 let formExtraCb=null;
 function openForm(title,fields,vals,cb,note,extra){
@@ -1350,41 +1701,63 @@ function openForm(title,fields,vals,cb,note,extra){
   }).join('')+`<div class="row">${extra?`<button class="btn danger" data-act="formExtra">${esc(extra.label)}</button>`:''}<span style="flex:1"></span><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="saveForm">儲存</button></div>`);
 }
 function askConfirm(msg,yes,label){confirmCb=yes;showSheet(`<h3>${esc(msg)}</h3><div class="row end"><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn danger" data-act="confirmYes">${esc(label||'確定')}</button></div>`)}
-function readDate(text,fallbackY){const p=parseDate(text,fallbackY||S.cur.y);if(!p){toast('無法辨識日期，請用「1892年3月5日」這類格式');return null}if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return null}return p}
-const qFields=[{k:'date',l:'日期'},{k:'period',l:'時段'},{k:'speaker',l:'說話者'},{k:'to',l:'對象'},{k:'text',l:'台詞（原句）',t:'textarea'},{k:'type',l:'類型',t:'select',o:QT.map(x=>[x,x])},{k:'why',l:'為何重要'}];
+function readDate(text,fallbackY){const p=parseDate(text,fallbackY||curY());if(!p){toast('無法辨識日期，請用「1892年3月5日」這類格式');return null}if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return null}return p}
+function qFields(){return [...qFieldsBase,{k:'seg',l:'所屬段落',t:'select',o:segOptions()}]}
+const qFieldsBase=[{k:'date',l:'日期'},{k:'period',l:'時段'},{k:'speaker',l:'說話者'},{k:'to',l:'對象'},{k:'text',l:'台詞（原句）',t:'textarea'},{k:'type',l:'類型',t:'select',o:QT.map(x=>[x,x])},{k:'why',l:'為何重要'}];
 function saveQuote(q,o){
   const p=readDate(o.date);if(!p)return false;
   if(!o.text.trim()){toast('請填寫台詞');return false}
   [o.speaker,o.to].forEach(n=>splitNames(n).forEach(x=>ensureChar(x)));
+  const sg=Math.max(0,parseInt(o.seg));if(!isNaN(sg)){ensureSeg(sg);q.seg=sg}
   Object.assign(q,{date:p.date,period:o.period.trim(),speaker:o.speaker.trim(),to:o.to.trim(),text:o.text.trim().replace(/^[「『"“]+|[」』"”]+$/g,''),type:o.type,why:o.why.trim()});
+  recalcSegments();
 }
 function newQuoteForm(prefill){
-  openForm('新增關鍵台詞',qFields,Object.assign({date:fmt(S.cur),type:'其他'},prefill||{}),o=>{
+  openForm('新增關鍵台詞',qFields(),Object.assign({date:curText(),type:'其他',seg:String(curSeg())},prefill||{}),o=>{
     const q={id:uid(),seg:curSeg(),done:false,order:maxOrder()+1};
-    if(saveQuote(q,o)===false)return false;S.quotes.push(q);toast('已新增台詞');
+    if(saveQuote(q,o)===false)return false;S.quotes.push(q);recalcSegments();toast('已新增台詞');
   });
 }
 const modeField={k:'mode',l:'這次修改是',t:'select',o:[['change','劇情中的變化（舊值移入歷程）'],['fix','修正記錄錯誤（不留歷程）']]};
 const dateField={k:'date',l:'變化日期（劇情變化時使用）'};
-const evFields=[{k:'date',l:'日期（如 1892年3月5日，只知道年月也可以）'},{k:'period',l:'時段'},{k:'place',l:'地點'},{k:'chars',l:'角色（以頓號分隔）'},{k:'summary',l:'摘要',t:'textarea'},{k:'imp',l:'重要度',t:'select',o:[['h','高'],['m','中'],['l','低']]}];
-const fsFields=[{k:'name',l:'名稱'},{k:'content',l:'內容',t:'textarea'},{k:'status',l:'狀態',t:'select',o:Object.entries(FSN)},{k:'chars',l:'相關角色（以頓號分隔）'}];
+function evFields(){return [...evFieldsBase,{k:'seg',l:'所屬段落',t:'select',o:segOptions()}]}
+const evFieldsBase=[{k:'date',l:'日期（如 1892年3月5日，只知道年月也可以）'},{k:'period',l:'時段'},{k:'place',l:'地點'},{k:'chars',l:'角色（以頓號分隔）'},{k:'summary',l:'摘要',t:'textarea'},{k:'imp',l:'重要度',t:'select',o:[['h','高'],['m','中'],['l','低']]}];
+const fsFields=[{k:'name',l:'名稱'},{k:'kind',l:'類型',t:'select',o:Object.entries(FKIND)},{k:'content',l:'內容',t:'textarea'},{k:'status',l:'狀態',t:'select',o:Object.entries(FSN)},{k:'chars',l:'相關角色（以頓號分隔）'}];
 const cfFields=[{k:'content',l:'內容',t:'textarea'},{k:'chars',l:'相關角色（以頓號分隔）'}];
 function saveEvent(e,o){
   const p=readDate(o.date);if(!p)return false;
   if(!o.summary.trim()){toast('請填寫摘要');return false}
   const chars=splitNames(o.chars);chars.forEach(c=>ensureChar(c));
+  const sg=Math.max(0,parseInt(o.seg));if(!isNaN(sg)){ensureSeg(sg);e.seg=sg}
   Object.assign(e,{date:p.date,period:o.period.trim(),place:o.place.trim(),chars,summary:o.summary.trim(),imp:o.imp});
+  recalcSegments();
+}
+function recalcSegments(){
+  S.segments.forEach(g=>{
+    const ds=[...S.events,...S.quotes].filter(x=>x.seg===g.n).map(x=>x.date).sort((a,b)=>sortKey(a)-sortKey(b));
+    if(ds.length){g.startDate={...ds[0]};g.endDate={...ds[ds.length-1]}}
+  });
+}
+function segOptions(){
+  const ns=new Set(S.segments.map(g=>g.n));ns.add(0);if(curSeg()>0)ns.add(curSeg());
+  return [...ns].sort((a,b)=>a-b).map(n=>[String(n),segLabel(n)]);
+}
+function ensureSeg(n){if(!S.segments.some(g=>g.n===n))S.segments.push({id:uid(),n,startDate:{...S.cur},endDate:{...S.cur}});S.segments.sort((a,b)=>a.n-b.n)}
+function segMismatch(x){
+  const k=sortKey(x.date);const others=[...S.events,...S.quotes].filter(y=>y!==x&&y.id!==x.id);
+  const before=others.filter(y=>y.seg<x.seg),after=others.filter(y=>y.seg>x.seg);
+  return before.some(y=>sortKey(y.date)>k)||after.some(y=>sortKey(y.date)<k);
 }
 function newEventForm(prefill){
-  openForm('新增事件',evFields,Object.assign({date:fmt(S.cur),imp:'m'},prefill||{}),o=>{
+  openForm('新增事件',evFields(),Object.assign({date:curText(),imp:'m',seg:String(curSeg())},prefill||{}),o=>{
     const e={id:uid(),seg:curSeg(),src:'manual',order:maxOrder()+1};
-    if(saveEvent(e,o)===false)return false;S.events.push(e);toast('已新增事件');
+    if(saveEvent(e,o)===false)return false;S.events.push(e);recalcSegments();toast('已新增事件');
   });
 }
 function newFsForm(prefill){
-  openForm('新增伏筆',fsFields,Object.assign({status:'planted'},prefill||{}),o=>{
+  openForm('新增戲劇要素',fsFields,Object.assign({status:'planted',kind:'foreshadow'},prefill||{}),o=>{
     if(!o.name.trim()){toast('請填寫名稱');return false}
-    S.foreshadows.push({id:uid(),name:o.name.trim(),content:o.content.trim(),status:o.status,chars:splitNames(o.chars),plantedSeg:curSeg(),lastSeg:curSeg()});toast('已新增伏筆');
+    S.foreshadows.push({id:uid(),name:o.name.trim(),content:o.content.trim(),status:o.status,kind:o.kind,chars:splitNames(o.chars),plantedSeg:curSeg(),lastSeg:curSeg()});toast('已新增戲劇要素');
   });
 }
 
@@ -1395,8 +1768,8 @@ function markBackup(ids){const now=new Date().toISOString();(ids||[]).forEach(id
 function storyBackupTime(st){return [st.lastBackup,DB.lastBackup].filter(Boolean).sort().pop()||null}
 function exportPayload(scope){
   const now=new Date().toISOString();
-  if(scope==='all')return {json:JSON.stringify(Object.assign({},DB,{exportedAt:now,scope:'all'})),name:`對戲帳本_全部故事_${stamp()}.json`,ids:Object.keys(DB.stories)};
-  return {json:JSON.stringify({v:2,ready:true,active:S.id,stories:{[S.id]:S},settings:DB.settings,lastBackup:null,updatedAt:DB.updatedAt,exportedAt:now,scope:'story'}),name:`對戲帳本_${safeName(S.name)}_${stamp()}.json`,ids:[S.id]};
+  if(scope==='all')return {json:JSON.stringify(Object.assign({},DB,{exportedAt:now,scope:'all'})),name:`全部故事_${stamp()}.json`,ids:Object.keys(DB.stories)};
+  return {json:JSON.stringify({v:2,ready:true,active:S.id,stories:{[S.id]:S},settings:DB.settings,lastBackup:null,updatedAt:DB.updatedAt,exportedAt:now,scope:'story'}),name:`${safeName(S.name)}_${stamp()}.json`,ids:[S.id]};
 }
 let pendingImport=null;
 function importJson(text){
@@ -1414,55 +1787,52 @@ function importJson(text){
   <div class="row" style="margin-top:16px"><button class="btn sm danger" data-act="importReplaceAll">全部取代</button><span style="flex:1"></span><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="importMerge">匯入勾選的故事</button></div>`);
 }
 
+$('#avIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f||!avTarget)return;const id=avTarget;shrinkImage(f,url=>{const c=S.characters.find(x=>x.id===id);if(!c)return;c.av={t:'img',v:url};closeSheet();save();render();toast('已更新頭像')})});
 $('#fileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importJson(r.result);r.readAsText(f);e.target.value=''});
 
 /* ---------- actions ---------- */
 function switchStory(id){DB.active=id;S=DB.stories[id];resetUi();save();render()}
 const ACT={
   tab:d=>{ui.tab=d.tab;render();window.scrollTo(0,0)},
+  revN:d=>{const n=Math.min(500,Math.max(1,(DB.settings.reviewN||20)+(+d.v)));DB.settings.reviewN=n;save();const el=$('#revN');if(el)el.value=n;const pv=$('pre.prev');if(pv&&ui.showPrompt)pv.textContent=fillPrompt()},
+  avPick:d=>{avTarget=d.id;$('#avIn').click()},
+  avAuto:d=>{const c=S.characters.find(x=>x.id===d.id);if(!c)return;delete c.av;closeSheet();save();render();toast('已改用幾何圖形')},
+  avText:d=>{const c=S.characters.find(x=>x.id===d.id);const v=graphemes(($('#avTxt')||{}).value||'').slice(0,2).join('');if(!c)return;if(!v){toast('請輸入一到兩個字或符號');return}c.av={t:'txt',v};closeSheet();save();render();toast('已更新頭像')},
+  editAvatar:d=>{const c=S.characters.find(x=>x.id===d.id);if(!c)return;showSheet(`<h3>${esc(c.name)}的頭像</h3>
+    <div class="avopts"><button class="avopt ${!c.av?'on':''}" data-act="avAuto" data-id="${c.id}"><span class="avatar lg ${c.type==='self'?'':'other'} av-auto">${avAuto(c.name)}</span><span><b>幾何圖形</b><small>依名稱自動產生，每個角色都不同</small></span></button>
+    <div class="avopt ${c.av&&c.av.t==='txt'?'on':''}"><span class="avatar lg ${c.type==='self'?'':'other'} av-txt">${c.av&&c.av.t==='txt'?esc(c.av.v):esc(graphemes(c.name)[0]||'')}</span><span class="grow"><b>文字或符號</b><span class="row" style="margin-top:6px;flex-wrap:nowrap"><input type="text" id="avTxt" data-nofocus maxlength="8" placeholder="一到兩個字，可用表情符號" value="${c.av&&c.av.t==='txt'?esc(c.av.v):''}"><button class="btn sm" data-act="avText" data-id="${c.id}">套用</button></span></span></div>
+    <button class="avopt ${c.av&&c.av.t==='img'?'on':''}" data-act="avPick" data-id="${c.id}"><span class="avatar lg ${c.type==='self'?'':'other'}">${c.av&&c.av.t==='img'?`<img src="${esc(c.av.v)}" alt="">`:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="9" y="11" width="22" height="18" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 26l7-7 6 6 3-3 6 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'}</span><span><b>圖片</b><small>從相簿選擇，會裁成正方形並縮小儲存</small></span></button></div>
+    <div class="row end" style="margin-top:14px"><button class="btn ghost" data-act="closeSheet">關閉</button></div>`)},
   set:d=>{ui[d.k]=d.v;render()},
   setMode:d=>{ui.mode=d.v;ui.showPrompt=false;render()},
   togglePrompt:()=>{ui.showPrompt=!ui.showPrompt;render()},
-  copyPrompt:()=>copy(fillPrompt(),ui.mode==='pro'?'已複製格式轉換指令':'已複製整理指令，貼到對戲 App 吧'),
+  copyPrompt:()=>(ui.mode==='seg'&&S.undated)?toast('請先填寫本段起始日期'):copy(fillPrompt(),ui.mode==='pro'?'已複製格式轉換指令':'已複製整理指令，貼到對戲 App 吧'),
   pasteClip:async()=>{try{const t=await navigator.clipboard.readText();if(!t){toast('剪貼簿是空的');return}ui.pasteText=t;render();toast('已貼上，請點「解析」')}catch(e){toast('無法讀取剪貼簿，請在文字框中長按貼上')}},
-  parse:()=>{if(!ui.pasteText.trim()){toast('請先貼上整理結果');return}ui.parsed=parseOutput(ui.pasteText,ui.mode);render();if(ui.parsed.fatal)toast('沒有讀出內容，請看校對區的說明')},
+  parse:()=>{if(ui.mode==='seg'&&S.undated){toast('請先在第 1 步填寫本段起始日期');return}if(!ui.pasteText.trim()){toast('請先貼上整理結果');return}ui.parsed=parseOutput(ui.pasteText,ui.mode);render();if(ui.parsed.fatal)toast('沒有讀出內容，請看校對區的說明')},
   pDel:d=>{ui.parsed[d.k].splice(+d.i,1);render()},
   cancelParse:()=>{ui.parsed=null;render()},
-  commit:()=>{const p=ui.parsed;if(!p.events.length&&!p.foreshadows.length&&!p.states.length&&!p.conflicts.length&&!p.quotes.length){toast('沒有可寫入的內容');return}
-    for(const e of p.events){const pd=parseDate(e.dateText,S.cur.y);if(!pd){toast(`無法辨識日期「${e.dateText}」，請修正`);return}}
+  commit:()=>{const p=ui.parsed;if(!p.events.length&&!p.foreshadows.length&&!p.states.length&&!p.quotes.length){toast('沒有可寫入的內容');return}
+    for(const e of p.events){const pd=parseDate(e.dateText,curY());if(!pd){toast(`無法辨識日期「${e.dateText}」，請修正`);return}}
     commitParsed()},
   dismissCommit:()=>{ui.justCommitted=null;render()},
-  makeSummary:()=>{ui.sumText=buildSummary();render();copy(ui.sumText,'已複製前情提要')},
   toggleEv:d=>{ui.open[d.id]=!ui.open[d.id];render()},
   addEvent:()=>newEventForm(),
-  editEvent:d=>{const e=S.events.find(x=>x.id===d.id);openForm('編輯事件',evFields,Object.assign({},e,{date:fmt(e.date),chars:e.chars.join('、')}),o=>saveEvent(e,o))},
-  delEvent:d=>askConfirm('刪除這個事件？',()=>{S.events=S.events.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  editEvent:d=>{const e=S.events.find(x=>x.id===d.id);openForm('編輯事件',evFields(),Object.assign({},e,{seg:String(e.seg),date:fmt(e.date),chars:e.chars.join('、')}),o=>saveEvent(e,o))},
+  delEvent:d=>askConfirm('刪除這個事件？',()=>{S.events=S.events.filter(x=>x.id!==d.id);recalcSegments();save();render()},'刪除'),
   evMove:d=>{
     const e=S.events.find(x=>x.id===d.id);const k=sortKey(e.date);const sib=sortedEvents(S.events.filter(x=>sortKey(x.date)===k));
     const i=sib.indexOf(e),j=i+(+d.dir);if(j<0||j>=sib.length){toast(+d.dir<0?'已是當天第一個':'已是當天最後一個');return}
     const t=sib[j].order;sib[j].order=e.order;e.order=t;save();render();
   },
   addFs:()=>newFsForm(),
-  editFs:d=>{const f=S.foreshadows.find(x=>x.id===d.id);openForm('編輯伏筆',fsFields,Object.assign({},f,{chars:f.chars.join('、')}),o=>{Object.assign(f,{name:o.name.trim(),content:o.content.trim(),status:o.status,chars:splitNames(o.chars)})})},
-  delFs:d=>askConfirm('刪除這條伏筆？',()=>{S.foreshadows=S.foreshadows.filter(x=>x.id!==d.id);save();render()},'刪除'),
-  addCf:()=>openForm('新增衝突',cfFields,{},o=>{if(!o.content.trim())return false;S.conflicts.push({id:uid(),content:o.content.trim(),chars:splitNames(o.chars),resolved:false,seg:curSeg()})}),
-  editCf:d=>{const c=S.conflicts.find(x=>x.id===d.id);openForm('編輯衝突',cfFields,Object.assign({},c,{chars:c.chars.join('、')}),o=>{c.content=o.content.trim();c.chars=splitNames(o.chars)})},
-  delCf:d=>askConfirm('刪除這個衝突？',()=>{S.conflicts=S.conflicts.filter(x=>x.id!==d.id);save();render()},'刪除'),
-  newQs:()=>{ui.qs=pick(DB.settings.questions,3);render()},
-  draw:()=>{
-    const pool=[];Object.entries(DB.settings.cards).forEach(([k,v])=>{if(!ui.drawCat||ui.drawCat===k)v.forEach(t=>pool.push({cat:k,text:t}))});
-    if(!pool.length){toast('卡池是空的');return}
-    let c;do{c=pool[Math.floor(Math.random()*pool.length)]}while(pool.length>1&&ui.drawn&&c.text===ui.drawn.text);
-    ui.drawn=c;render();
-  },
-  ideaPrompt:()=>{ui.ideaText=buildIdeaPrompt();render();copy(ui.ideaText,'已複製靈感提示詞')},
+  editFs:d=>{const f=S.foreshadows.find(x=>x.id===d.id);openForm('編輯戲劇要素',fsFields,Object.assign({},f,{chars:f.chars.join('、')}),o=>{Object.assign(f,{name:o.name.trim(),content:o.content.trim(),status:o.status,kind:o.kind,chars:splitNames(o.chars)})})},
+  delFs:d=>askConfirm('刪除這個戲劇要素？',()=>{S.foreshadows=S.foreshadows.filter(x=>x.id!==d.id);save();render()},'刪除'),
   toggleChar:d=>{ui.charOpen=ui.charOpen===d.id?null:d.id;render()},
-  addChar:()=>openForm('新增角色',[{k:'name',l:'名稱'},{k:'type',l:'類型',t:'select',o:[['self','PC（可填寫設定）'],['other','對方（只記錄劇情表現）']]}],{type:'self'},o=>{const n=o.name.trim();if(!n)return false;if(S.characters.some(c=>c.name===n)){toast('已有同名角色');return false}const c=ensureChar(n,o.type);ui.charOpen=c.id}),
+  addChar:()=>openForm('新增角色',[{k:'name',l:'名稱'},{k:'type',l:'類型',t:'select',o:CTYPE_ORDER.map(k=>[k,k==='self'?'PC（可填寫設定）':CTYPE[k]])}],{type:'major'},o=>{const n=o.name.trim();if(!n)return false;if(S.characters.some(c=>c.name===n)){toast('已有同名角色');return false}const c=ensureChar(n,o.type);ui.charOpen=c.id}),
   editProfile:d=>{const c=S.characters.find(x=>x.id===d.id);openForm(`${c.name}的設定`,PROF.map(([k,l])=>({k,l,t:'textarea'})),c.profile||{},o=>{c.profile=o},'這份設定會用於靈感提示詞與轉折檢查。')},
-  toggleType:d=>{const c=S.characters.find(x=>x.id===d.id);c.type=c.type==='self'?'other':'self';if(!c.profile)c.profile={};save();render();toast(`已改為${c.type==='self'?'PC':'對方角色'}`)},
   renameChar:d=>{const c=S.characters.find(x=>x.id===d.id);openForm('角色改名',[{k:'name',l:'新名稱'}],{name:c.name},o=>{
     const nn=o.name.trim(),old=c.name;if(!nn)return false;
-    c.name=nn;S.events.forEach(e=>e.chars=e.chars.map(x=>x===old?nn:x));S.foreshadows.forEach(f=>f.chars=f.chars.map(x=>x===old?nn:x));S.conflicts.forEach(f=>f.chars=f.chars.map(x=>x===old?nn:x));
+    c.name=nn;S.events.forEach(e=>e.chars=e.chars.map(x=>x===old?nn:x));S.foreshadows.forEach(f=>f.chars=f.chars.map(x=>x===old?nn:x));
     S.characters.forEach(ch=>{if(ch.cur.rel[old]){ch.cur.rel[nn]=ch.cur.rel[old];delete ch.cur.rel[old]}ch.hist.forEach(h=>{if(h.target===old)h.target=nn})});
     S.secrets.forEach(x=>{x.subjects=x.subjects.map(n=>n===old?nn:n)});
     S.quotes.forEach(q=>{if(q.speaker===old)q.speaker=nn;q.to=splitNames(q.to).map(x=>x===old?nn:x).join('、')});
@@ -1472,39 +1842,38 @@ const ACT={
     showSheet(`<h3>快速記錄</h3><label class="fld"><span>先記下來，之後在工作台歸類</span><textarea name="text" rows="4" placeholder="例如：凱提到小時候住過北方"></textarea></label><div class="row end"><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="saveForm">記下</button></div>`)},
   noteTo:d=>{
     const n=S.notes.find(x=>x.id===d.id);
-    if(d.to==='idea'){n.kind='idea';save();render();toast('已移到靈感筆記');return}
     const done=()=>{S.notes=S.notes.filter(x=>x.id!==n.id)};
     if(d.to==='event')newEventForm({summary:n.text});else if(d.to==='quote')newQuoteForm({text:n.text});else newFsForm({content:n.text,name:n.text.slice(0,10)});
     const cb=formCb;formCb=o=>{const r=cb(o);if(r!==false)done();return r};
   },
   noteDel:d=>{S.notes=S.notes.filter(x=>x.id!==d.id);save();render()},
   addQuote:()=>newQuoteForm(),
-  editQuote:d=>{const q=S.quotes.find(x=>x.id===d.id);openForm('編輯台詞',qFields,Object.assign({},q,{date:fmt(q.date)}),o=>saveQuote(q,o))},
-  delQuote:d=>askConfirm('刪除這句台詞？',()=>{S.quotes=S.quotes.filter(x=>x.id!==d.id);save();render()},'刪除'),
+  editQuote:d=>{const q=S.quotes.find(x=>x.id===d.id);openForm('編輯台詞',qFields(),Object.assign({},q,{seg:String(q.seg),date:fmt(q.date)}),o=>saveQuote(q,o))},
+  delQuote:d=>askConfirm('刪除這句台詞？',()=>{S.quotes=S.quotes.filter(x=>x.id!==d.id);recalcSegments();save();render()},'刪除'),
   toggleQDone:d=>{const q=S.quotes.find(x=>x.id===d.id);q.done=!q.done;save();render();toast(q.done?`已標記為${QPEND[q.type]}`:'已取消標記')},
   editField:d=>{
     const c=S.characters.find(x=>x.id===d.c),cat=d.cat,cur=c.cur.single[cat];
-    openForm(`${c.name}｜${cat}`,[{k:'v',l:cat},modeField,dateField],{v:cur?cur.v:'',mode:'change',date:fmt(S.cur)},o=>{
+    openForm(`${c.name}｜${cat}`,[{k:'v',l:cat},modeField,dateField],{v:cur?cur.v:'',mode:'change',date:curText()},o=>{
       const v=o.v.trim();
       if(o.mode==='fix'){if(!v)delete c.cur.single[cat];else c.cur.single[cat]={v,date:cur?cur.date:{...S.cur}};return}
       if(!v){toast('請填寫內容');return false}
       const p=readDate(o.date);if(!p)return false;applyState(c,{cat,change:v},p.date,curSeg());
-    },'',cur?{label:'清空',cb:o=>{if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat,from:cur.v,to:'（清空）',date:p?p.date:{...S.cur},seg:curSeg()})}delete c.cur.single[cat]}}:null);
+    },'',cur?{label:'清空',cb:o=>{if(o.mode==='change'){const p=parseDate(o.date,curY());c.hist.push({id:uid(),cat,from:cur.v,to:'（清空）',date:p?p.date:{...S.cur},seg:curSeg()})}delete c.cur.single[cat]}}:null);
   },
   editRel:d=>{
     const c=S.characters.find(x=>x.id===d.c),t=d.t,cur=c.cur.rel[t];
-    openForm(`${c.name}｜對${t}`,[{k:'v',l:'關係'},modeField,dateField],{v:cur.v,mode:'change',date:fmt(S.cur)},o=>{
+    openForm(`${c.name}｜對${t}`,[{k:'v',l:'關係'},modeField,dateField],{v:cur.v,mode:'change',date:curText()},o=>{
       const v=o.v.trim();if(!v){toast('請填寫內容');return false}
       if(o.mode==='fix'){cur.v=v;return}
       const p=readDate(o.date);if(!p)return false;applyState(c,{cat:'關係',target:t,change:v},p.date,curSeg());
-    },'',{label:'移除',cb:o=>{if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat:'關係',target:t,from:cur.v,to:'（移除）',date:p?p.date:{...S.cur},seg:curSeg()})}delete c.cur.rel[t]}});
+    },'',{label:'移除',cb:o=>{if(o.mode==='change'){const p=parseDate(o.date,curY());c.hist.push({id:uid(),cat:'關係',target:t,from:cur.v,to:'（移除）',date:p?p.date:{...S.cur},seg:curSeg()})}delete c.cur.rel[t]}});
   },
-  addRel:d=>{const c=S.characters.find(x=>x.id===d.c);openForm(`${c.name}｜新增關係`,[{k:'t',l:'對象'},{k:'v',l:'關係'},{k:'date',l:'日期'}],{date:fmt(S.cur)},o=>{
+  addRel:d=>{const c=S.characters.find(x=>x.id===d.c);openForm(`${c.name}｜新增關係`,[{k:'t',l:'對象'},{k:'v',l:'關係'},{k:'date',l:'日期'}],{date:curText()},o=>{
     const t=o.t.trim(),v=o.v.trim();if(!t||!v){toast('請填寫對象與關係');return false}
     const p=readDate(o.date);if(!p)return false;applyState(c,{cat:'關係',target:t,change:v},p.date,curSeg());
   })},
   addItem:d=>{const c=S.characters.find(x=>x.id===d.c),cat=d.cat;const know=cat==='知情';
-    openForm(`${c.name}｜新增${cat}`,know?[{k:'v',l:'得知的內容'},{k:'note',l:'如何得知（選填）'},{k:'date',l:'日期'}]:[{k:'v',l:'物品'},{k:'date',l:'取得日期'}],{date:fmt(S.cur)},o=>{
+    openForm(`${c.name}｜新增${cat}`,know?[{k:'v',l:'得知的內容'},{k:'note',l:'如何得知（選填）'},{k:'date',l:'日期'}]:[{k:'v',l:'物品'},{k:'date',l:'取得日期'}],{date:curText()},o=>{
       const v=o.v.trim();if(!v){toast('請填寫內容');return false}
       const p=readDate(o.date);if(!p)return false;
       applyState(c,know?{cat,target:v,change:(o.note||'').trim()}:{cat,act:'取得',change:v},p.date,curSeg());
@@ -1512,17 +1881,17 @@ const ACT={
   editItem:d=>{
     const c=S.characters.find(x=>x.id===d.c),cat=d.cat,list=c.cur.items[cat],it=list.find(x=>x.id===d.id);const know=cat==='知情';
     const fields=[{k:'v',l:know?'得知的內容':'物品'}];if(know)fields.push({k:'note',l:'如何得知'});fields.push(modeField,dateField);
-    openForm(`${c.name}｜${cat}`,fields,{v:it.v,note:it.note||'',mode:'fix',date:fmt(S.cur)},o=>{
+    openForm(`${c.name}｜${cat}`,fields,{v:it.v,note:it.note||'',mode:'fix',date:curText()},o=>{
       const v=o.v.trim();if(!v){toast('請填寫內容');return false}
       if(o.mode==='change'&&v!==it.v){const p=readDate(o.date);if(!p)return false;c.hist.push({id:uid(),cat,act:'變更',from:it.v,to:v,date:p.date,seg:curSeg()})}
       it.v=v;if(know)it.note=(o.note||'').trim();
     },'修改時選「劇情中的變化」會留下紀錄；按「移除」時同樣依照這個選項。',{label:know?'移除':'失去／移除',cb:o=>{
-      if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat,act:know?'移除':'失去',to:it.v,date:p?p.date:{...S.cur},seg:curSeg()})}
+      if(o.mode==='change'){const p=parseDate(o.date,curY());c.hist.push({id:uid(),cat,act:know?'移除':'失去',to:it.v,date:p?p.date:{...S.cur},seg:curSeg()})}
       c.cur.items[cat]=list.filter(x=>x!==it);
     }});
   },
   addKnow:d=>{const c=S.characters.find(x=>x.id===d.c);
-    openForm(`${c.name}｜新增知情`,[{k:'sid',l:'秘密',t:'select',o:[['new','（新的秘密）'],...S.secrets.map(x=>[x.id,x.text])]},{k:'v',l:'新秘密的內容（選既有秘密時免填）'},{k:'note',l:'如何得知（選填）'},{k:'date',l:'日期'}],{sid:'new',date:fmt(S.cur)},o=>{
+    openForm(`${c.name}｜新增知情`,[{k:'sid',l:'秘密',t:'select',o:[['new','（新的秘密）'],...S.secrets.map(x=>[x.id,x.text])]},{k:'v',l:'新秘密的內容（選既有秘密時免填）'},{k:'note',l:'如何得知（選填）'},{k:'date',l:'日期'}],{sid:'new',date:curText()},o=>{
       if(o.sid==='new'&&!o.v.trim()){toast('請填寫秘密內容');return false}
       const p=readDate(o.date);if(!p)return false;
       const sec=o.sid==='new'?ensureSecret(o.v):secretById(o.sid);
@@ -1531,12 +1900,12 @@ const ACT={
     })},
   editKnow:d=>{
     const c=S.characters.find(x=>x.id===d.c),it=c.cur.items['知情'].find(x=>x.id===d.id),sec=secretById(it.sid);
-    openForm(`${c.name}｜知情`,[{k:'text',l:'秘密內容（修改會同步到所有相關角色）',t:'textarea'},{k:'note',l:'如何得知'},modeField,dateField],{text:sec.text,note:it.note||'',mode:'fix',date:fmt(S.cur)},o=>{
+    openForm(`${c.name}｜知情`,[{k:'text',l:'秘密內容（修改會同步到所有相關角色）',t:'textarea'},{k:'note',l:'如何得知'},modeField,dateField],{text:sec.text,note:it.note||'',mode:'fix',date:curText()},o=>{
       const t=o.text.trim();if(!t){toast('請填寫內容');return false}
       if(t!==sec.text&&S.secrets.some(x=>x!==sec&&x.text===t)){toast('已有相同內容的秘密，請改用「合併」');return false}
       sec.text=t;it.note=(o.note||'').trim();
     },'「移除」會讓這個角色不再知情；選「劇情中的變化」會留下紀錄。',{label:'移除',cb:o=>{
-      if(o.mode==='change'){const p=parseDate(o.date,S.cur.y);c.hist.push({id:uid(),cat:'知情',act:'移除',sid:sec.id,to:sec.text,date:p?p.date:{...S.cur},seg:curSeg()})}
+      if(o.mode==='change'){const p=parseDate(o.date,curY());c.hist.push({id:uid(),cat:'知情',act:'移除',sid:sec.id,to:sec.text,date:p?p.date:{...S.cur},seg:curSeg()})}
       c.cur.items['知情']=c.cur.items['知情'].filter(x=>x!==it);
     }});
   },
@@ -1606,23 +1975,38 @@ const ACT={
     const d=pendingImport;d.ready=true;if(!d.settings)d.settings=defaultSettings();if(!d.stories[d.active])d.active=Object.keys(d.stories)[0];
     DB=d;S=DB.stories[DB.active];migrateAll();resetUi();ui.importText='';pendingImport=null;save();render();toast('已取代為備份內容');
   },'全部取代'),
+  toggleDay:d=>{const k=d.k;const cur=k in ui.dayOpen?ui.dayOpen[k]:ui.allOpen;ui.dayOpen[k]=!cur;render()},
+  allDays:d=>{ui.allOpen=d.v==='1';ui.dayOpen={};render()},
+  setCharType:()=>{},
+  demote:d=>{const c=S.characters.find(x=>x.id===d.id);if(!c)return;c.type='extra';save();render();toast(`已將${c.name}降為配角`)},
+  toggleExtra:()=>{ui.extraOpen=!ui.extraOpen;render()},
   closeSheet:()=>closeSheet(),
   saveForm:()=>{const o={};$('#sheetBody').querySelectorAll('[name]').forEach(el=>o[el.name]=el.value);if(formCb&&formCb(o)===false)return;closeSheet();save();render()},
   confirmYes:()=>{const cb=confirmCb;closeSheet();cb&&cb()},
   setupDone:()=>{
-    const name=$('#suName').value.trim()||'我的故事';
+    const pcs=splitNames($('#suSelf').value);
+    if(!pcs.length){toast('請填寫 PC 名稱');return}
     S.cal.type=$('#suCal').value;
-    const p=parseDate($('#suStart').value,null);
-    if(!p||p.date.prec!=='d'){toast('請填寫完整的起始日期，例如 1892年2月26日');return}
-    if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return}
-    S.name=name;S.start=p.date;S.cur={...p.date};
-    splitNames($('#suSelf').value).forEach(n=>ensureChar(n,'self'));
+    const raw=$('#suStart').value.trim();let date=null;
+    if(raw){const p=parseDate(raw,null);if(!p||p.date.prec!=='d'){toast('起始日期請填寫完整的年月日，或留空');return}if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return}date=p.date}
+    S.name=$('#suName').value.trim()||`${pcs[0]}的故事`;
+    if(date)setFirstDate(date);else S.undated=true;
+    pcs.forEach(n=>ensureChar(n,'self'));
     DB.ready=true;save();render();toast('故事已建立');
   },
+  setSegStart:()=>{
+    const p=parseDate($('#segStart').value,null);
+    if(!p||p.date.prec!=='d'){toast('請填寫完整的年月日，例如 1892年2月26日');return}
+    if(!valid(p.date)){toast(`「${fmt(p.date)}」在目前曆法中不存在`);return}
+    setFirstDate(p.date);save();render();toast('已設定起始日期');
+  },
   setCal:d=>{S.cal.type=d.v;if(!S.cal.months||!S.cal.months.length)S.cal.months=defaultCal().months;save();render();const b=invalidCount();toast(b?`切換完成，有 ${b} 筆日期在此曆法中不存在`:'已切換曆法')},
-  newStory:()=>openForm('新增故事',[{k:'name',l:'故事名稱'},{k:'start',l:'故事起始日期（如 1892年2月26日）'}],{},o=>{
-    const p=parseDate(o.start,null);if(!p||p.date.prec!=='d'){toast('請填寫完整的起始日期');return false}
-    const s=blankStory(o.name.trim(),defaultCal(),p.date);DB.stories[s.id]=s;setTimeout(()=>{switchStory(s.id);toast('已建立新故事')},0);
+  newStory:()=>openForm('新增故事',[{k:'pc',l:'PC 名稱（必填，多位以頓號分隔）'},{k:'name',l:'故事名稱（選填，未填時為「PC 名稱的故事」）'},{k:'start',l:'故事起始日期（選填）'}],{},o=>{
+    const pcs=splitNames(o.pc);if(!pcs.length){toast('請填寫 PC 名稱');return false}
+    let date=null;const raw=(o.start||'').trim();
+    if(raw){const p=parseDate(raw,null);if(!p||p.date.prec!=='d'){toast('起始日期請填寫完整的年月日，或留空');return false}date=p.date}
+    const s2=blankStory(o.name.trim()||`${pcs[0]}的故事`,defaultCal(),date);DB.stories[s2.id]=s2;
+    setTimeout(()=>{switchStory(s2.id);pcs.forEach(n=>ensureChar(n,'self'));save();render();toast('已建立新故事')},0);
   },'曆法預設為標準公曆，建立後可在設定中更改。'),
   delStory:()=>askConfirm(`刪除「${S.name}」？此動作無法復原。`,()=>{delete DB.stories[DB.active];switchStory(Object.keys(DB.stories)[0])},'刪除'),
   exportData:async d=>{
@@ -1654,19 +2038,20 @@ document.addEventListener('input',e=>{
     const k=t.dataset.set;
     if(k==='template'||k==='proTemplate')DB.settings[k]=t.value;
     else if(k==='questions')DB.settings.questions=t.value.split('\n').map(x=>x.trim()).filter(Boolean);
-    else if(k==='cards'){const o={};t.value.split('\n').forEach(l=>{const m=l.match(/^\s*([^：:]+)[：:]\s*(.+)$/);if(m)(o[m[1].trim()]=o[m[1].trim()]||[]).push(m[2].trim())});DB.settings.cards=o;ui.qs=null}
+    else if(k==='cards'){const o={};t.value.split('\n').forEach(l=>{const m=l.match(/^\s*([^：:]+)[：:]\s*(.+)$/);if(m)(o[m[1].trim()]=o[m[1].trim()]||[]).push(m[2].trim())});DB.settings.cards=o}
     save();
   }
 });
 document.addEventListener('change',e=>{
   const t=e.target;
+  if(t.id==='revN'){const n=Math.min(500,Math.max(1,parseInt(t.value,10)||20));DB.settings.reviewN=n;t.value=n;save();const pv=$('pre.prev');if(pv&&ui.showPrompt)pv.textContent=fillPrompt();return}
   if(t.dataset.uichk){ui[t.dataset.uichk]=t.checked}
   else if(t.dataset.uic){ui[t.dataset.uic]=t.value;render()}
   else if(t.dataset.story){switchStory(t.value)}
   else if(t.dataset.cal){render()}
-  else if(t.dataset.stdate){const p=readDate(t.value);if(!p||p.date.prec!=='d'){if(p)toast('請填寫完整的年月日');t.value=fmt(S[t.dataset.stdate]);return}S[t.dataset.stdate]=p.date;save();render();toast('已更新日期')}
+  else if(t.dataset.stdate){const p=readDate(t.value);if(!p||p.date.prec!=='d'){if(p)toast('請填寫完整的年月日');t.value=S.undated?'':fmt(S[t.dataset.stdate]);return}if(S.undated)setFirstDate(p.date);else S[t.dataset.stdate]=p.date;save();render();toast('已更新日期')}
   else if(t.dataset.fsstatus){const f=S.foreshadows.find(x=>x.id===t.dataset.fsstatus);f.status=t.value;f.lastSeg=Math.max(f.lastSeg,curSeg());save();render();toast(`已改為「${FSN[t.value]}」`)}
-  else if(t.dataset.cf){const c=S.conflicts.find(x=>x.id===t.dataset.cf);c.resolved=t.checked;save();render()}
+  else if(t.dataset.chartype){const c=S.characters.find(x=>x.id===t.dataset.chartype);if(c&&CTYPE[t.value]){c.type=t.value;if(!c.profile)c.profile={};save();render();toast(`已改為${CTYPE[t.value]}`)}}
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input:not([type=checkbox]),textarea,select'))document.body.classList.add('typing')});
 document.addEventListener('focusout',()=>document.body.classList.remove('typing'));
@@ -1682,6 +2067,17 @@ boot();
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 
 
+</script>
+<script>
+(()=>{let last=window.scrollY,ticking=false;
+  const upd=()=>{ticking=false;const y=window.scrollY,b=document.body;
+    const atEnd=y+innerHeight>=document.documentElement.scrollHeight-4;
+    if(y<=60||atEnd)b.classList.remove('navhide');
+    else if(y>last+6)b.classList.add('navhide');
+    else if(y<last-6)b.classList.remove('navhide');
+    if(Math.abs(y-last)>6||y<=60)last=y};
+  addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(upd)}},{passive:true});
+})();
 </script>
 </body>
 </html>
