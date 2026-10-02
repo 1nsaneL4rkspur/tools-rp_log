@@ -254,6 +254,7 @@ button.chip.subj{font-size:.85rem}
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
 
 <script>
+
 const KEY='rp-ledger-v2';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -360,8 +361,63 @@ const OLD3_TEMPLATE=`請暫停角色扮演，整理本段劇情。
 （最多5句，只記錄之後可能被提起、引用或兌現的台詞）
 
 整理完畢後，等待我的指示再繼續角色扮演。`;
+const OLD4_TEMPLATE=`請暫停角色扮演，整理本段劇情。
+所有整理內容請放在同一則回覆中。
+只記錄劇情中發生的事，不需要整理或補充角色設定。
+
+本段起始時間：{起始日期}
+目前未回收的伏筆：
+{伏筆清單}
+角色名單（請沿用以下名稱）：
+{角色名單}
+目前已記錄的秘密（知情類別請沿用以下措辭）：
+{秘密清單}
+
+請嚴格依下列格式輸出，不要加入其他說明：
+
+【事件】
+時間：+N天 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，最多12個，只記錄影響後續劇情的事件）
+
+【伏筆】
+名稱：簡短名稱，舊伏筆請沿用上方名稱
+狀態：新埋下／推進／回收
+內容：
+相關角色：
+
+【未解衝突】
+內容：
+相關角色：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+（只記錄本段有變化的項目，每項變化一個區塊）
+
+【關鍵台詞】
+時間：+N天 時段
+說話者：
+對象：
+台詞：原句照錄，40字內，過長可節錄
+類型：承諾／坦白／謊言／威脅／其他
+原因：為何影響後續，20字內
+
+（最多5句，只記錄之後可能被提起、引用或兌現的台詞）
+
+整理完畢後，等待我的指示再繼續角色扮演。`;
 const DEFAULT_TEMPLATE=`請暫停角色扮演，整理本段劇情。
 所有整理內容請放在同一則回覆中。
+請使用純文字輸出，不要使用粗體、標題、編號或清單符號等格式。
 只記錄劇情中發生的事，不需要整理或補充角色設定。
 
 本段起始時間：{起始日期}
@@ -496,6 +552,53 @@ const OLD3_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換�
 
 以下是我的紀錄：
 （在此貼上）`;
+const OLD4_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
+
+規則：
+1. 只轉換格式，不要推測或補充紀錄中沒有的內容
+2. 時間請沿用我寫的故事時間，格式為「YYYY年M月D日 時段」，只知道年或月時照實填寫
+3. 資訊不足的欄位請留空
+4. 所有內容放在同一則回覆中，不要加入其他說明
+
+【事件】
+時間：YYYY年M月D日 時段
+地點：
+角色：以頓號分隔
+摘要：50字內
+重要度：高／中／低
+
+（每個事件一個【事件】區塊，依時間先後排列）
+
+若紀錄中有提到尚未解決的懸念或伏筆，請另外列出：
+
+【伏筆】
+名稱：
+狀態：新埋下／推進
+內容：
+相關角色：
+
+若紀錄中有提到角色目前的處境，請另外列出：
+
+【角色狀態】
+角色：
+類別：位置／身體／持有物／關係／心境／知情
+對象：僅關係與知情填寫，知情請填得知的內容
+動作：僅持有物與知情填寫，取得／失去／得知
+當事人：僅知情填寫，與此事直接相關的人，以頓號分隔
+變化：30字內，持有物請填物品名稱
+
+若紀錄中有重要台詞，請另外列出：
+
+【關鍵台詞】
+時間：YYYY年M月D日 時段
+說話者：
+對象：
+台詞：原句照錄，40字內
+類型：承諾／坦白／謊言／威脅／其他
+原因：20字內
+
+以下是我的紀錄：
+（在此貼上）`;
 const DEFAULT_PRO=`以下是我整理的故事過往事件紀錄，請協助轉換成固定格式。
 
 規則：
@@ -503,6 +606,7 @@ const DEFAULT_PRO=`以下是我整理的故事過往事件紀錄，請協助轉�
 2. 時間請沿用我寫的故事時間，格式為「YYYY年M月D日 時段」，只知道年或月時照實填寫
 3. 資訊不足的欄位請留空
 4. 所有內容放在同一則回覆中，不要加入其他說明
+5. 請使用純文字輸出，不要使用粗體、標題、編號或清單符號等格式
 
 【事件】
 時間：YYYY年M月D日 時段
@@ -552,7 +656,7 @@ const DEFAULT_CARDS={
  '環境變化':['天氣驟變','節慶或儀式打亂日常','地點被封鎖','夜幕降臨帶來新規則','疾病開始蔓延','季節更替'],
  '角色內在':['被壓抑的回憶浮現','一個長期信念開始動搖','某人第一次承認自己害怕','舊傷發作','想起一個未完成的承諾','對自身能力產生懷疑']
 };
-const defaultSettings=()=>({template:DEFAULT_TEMPLATE,proTemplate:DEFAULT_PRO,questions:DEFAULT_QUESTIONS.slice(),cards:JSON.parse(JSON.stringify(DEFAULT_CARDS)),tplVer:4});
+const defaultSettings=()=>({template:DEFAULT_TEMPLATE,proTemplate:DEFAULT_PRO,questions:DEFAULT_QUESTIONS.slice(),cards:JSON.parse(JSON.stringify(DEFAULT_CARDS)),tplVer:5});
 const defaultCal=()=>({type:'greg',months:Array.from({length:12},()=>({name:'',days:30}))});
 
 const D=(y,m,d)=>({y,m,d,prec:'d'}),Dm=(y,m)=>({y,m,prec:'m'}),Dy=y=>({y,prec:'y'});
@@ -614,6 +718,7 @@ function cStory(raw,id){
     secrets:cArr(s.secrets).filter(isObj).map(x=>({id:cId(x.id),text:cStr(x.text),subjects:cNames(x.subjects)}))
   };
   if(typeof s.updatedAt==='string')o.updatedAt=s.updatedAt;
+  if(typeof s.lastBackup==='string'&&!isNaN(new Date(s.lastBackup)))o.lastBackup=s.lastBackup;
   return o;
 }
 function cSettings(v){
@@ -744,10 +849,10 @@ function migrateAll(){
     st.characters.forEach(c=>{c.cur.items['知情'].forEach(x=>{if(!x.sid){x.sid=ensureSecret(x.v).id;delete x.v}});c.hist.forEach(h=>{if(h.cat==='知情'&&!h.sid){const f=st.secrets.find(y=>y.text===h.to);if(f)h.sid=f.id}})})});
   S=keep;
   const st=DB.settings;
-  if((st.tplVer||0)<4){
-    if(st.template===OLD_TEMPLATE||st.template===OLD3_TEMPLATE)st.template=DEFAULT_TEMPLATE;else if(st.template!==DEFAULT_TEMPLATE)st.tplNotice=true;
-    if(st.proTemplate===OLD_PRO||st.proTemplate===OLD3_PRO)st.proTemplate=DEFAULT_PRO;
-    st.tplVer=4;save();
+  if((st.tplVer||0)<5){
+    if([OLD_TEMPLATE,OLD3_TEMPLATE,OLD4_TEMPLATE].includes(st.template))st.template=DEFAULT_TEMPLATE;else if(st.template!==DEFAULT_TEMPLATE)st.tplNotice=true;
+    if([OLD_PRO,OLD3_PRO,OLD4_PRO].includes(st.proTemplate))st.proTemplate=DEFAULT_PRO;
+    st.tplVer=5;save();
   }
 }
 function openFs(){return S.foreshadows.filter(f=>f.status!=='resolved')}
@@ -761,14 +866,32 @@ function fillPrompt(){
 }
 function invalidCount(){return S.events.filter(e=>!valid(e.date)).length+S.quotes.filter(q=>!valid(q.date)).length+S.characters.reduce((a,c)=>a+c.hist.filter(h=>!valid(h.date)).length,0)}
 /* ---------- parser ---------- */
-function fieldsOf(body){const o={};body.split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*[-*・]?\s*([^：:\s（(]{1,6})\s*[：:]\s*(.*)$/);if(m)o[m[1]]=m[2].trim()});return o}
+const FIELD_ALIAS={'日期':'時間','時間點':'時間','發生時間':'時間','故事時間':'時間','人物':'角色','登場角色':'角色','登場人物':'角色','相關人物':'角色','角色名':'角色','角色名稱':'角色','概要':'摘要','內容摘要':'摘要','事件摘要':'摘要','事件內容':'摘要','場所':'地點','地方':'地點','發生地點':'地點','重要性':'重要度','重要程度':'重要度','伏筆名稱':'名稱','說話人':'說話者','發言者':'說話者','說話對象':'對象','台詞內容':'台詞','原句':'台詞','對白':'台詞','理由':'原因','分類':'類別','狀態變化':'變化','變化內容':'變化','涉及角色':'相關角色','相關人員':'相關角色'};
+function cleanLine(l){
+  l=String(l).replace(/\u3000/g,' ').replace(/\*\*|__|`/g,'');
+  l=l.replace(/^\s*>+\s*/,'').replace(/^\s*#{1,6}\s+/,'').replace(/^\s*(?:[-*+]\s+|[・•●○◆◇▪■□]\s*|\d{1,2}\s*[.)、．]\s*|[（(]\d{1,2}[）)]\s*)/,'');
+  return l.trim();
+}
+function fieldsOf(body,keysOut){
+  const o=Object.create(null);let last=null;
+  body.split(/\r?\n/).forEach(raw=>{
+    const l=cleanLine(raw);
+    if(!l){last=null;return}
+    if(/^[（(].*[）)]$/.test(l))return;
+    const m=l.match(/^([^：:\s（(「『"“]{1,8})\s*(?:[（(][^）)]{0,30}[）)])?\s*[：:]\s*(.*)$/);
+    if(m){const key=FIELD_ALIAS[m[1]]||m[1];if(keysOut)keysOut.push(m[1]);if(!o[key])o[key]=m[2].trim();last=key;return}
+    if(last)o[last]=o[last]?o[last]+l:l;
+  });
+  return o;
+}
 function impOf(s){s=String(s||'');return s.includes('高')?'h':s.includes('低')?'l':'m'}
 function statusOf(s){s=String(s||'');return s.includes('回收')?'resolved':(s.includes('推進')||s.includes('發展'))?'developing':'planted'}
 function parseOutput(txt,mode){
   const out={mode,events:[],foreshadows:[],conflicts:[],states:[],quotes:[],errors:[]};
   const re=/【\s*([^】]+?)\s*】/g;let m;const heads=[];
   while((m=re.exec(txt)))heads.push({type:m[1],idx:m.index,start:re.lastIndex});
-  if(!heads.length){out.errors.push('找不到任何【區塊】標記，請確認貼上的是 LLM 的整理結果。');return out}
+  if(!heads.length){out.fatal='找不到任何【區塊】標記，所以沒有讀出內容。請確認貼上的是 LLM 的整理結果，且每個區塊以【事件】【伏筆】這類標記開頭。若 LLM 改用了其他標題格式，請把指令重新貼給它，請它依格式重新輸出。';return out}
+  const keys=[];
   let prevY=S.cur.y;
   const readTime=(raw,label)=>{
     let date=null,period=raw;const plus=raw.match(/[+＋]\s*(\d+)\s*天/);
@@ -779,18 +902,20 @@ function parseOutput(txt,mode){
     prevY=date.y;return {date,period:clean(period)};
   };
   heads.forEach((h,i)=>{
-    const body=txt.slice(h.start,i+1<heads.length?heads[i+1].idx:txt.length);const f=fieldsOf(body);const t=h.type;
+    const body=txt.slice(h.start,i+1<heads.length?heads[i+1].idx:txt.length);const f=fieldsOf(body,keys);const t=h.type;
+    if(t.includes('事件')&&!f['摘要'])f['摘要']=f['內容']||f['描述']||'';
+    if((t.includes('伏筆')||t.includes('懸念')||t.includes('衝突'))&&!f['內容'])f['內容']=f['描述']||f['摘要']||'';
     if(t.includes('事件')){
       if(!f['摘要']){out.errors.push(`第 ${out.events.length+1} 個事件缺少「摘要」，已略過。`);return}
       const tm=readTime(f['時間']||'',`事件「${f['摘要'].slice(0,12)}…」`);
       out.events.push({dateText:fmt(tm.date),period:tm.period,place:f['地點']||'',chars:(f['角色']||'').trim(),summary:f['摘要'],imp:impOf(f['重要度'])});
-    }else if(t.includes('伏筆')){
+    }else if(t.includes('伏筆')||t.includes('懸念')){
       const name=f['名稱']||(f['內容']||'').slice(0,10);
       if(!name){out.errors.push('有一個伏筆缺少名稱與內容，已略過。');return}
       out.foreshadows.push({name,status:statusOf(f['狀態']),content:f['內容']||'',chars:f['相關角色']||''});
     }else if(t.includes('衝突')){
       if(f['內容'])out.conflicts.push({content:f['內容'],chars:f['相關角色']||''});
-    }else if(t.includes('台詞')){
+    }else if(t.includes('台詞')||t.includes('對白')){
       const text=String(f['台詞']||'').replace(/^[「『"“]+|[」』"”]+$/g,'').trim();
       if(!text){out.errors.push('有一句台詞缺少內容，已略過。');return}
       const tm=readTime(f['時間']||'',`台詞「${text.slice(0,10)}…」`);
@@ -806,6 +931,8 @@ function parseOutput(txt,mode){
       out.states.push({char:f['角色'],cat,target,act,change:f['變化'],subjects,sid});
     }
   });
+  const total=out.events.length+out.foreshadows.length+out.conflicts.length+out.states.length+out.quotes.length;
+  if(!total){const uniq=[...new Set(keys)].slice(0,12);out.fatal=`找到 ${heads.length} 個【區塊】，但沒有讀出任何內容。${uniq.length?`工具讀到的欄位名稱是：${uniq.join('、')}。`:'區塊中找不到「欄位：內容」格式的文字。'}請確認欄位名稱與指令相同（例如「時間」「角色」「摘要」），或把指令重新貼給 LLM，請它依格式重新輸出。`}
   return out;
 }
 function commitParsed(){
@@ -903,9 +1030,9 @@ ${cs}${sp.length?`\nPC 設定：\n${sp.join('\n')}`:''}${pq?`\n尚未兌現或�
 /* ---------- views ---------- */
 function backupNotice(){
   if(!S.events.length)return'';
-  const days=DB.lastBackup?Math.floor((Date.now()-new Date(DB.lastBackup))/86400000):null;
+  const lb=storyBackupTime(S);const days=lb?Math.floor((Date.now()-new Date(lb))/86400000):null;
   if(days!==null&&days<7)return'';
-  return `<div class="notice">${days===null?'這份資料還沒有備份過。':`距離上次備份已經 ${days} 天。`}手機瀏覽器可能清除網站資料，建議定期匯出。<div class="row"><button class="btn sm" data-act="exportData">匯出備份</button></div></div>`;
+  return `<div class="notice">${days===null?'這個故事還沒有備份過。':`這個故事距離上次備份已經 ${days} 天。`}手機瀏覽器可能清除網站資料，建議定期匯出。<div class="row"><button class="btn sm" data-act="exportData" data-scope="story">匯出這個故事</button></div></div>`;
 }
 function stateHint(s){
   const c=S.characters.find(x=>x.name===String(s.char).trim());if(!c)return '新角色，將自動建立';const L=c.cur;
@@ -919,6 +1046,7 @@ function previewHtml(){
   const p=ui.parsed;const pro=p.mode==='pro';const label=pro?'序章':segLabel(curSeg()+1);
   return `<section class="sec"><h2><span class="stepn">3</span>校對後寫入</h2>
   <p class="hint">解析出 ${p.events.length} 個事件、${p.foreshadows.length} 條伏筆、${p.conflicts.length} 個衝突、${p.states.length} 筆角色狀態、${p.quotes.length} 句台詞。直接修改有誤的欄位。</p>
+  ${p.fatal?`<div class="notice" style="margin:0 0 12px"><b>沒有讀出內容</b><br>${esc(p.fatal)}</div>`:''}
   ${p.errors.map(e=>`<p class="err">${esc(e)}</p>`).join('')}
   ${p.events.length?'<h3 class="sub">事件</h3>':''}
   ${p.events.map((e,i)=>`<div class="pitem"><div class="head"><span>事件 ${i+1}</span><button class="btn sm ghost" data-act="pDel" data-k="events" data-i="${i}">移除</button></div>
@@ -960,7 +1088,7 @@ function previewHtml(){
 }
 function vWork(){
   const pro=ui.mode==='pro';let h='';
-  if(ui.justCommitted){h+=`<div class="notice ok">已寫入${esc(ui.justCommitted.label)}，目前日期為 ${esc(fmt(S.cur))}。要順手匯出備份嗎？<div class="row"><button class="btn sm primary" data-act="exportData">匯出備份</button><button class="btn sm ghost" data-act="dismissCommit">稍後</button></div></div>`}
+  if(ui.justCommitted){h+=`<div class="notice ok">已寫入${esc(ui.justCommitted.label)}，目前日期為 ${esc(fmt(S.cur))}。要順手匯出備份嗎？<div class="row"><button class="btn sm primary" data-act="exportData" data-scope="story">匯出這個故事</button><button class="btn sm ghost" data-act="dismissCommit">稍後</button></div></div>`}
   else h+=backupNotice();
   h+=`<div class="seg modebar"><button class="${!pro?'on':''}" data-act="setMode" data-v="seg">整理本段</button><button class="${pro?'on':''}" data-act="setMode" data-v="pro">匯入過往事件</button></div>`;
   if(pro){
@@ -1163,13 +1291,15 @@ function vSettings(){
   ${S.cal.type==='greg'?'<p class="hint" style="margin-top:8px">依實際月份天數與閏年計算，年份可為任意數字。</p>':`<p class="hint" style="margin-top:8px">一行一個月，格式為「名稱 天數」，名稱可省略只填天數。不含閏年。</p><textarea data-cal="1" rows="8">${esc(monthsText)}</textarea>`}
   ${bad?`<p class="err">有 ${bad} 筆紀錄的日期在目前曆法中不存在，已在時間軸上標示。</p>`:''}</section>
   <section class="sec"><h2>備份與還原</h2>
-  <p class="hint">${DB.lastBackup?`上次備份：${new Date(DB.lastBackup).toLocaleString('zh-TW')}`:'尚未備份過。'}　備份包含所有故事與設定，建議存到 iCloud 雲碟。匯入時可以只挑選其中幾個故事。</p>
-  <div class="row"><button class="btn primary" data-act="exportData">匯出備份</button><button class="btn" data-act="pickFile">從檔案匯入</button></div>
-  ${ui.exportText?`<p class="small" style="margin-top:12px">此環境無法直接分享檔案，請複製以下內容另存為 .json 檔：</p><pre class="prev">${esc(ui.exportText.slice(0,800))}${ui.exportText.length>800?'\n…':''}</pre><div class="row" style="margin-top:8px"><button class="btn sm" data-act="copyExport">複製完整備份內容</button></div>`:''}
+  <p class="hint">這個故事上次備份：${storyBackupTime(S)?esc(new Date(storyBackupTime(S)).toLocaleString('zh-TW')):'尚未備份'}<br>全部故事上次一起備份：${DB.lastBackup?esc(new Date(DB.lastBackup).toLocaleString('zh-TW')):'尚未備份'}</p>
+  <div class="row"><button class="btn primary" data-act="exportData" data-scope="story">匯出這個故事</button><button class="btn" data-act="exportData" data-scope="all">匯出全部故事</button></div>
+  <div class="row" style="margin-top:8px"><button class="btn" data-act="pickFile">從檔案匯入</button></div>
+  <p class="small" style="margin-top:10px">兩種備份都可以匯入，匯入時可以只挑選其中幾個故事，其他故事不受影響。備份檔也附帶共用設定（指令範本、卡池等），只有選擇「全部取代」時才會套用。建議存到 iCloud 雲碟。</p>
+  ${ui.exportText?`<p class="small" style="margin-top:12px">${ui.exportScope==='all'?'全部故事':'這個故事'}的備份內容。此環境無法直接分享檔案，請複製以下內容另存為 .json 檔：</p><pre class="prev">${esc(ui.exportText.slice(0,800))}${ui.exportText.length>800?'\n…':''}</pre><div class="row" style="margin-top:8px"><button class="btn sm" data-act="copyExport">複製完整備份內容</button></div>`:''}
   <h3 class="sub">或貼上備份內容匯入</h3>
   <textarea data-ui="importText" rows="3" placeholder="貼上 .json 備份內容">${esc(ui.importText)}</textarea>
   <div class="row end" style="margin-top:8px"><button class="btn sm" data-act="importPaste">匯入</button></div></section>
-  ${DB.settings.tplNotice?`<section class="sec"><div class="notice" style="margin:0">整理指令有新版（加入關鍵台詞、持有物動作、秘密清單與當事人），但你修改過範本，所以沒有自動更新。<div class="row"><button class="btn sm primary" data-act="useNewTpl">改用新版</button><button class="btn sm ghost" data-act="keepTpl">保留我的版本</button></div></div></section>`:''}<section class="sec"><h2>整理指令範本</h2><p class="hint">保留 {起始日期}、{伏筆清單}、{角色名單}、{秘密清單} 四個標記，複製時會自動填入。</p>
+  ${DB.settings.tplNotice?`<section class="sec"><div class="notice" style="margin:0">整理指令有新版（加入純文字輸出要求、關鍵台詞、秘密清單等），但你修改過範本，所以沒有自動更新。<div class="row"><button class="btn sm primary" data-act="useNewTpl">改用新版</button><button class="btn sm ghost" data-act="keepTpl">保留我的版本</button></div></div></section>`:''}<section class="sec"><h2>整理指令範本</h2><p class="hint">保留 {起始日期}、{伏筆清單}、{角色名單}、{秘密清單} 四個標記，複製時會自動填入。</p>
   <textarea data-set="template" rows="10">${esc(DB.settings.template)}</textarea>
   <div class="row end" style="margin-top:8px"><button class="btn sm ghost" data-act="resetTemplate" data-k="template">還原預設</button></div></section>
   <section class="sec"><h2>格式轉換指令範本</h2><p class="hint">用於匯入過往事件。</p>
@@ -1260,7 +1390,14 @@ function newFsForm(prefill){
 
 /* ---------- import / export ---------- */
 function stamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`}
-function markBackup(){DB.lastBackup=new Date().toISOString();ui.justCommitted=null;save();render()}
+const safeName=n=>String(n||'').replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,30)||'未命名';
+function markBackup(ids){const now=new Date().toISOString();(ids||[]).forEach(id=>{if(DB.stories[id])DB.stories[id].lastBackup=now});if((ids||[]).length===Object.keys(DB.stories).length)DB.lastBackup=now;ui.justCommitted=null;save();render()}
+function storyBackupTime(st){return [st.lastBackup,DB.lastBackup].filter(Boolean).sort().pop()||null}
+function exportPayload(scope){
+  const now=new Date().toISOString();
+  if(scope==='all')return {json:JSON.stringify(Object.assign({},DB,{exportedAt:now,scope:'all'})),name:`對戲帳本_全部故事_${stamp()}.json`,ids:Object.keys(DB.stories)};
+  return {json:JSON.stringify({v:2,ready:true,active:S.id,stories:{[S.id]:S},settings:DB.settings,lastBackup:null,updatedAt:DB.updatedAt,exportedAt:now,scope:'story'}),name:`對戲帳本_${safeName(S.name)}_${stamp()}.json`,ids:[S.id]};
+}
 let pendingImport=null;
 function importJson(text){
   let raw;try{raw=JSON.parse(text)}catch(e){toast('無法讀取：內容不是有效的備份格式');return}
@@ -1288,7 +1425,7 @@ const ACT={
   togglePrompt:()=>{ui.showPrompt=!ui.showPrompt;render()},
   copyPrompt:()=>copy(fillPrompt(),ui.mode==='pro'?'已複製格式轉換指令':'已複製整理指令，貼到對戲 App 吧'),
   pasteClip:async()=>{try{const t=await navigator.clipboard.readText();if(!t){toast('剪貼簿是空的');return}ui.pasteText=t;render();toast('已貼上，請點「解析」')}catch(e){toast('無法讀取剪貼簿，請在文字框中長按貼上')}},
-  parse:()=>{if(!ui.pasteText.trim()){toast('請先貼上整理結果');return}ui.parsed=parseOutput(ui.pasteText,ui.mode);render()},
+  parse:()=>{if(!ui.pasteText.trim()){toast('請先貼上整理結果');return}ui.parsed=parseOutput(ui.pasteText,ui.mode);render();if(ui.parsed.fatal)toast('沒有讀出內容，請看校對區的說明')},
   pDel:d=>{ui.parsed[d.k].splice(+d.i,1);render()},
   cancelParse:()=>{ui.parsed=null;render()},
   commit:()=>{const p=ui.parsed;if(!p.events.length&&!p.foreshadows.length&&!p.states.length&&!p.conflicts.length&&!p.quotes.length){toast('沒有可寫入的內容');return}
@@ -1488,15 +1625,14 @@ const ACT={
     const s=blankStory(o.name.trim(),defaultCal(),p.date);DB.stories[s.id]=s;setTimeout(()=>{switchStory(s.id);toast('已建立新故事')},0);
   },'曆法預設為標準公曆，建立後可在設定中更改。'),
   delStory:()=>askConfirm(`刪除「${S.name}」？此動作無法復原。`,()=>{delete DB.stories[DB.active];switchStory(Object.keys(DB.stories)[0])},'刪除'),
-  exportData:async()=>{
-    const json=JSON.stringify(Object.assign({},DB,{exportedAt:new Date().toISOString()}));
-    const name=`對戲帳本_${stamp()}.json`;
+  exportData:async d=>{
+    const scope=d&&d.scope==='all'?'all':'story';const {json,name,ids}=exportPayload(scope);
     try{const file=new File([json],name,{type:'application/json'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});markBackup();toast('已匯出備份');return}
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});markBackup(ids);toast(scope==='all'?'已匯出全部故事':'已匯出這個故事');return}
     }catch(e){if(e&&e.name==='AbortError')return}
-    ui.exportText=json;ui.tab='settings';render();toast('請複製備份內容另存');
+    ui.exportText=json;ui.exportIds=ids;ui.exportScope=scope;ui.tab='settings';render();toast('請複製備份內容另存');
   },
-  copyExport:async()=>{if(await copy(ui.exportText,'已複製備份內容'))markBackup()},
+  copyExport:async()=>{if(await copy(ui.exportText,'已複製備份內容'))markBackup(ui.exportIds)},
   pickFile:()=>$('#fileIn').click(),
   copyRaw:()=>{let r='';try{r=localStorage.getItem(KEY)||localStorage.getItem(KEY+'-unreadable')||''}catch(e){}if(!r){toast('沒有可複製的資料');return}copy(r,'已複製原始資料，請貼到記事本保存')},
   importPaste:()=>{if(!ui.importText.trim()){toast('請先貼上備份內容');return}importJson(ui.importText)},
@@ -1544,6 +1680,7 @@ function boot(){
 }
 boot();
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+
 
 </script>
 </body>
