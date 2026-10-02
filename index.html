@@ -435,10 +435,8 @@ body.v2 .revrow input::-webkit-inner-spin-button,body.v2 .revrow input::-webkit-
 /* 頭像 */
 body.v2 .avatar{overflow:hidden}
 body.v2 .avatar svg{width:100%;height:100%;display:block}
-body.v2 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 body.v2 .avatar.av-auto:not(.other){background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 body.v2 .avopt .row .btn{flex:none;white-space:nowrap}
-body.v2 .avatar.av-img{background:var(--surface);border:0}
 body.v2 .avatar.av-txt{font-size:1.05rem}
 body.v2 .avatar.lg{width:56px;height:56px;font-size:1.4rem;clip-path:polygon(0 0,calc(100% - 15px) 0,100% 15px,100% 100%,0 100%)}
 body.v2 .avopts{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
@@ -486,7 +484,6 @@ body.v2 .toast{border-radius:0}
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
-<input type="file" id="avIn" accept="image/*" hidden>
 
 <script>
 
@@ -1088,7 +1085,7 @@ function cChar(c){
   }else{
     o.states=cArr(c.states).filter(isObj).map(x=>({cat:pickE(x.cat,CATS,'心境'),target:cStr(x.target),change:cStr(x.change),date:cDate(x.date),seg:cInt(x.seg)}));
   }
-  const av=cObj(c.av);if(av.t==='txt'&&cStr(av.v).trim())o.av={t:'txt',v:graphemes(cStr(av.v).trim()).slice(0,2).join('')};else if(av.t==='img'&&typeof av.v==='string'&&av.v.length<300000&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(av.v))o.av={t:'img',v:av.v};
+  const av=cObj(c.av);if(av.t==='txt'&&cStr(av.v).trim())o.av={t:'txt',v:graphemes(cStr(av.v).trim()).slice(0,2).join('')};
   return o;
 }
 function cStory(raw,id){
@@ -1209,9 +1206,7 @@ function avAuto(name){
   const MAP=[0,2,3,1,2,5,0,4];let sq=0;for(let i=0;i<4;i++){let k=MAP[(h>>>(i*3))&7];if(k===1&&sq++)k=2;if(i===3&&used<2&&!k)k=2+(h%4);if(k)used++;out+=cell(i,k)}
   return `<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="currentColor">${out}</g></svg>`;
 }
-function avInner(c){if(c.av&&c.av.t==='img')return `<img src="${esc(c.av.v)}" alt="">`;if(c.av&&c.av.t==='txt')return esc(c.av.v);return avAuto(c.name)}
-let avTarget=null;
-function shrinkImage(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const N=128,cv=document.createElement('canvas');cv.width=cv.height=N;const s=Math.min(im.width,im.height);cv.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,N,N);cb(cv.toDataURL('image/jpeg',.82))};im.onerror=()=>toast('無法讀取這張圖片');im.src=r.result};r.readAsDataURL(file)}
+function avInner(c){if(c.av&&c.av.t==='txt')return esc(c.av.v);return avAuto(c.name)}
 function newChar(name,type){return {id:uid(),name,type:type||'major',profile:{},cur:{single:{},rel:{},items:{'持有物':[],'知情':[]}},hist:[]}}
 function ensureChar(name,type){name=String(name||'').trim();if(!name)return null;let c=S.characters.find(c=>c.name===name);if(!c){c=newChar(name,type);S.characters.push(c)}return c}
 const LOSE_RE=/^(失去|遺失|交出|被奪|被奪走|丟失|用掉|消耗|移除|歸還)\s*[：:]?\s*/;
@@ -1787,7 +1782,6 @@ function importJson(text){
   <div class="row" style="margin-top:16px"><button class="btn sm danger" data-act="importReplaceAll">全部取代</button><span style="flex:1"></span><button class="btn ghost" data-act="closeSheet">取消</button><button class="btn primary" data-act="importMerge">匯入勾選的故事</button></div>`);
 }
 
-$('#avIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f||!avTarget)return;const id=avTarget;shrinkImage(f,url=>{const c=S.characters.find(x=>x.id===id);if(!c)return;c.av={t:'img',v:url};closeSheet();save();render();toast('已更新頭像')})});
 $('#fileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importJson(r.result);r.readAsText(f);e.target.value=''});
 
 /* ---------- actions ---------- */
@@ -1795,13 +1789,12 @@ function switchStory(id){DB.active=id;S=DB.stories[id];resetUi();save();render()
 const ACT={
   tab:d=>{ui.tab=d.tab;render();window.scrollTo(0,0)},
   revN:d=>{const n=Math.min(500,Math.max(1,(DB.settings.reviewN||20)+(+d.v)));DB.settings.reviewN=n;save();const el=$('#revN');if(el)el.value=n;const pv=$('pre.prev');if(pv&&ui.showPrompt)pv.textContent=fillPrompt()},
-  avPick:d=>{avTarget=d.id;$('#avIn').click()},
   avAuto:d=>{const c=S.characters.find(x=>x.id===d.id);if(!c)return;delete c.av;closeSheet();save();render();toast('已改用幾何圖形')},
   avText:d=>{const c=S.characters.find(x=>x.id===d.id);const v=graphemes(($('#avTxt')||{}).value||'').slice(0,2).join('');if(!c)return;if(!v){toast('請輸入一到兩個字或符號');return}c.av={t:'txt',v};closeSheet();save();render();toast('已更新頭像')},
   editAvatar:d=>{const c=S.characters.find(x=>x.id===d.id);if(!c)return;showSheet(`<h3>${esc(c.name)}的頭像</h3>
     <div class="avopts"><button class="avopt ${!c.av?'on':''}" data-act="avAuto" data-id="${c.id}"><span class="avatar lg ${c.type==='self'?'':'other'} av-auto">${avAuto(c.name)}</span><span><b>幾何圖形</b><small>依名稱自動產生，每個角色都不同</small></span></button>
     <div class="avopt ${c.av&&c.av.t==='txt'?'on':''}"><span class="avatar lg ${c.type==='self'?'':'other'} av-txt">${c.av&&c.av.t==='txt'?esc(c.av.v):esc(graphemes(c.name)[0]||'')}</span><span class="grow"><b>文字或符號</b><span class="row" style="margin-top:6px;flex-wrap:nowrap"><input type="text" id="avTxt" data-nofocus maxlength="8" placeholder="一到兩個字，可用表情符號" value="${c.av&&c.av.t==='txt'?esc(c.av.v):''}"><button class="btn sm" data-act="avText" data-id="${c.id}">套用</button></span></span></div>
-    <button class="avopt ${c.av&&c.av.t==='img'?'on':''}" data-act="avPick" data-id="${c.id}"><span class="avatar lg ${c.type==='self'?'':'other'}">${c.av&&c.av.t==='img'?`<img src="${esc(c.av.v)}" alt="">`:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="9" y="11" width="22" height="18" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 26l7-7 6 6 3-3 6 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'}</span><span><b>圖片</b><small>從相簿選擇，會裁成正方形並縮小儲存</small></span></button></div>
+</div>
     <div class="row end" style="margin-top:14px"><button class="btn ghost" data-act="closeSheet">關閉</button></div>`)},
   set:d=>{ui[d.k]=d.v;render()},
   setMode:d=>{ui.mode=d.v;ui.showPrompt=false;render()},
